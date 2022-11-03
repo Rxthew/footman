@@ -17,13 +17,14 @@ const password = process.env.PWORD;
 const sequelize = new Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
 
 
-(async ()=>{
+const checkAuthentication = async function(){
     await sequelize.authenticate().catch((error)=>{
-      console.error('NO',error)
+      console.error('Authentication has failed',error)
     })
     console.log('Authentication check complete')
-})()
+}
 
+checkAuthentication()
 
 const app = express();
 

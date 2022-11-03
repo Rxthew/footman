@@ -39,12 +39,13 @@ dotenv.config();
 const username = process.env.USERNAME;
 const password = process.env.PWORD;
 const sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
-(async () => {
+const checkAuthentication = async function () {
     await sequelize.authenticate().catch((error) => {
-        console.error('NO', error);
+        console.error('Authentication has failed', error);
     });
     console.log('Authentication check complete');
-})();
+};
+checkAuthentication();
 const app = (0, express_1.default)();
 // view engine setup
 app.set('views', path_1.default.join(__dirname, '../', 'views'));
