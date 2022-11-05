@@ -26,6 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.sequelize = void 0;
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
@@ -38,9 +39,9 @@ const sequelize_1 = require("sequelize");
 dotenv.config();
 const username = process.env.USERNAME;
 const password = process.env.PWORD;
-const sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
+exports.sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
 const checkAuthentication = async function () {
-    await sequelize.authenticate().catch((error) => {
+    await exports.sequelize.authenticate().catch((error) => {
         console.error('Authentication has failed', error);
     });
     console.log('Authentication check complete');
