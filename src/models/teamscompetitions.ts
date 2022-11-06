@@ -1,10 +1,18 @@
-import { DataTypes} from "sequelize";
+import { DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
 import { sequelize } from "../app";
 import Competition from "./competition";
 import Team  from "./team";
 
 
-const TeamsCompetitions = sequelize.define('TeamsCompetitions',{
+interface TeamsCompetitionsModel extends Model<InferAttributes<TeamsCompetitionsModel>,InferCreationAttributes<TeamsCompetitionsModel>>{
+    id: string,
+    team_id: string,
+    competition_id: string,
+    points: number | null,
+    season: string
+}
+
+const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompetitions',{
     id: {
         type: DataTypes.UUID,
         primaryKey: true,

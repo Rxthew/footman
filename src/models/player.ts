@@ -1,9 +1,9 @@
-import { CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
+import { DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
 import { sequelize } from "../app";
 import Team from "./team";
 
 interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAttributes<PlayerModel>>{
-    id: CreationOptional<string>,
+    id: string,
     name: string,
     age: number | null,
     position: string | null,
