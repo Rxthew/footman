@@ -20,6 +20,8 @@ const Team = sequelize.define<TeamModel>('Team',{
         allowNull: false
     },
     
+}, {
+    tableName: 'Teams'
 })
 
 

@@ -63,6 +63,8 @@ const Player = sequelize.define<PlayerModel>('Player',{
         type: DataTypes.INTEGER
     },  
     
+}, {
+    tableName: 'Players'
 })
 
 Player.belongsTo(Team)

@@ -19,6 +19,8 @@ const Competition = sequelize.define<CompetitionModel>('Competition',{
         allowNull: false
     },
     
+}, {
+    tableName: 'Competitions'
 })
 
 

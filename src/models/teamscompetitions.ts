@@ -43,6 +43,8 @@ const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompeti
            
     }
 
+}, {
+    tableName: 'Competition_Table'
 })
 
 
