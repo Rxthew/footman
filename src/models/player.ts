@@ -1,10 +1,12 @@
-import { DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
+import { DataTypes, BelongsToGetAssociationMixin, InferAttributes, InferCreationAttributes, Model} from "sequelize";
 import { sequelize } from "../app";
 import Team from "./team";
 
 interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAttributes<PlayerModel>>{
     id: string,
-    name: string,
+    firstName: string,
+    lastName: string,
+    nationality: string,
     age: number | null,
     position: string | null,
     goals: number | null,
@@ -16,6 +18,7 @@ interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAt
     goalkeeping: number | null,
     intelligence: number | null,
     technique: number | null
+    getTeam: BelongsToGetAssociationMixin<typeof Team>
 }
 
 const Player = sequelize.define<PlayerModel>('Player',{
@@ -25,7 +28,15 @@ const Player = sequelize.define<PlayerModel>('Player',{
         allowNull: false
         
     },
-    name: {
+    firstName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    lastName: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    nationality: {
         type: DataTypes.STRING,
         allowNull: false
     },
