@@ -5,7 +5,7 @@ import { sequelize } from '../app'
 export interface seePlayerResults {
     firstName: string,
     lastName: string,
-    nationality: string,
+    nationality: string, 
     teamName: string
     age?: number,
     position?: string,
@@ -21,13 +21,14 @@ export interface seePlayerResults {
 
 }
 
-export const attributesPlaceholders = {
+export let attributesPlaceholders = {
     seePlayer : {
         firstName: '',
         lastName: '',
         nationality: '',
     }
 }
+
 
 export const renderers = {
     seePlayer: function(res:Response, results: seePlayerResults){
