@@ -1,5 +1,4 @@
 import cookieParser from 'cookie-parser';
-import * as dotenv from 'dotenv';
 import express from 'express';
 import { Request, Response, NextFunction } from 'express';
 import createError from 'http-errors';
@@ -8,23 +7,6 @@ import logger from 'morgan';
 import path from 'path';
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
-import { Sequelize } from 'sequelize'
-
-dotenv.config()
-const username = process.env.USERNAME;
-const password = process.env.PWORD;
-
-export const sequelize = new Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
-
-
-const checkAuthentication = async function(){
-    await sequelize.authenticate().catch((error)=>{
-      console.error('Authentication has failed',error)
-    })
-    console.log('Authentication check complete')
-}
-
-checkAuthentication()
 
 const app = express();
 
@@ -57,4 +39,4 @@ app.use(function(err: HttpError, req: Request, res: Response, next: NextFunction
   res.render('error');
 });
 
-module.exports = app;
+export default app;

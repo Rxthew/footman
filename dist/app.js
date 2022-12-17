@@ -1,52 +1,15 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.sequelize = void 0;
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
-const dotenv = __importStar(require("dotenv"));
 const express_1 = __importDefault(require("express"));
 const http_errors_1 = __importDefault(require("http-errors"));
 const morgan_1 = __importDefault(require("morgan"));
 const path_1 = __importDefault(require("path"));
 const index_1 = __importDefault(require("./routes/index"));
 const users_1 = __importDefault(require("./routes/users"));
-const sequelize_1 = require("sequelize");
-dotenv.config();
-const username = process.env.USERNAME;
-const password = process.env.PWORD;
-exports.sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`);
-const checkAuthentication = async function () {
-    await exports.sequelize.authenticate().catch((error) => {
-        console.error('Authentication has failed', error);
-    });
-    console.log('Authentication check complete');
-};
-checkAuthentication();
 const app = (0, express_1.default)();
 // view engine setup
 app.set('views', path_1.default.join(__dirname, '../', 'views'));
@@ -71,4 +34,4 @@ app.use(function (err, req, res, next) {
     res.status(err.status || 500);
     res.render('error');
 });
-module.exports = app;
+exports.default = app;
