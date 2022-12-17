@@ -1,9 +1,11 @@
-import { DataTypes, BelongsToGetAssociationMixin, InferAttributes, InferCreationAttributes, Model} from "sequelize";
-import { sequelize } from "../app";
+import { DataTypes, BelongsToGetAssociationMixin, InferAttributes, InferCreationAttributes, Model, Sequelize} from "sequelize";
+import { sequelize } from "./concerns/initdb";
 import Team from "./team";
+import { TeamModel } from "./team";
 
-interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAttributes<PlayerModel>>{
-    id: string,
+
+export interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAttributes<PlayerModel>>{
+    id: string | undefined,
     firstName: string,
     lastName: string,
     nationality: string,
@@ -17,15 +19,20 @@ interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAt
     defense: number | null,
     goalkeeping: number | null,
     intelligence: number | null,
-    technique: number | null
-    getTeam: BelongsToGetAssociationMixin<typeof Team>
+    technique: number | null,
+    team?: {
+        name: string,
+        competitions: {name: string}[]
+    }
+    
+    getTeam: BelongsToGetAssociationMixin<TeamModel>
 }
 
-const Player = sequelize.define<PlayerModel>('Player',{
+const Player = sequelize.define<PlayerModel>('player',{
     id: {
         type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        allowNull: false
         
     },
     firstName: {
@@ -75,9 +82,9 @@ const Player = sequelize.define<PlayerModel>('Player',{
     },  
     
 }, {
-    tableName: 'Players'
+    tableName: 'players'
 })
 
-Player.belongsTo(Team)
 
 export default Player
+

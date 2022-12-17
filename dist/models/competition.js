@@ -1,22 +1,18 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
-const app_1 = require("../app");
-const team_1 = __importDefault(require("./team"));
-const teamscompetitions_1 = __importDefault(require("./teamscompetitions"));
-const Competition = app_1.sequelize.define('Competition', {
+const initdb_1 = require("./concerns/initdb");
+const Competition = initdb_1.sequelize.define('competition', {
     id: {
         type: sequelize_1.DataTypes.UUID,
+        defaultValue: sequelize_1.DataTypes.UUIDV4,
         primaryKey: true,
-        allowNull: false
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+}, {
+    tableName: 'competitions'
 });
-Competition.belongsToMany(team_1.default, { through: teamscompetitions_1.default });
 exports.default = Competition;

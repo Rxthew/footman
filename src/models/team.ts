@@ -1,19 +1,23 @@
-import { DataTypes, InferAttributes,InferCreationAttributes,Model} from "sequelize";
-import { sequelize } from "../app";
-import  Competition  from "./competition";
-import TeamsCompetitions  from "./teamscompetitions";
-import  Player  from "./player";
 
-interface TeamModel extends Model<InferAttributes<TeamModel>,InferCreationAttributes<TeamModel>>{
-    id: string,
+import { DataTypes, InferAttributes,InferCreationAttributes,Model} from "sequelize";
+import { sequelize  } from "./concerns/initdb";
+import { CompetitionModel } from "./competition";
+import { PlayerModel } from "./player";
+
+
+export interface TeamModel extends Model<InferAttributes<TeamModel>,InferCreationAttributes<TeamModel>>{
+    id?: string,
     name: string,
+    competitions?: CompetitionModel[],
+    players?: PlayerModel[]
+    
 }
 
-const Team = sequelize.define<TeamModel>('Team',{
+const Team = sequelize.define<TeamModel>('team',{
     id: {
         type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        allowNull: false
     },
     name: {
         type: DataTypes.STRING,
@@ -21,11 +25,9 @@ const Team = sequelize.define<TeamModel>('Team',{
     },
     
 }, {
-    tableName: 'Teams'
+    tableName: 'teams'
 })
 
 
-Team.hasMany(Player)
-Team.belongsToMany(Competition,{through: TeamsCompetitions})
-
 export default Team
+

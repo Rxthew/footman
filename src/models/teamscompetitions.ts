@@ -1,51 +1,51 @@
 import { DataTypes, InferAttributes, InferCreationAttributes, Model} from "sequelize";
-import { sequelize } from "../app";
+import { sequelize } from "./concerns/initdb";
 import Competition from "./competition";
 import Team  from "./team";
 
 
 interface TeamsCompetitionsModel extends Model<InferAttributes<TeamsCompetitionsModel>,InferCreationAttributes<TeamsCompetitionsModel>>{
     id: string,
-    team_id: string,
-    competition_id: string,
+    teamId: string,
+    competitionId: string,
     points: number | null,
     season: string
 }
 
+
 const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompetitions',{
     id: {
         type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
-        allowNull: false
     },
-    team_id: {
+    teamId: {
         type: DataTypes.UUID,
         references: {
             model: Team,
             key: 'id'
         },
-        allowNull: false        
+                
     },
-    competition_id: {
+    competitionId: {
         type: DataTypes.UUID,
         references: {
             model: Competition,
             key: 'id'
-        },
-        allowNull: false        
+        },        
     },
     points: {
         type: DataTypes.INTEGER
     },
     season: {
         type: DataTypes.STRING,
-        allowNull: false
            
     }
 
 }, {
-    tableName: 'Competition_Table'
+    tableName: 'competitions_table'
 })
 
 
 export default TeamsCompetitions
+
