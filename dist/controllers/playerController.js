@@ -28,7 +28,7 @@ const seePlayerCb = async function (t) {
             },
             transaction: t
         });
-        const team = await (player === null || player === void 0 ? void 0 : player.getTeam());
+        const team = await player?.getTeam();
         return {
             player,
             team

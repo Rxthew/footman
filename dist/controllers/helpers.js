@@ -36,13 +36,12 @@ const syncAttributes = function () {
         return value === '' || value === undefined ? throwError() : null;
     };
     const _assessRequestParameters = function (req, next, placeholderProperty) {
-        var _a;
         try {
             if (Object.prototype.hasOwnProperty.call(exports.attributesPlaceholders, placeholderProperty)) {
                 let attributes = Object.assign({}, exports.attributesPlaceholders[placeholderProperty]);
                 for (let name of Object.keys(attributes)) {
                     attributes[name] = req.params[name] ? req.params[name] : '';
-                    _emptyStringHandler((_a = attributes[name]) === null || _a === void 0 ? void 0 : _a.toString());
+                    _emptyStringHandler(attributes[name]?.toString());
                 }
                 Object.assign(exports.attributesPlaceholders, { [placeholderProperty]: attributes });
             }
