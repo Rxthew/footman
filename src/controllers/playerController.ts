@@ -1,12 +1,17 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, renderers, synchroniseAttributes, transactionWrapper } from './helpers';
-import Player from '../models/player';
+import { attributesPlaceholders, renderers, seePlayerResults, syncAttributes, transactionWrapper } from './helpers';
+import  Player from '../models/player';
 import { Transaction } from 'sequelize';
+import '../models/concerns/_runModels';
 
-let seePlayerAttributes = attributesPlaceholders.seePlayer
+
+
+let seePlayerAttributes = function(){
+      return attributesPlaceholders.seePlayer
+}
 const seePlayerRenderer = renderers.seePlayer
-let seePlayerResults = {
+let seePlayerResults: seePlayerResults = {
       firstName: '',
       lastName: '',
       nationality: '',
@@ -15,13 +20,14 @@ let seePlayerResults = {
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
-
+      
       const seePlayerQuery = async function(){
+            const attributes = seePlayerAttributes()
             const player = await Player.findOne({
                   where: {
-                        firstName: seePlayerAttributes.firstName,
-                        lastName: seePlayerAttributes.lastName,
-                        nationality: seePlayerAttributes.nationality
+                        firstName: attributes.firstName,
+                        lastName: attributes.lastName,
+                        nationality: attributes.nationality
                   },
                   transaction: t
                   });
@@ -32,13 +38,11 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
             }
 
       }
-
       const results = await seePlayerQuery()
       
       const populateSeePlayerResults = function(){
-            if(results.player && results.team){
-                  Object.assign(seePlayerResults, results.player, {teamName : results.team.name})
-                  
+            if(results.player && results.team ){ 
+                  Object.assign(seePlayerResults, results.player.get(), {teamName: results.team.getDataValue('name')});                  
             }
             else{
                   const err = new Error('Query returned invalid data.')
@@ -60,9 +64,9 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
 
 export const seePlayer = async function(req: Request, res: Response, next: NextFunction){
 
-      const nominalAttributes = synchroniseAttributes()
-      nominalAttributes.getSeePlayerAttributes(req,next)
-
+      const attributes = syncAttributes()
+      attributes.getSeePlayerAttributes(req,next)
+      
       await transactionWrapper(seePlayerCb)
       seePlayerRenderer(res,seePlayerResults)
       
