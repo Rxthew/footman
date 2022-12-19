@@ -5,7 +5,19 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1> I am <%= name %></h1>
-    <p>I play for <%= teamName %> and I  am <%= nationality %></p>
+    <h1> <%= name %></h1>
+    <p> Team: <%= teamName %></p>
+    <p> Nationality: <%= nationality %></p>
+    <p> Position: <%= position ? position : 'unknown' %></p>
+    <p> Age: <%= age ? age : 'unknown' %></p>
+    <p> Goals: <%= goals ? goals : 'unknown' %></p>
+    <p> Assists: <%= assists ? assists : 'unknown' %></p>
+    <p> Speed: <%= speed ? speed : 'unknown' %></p>
+    <p> Strength: <%= strength ? strength : 'unknown' %></p>
+    <p> Attack: <%= attack ? attack : 'unknown' %></p>
+    <p> Defense: <%= defense ? defense : 'unknown' %></p>
+    <p> Goalkeeping: <%= goalkeeping ? goalkeeping : 'unknown' %></p>
+    <p> Intelligence: <%= intelligence ? intelligence : 'unknown' %></p>
+    <p> Technique: <%= technique ? technique : 'unknown' %></p>
   </body>
 </html>
