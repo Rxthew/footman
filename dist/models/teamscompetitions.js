@@ -32,6 +32,7 @@ const TeamsCompetitions = initdb_1.sequelize.define('TeamsCompetitions', {
     },
     season: {
         type: sequelize_1.DataTypes.STRING,
+        allowNull: false
     }
 }, {
     tableName: 'competitions_table'

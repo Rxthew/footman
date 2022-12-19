@@ -39,6 +39,7 @@ const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompeti
     },
     season: {
         type: DataTypes.STRING,
+        allowNull: false
            
     }
 
