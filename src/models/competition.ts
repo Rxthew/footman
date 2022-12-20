@@ -7,6 +7,7 @@ export interface CompetitionModel extends Model<InferAttributes<CompetitionModel
     id: string | undefined,
     name: string,
     teams?: TeamModel[];
+    code: number
 }
 
 const Competition = sequelize.define<CompetitionModel>('competition',{
@@ -19,6 +20,11 @@ const Competition = sequelize.define<CompetitionModel>('competition',{
         type: DataTypes.STRING,
         allowNull: false
     },
+    code: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    }
     
 }, {
     tableName: 'competitions'

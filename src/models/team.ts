@@ -10,6 +10,7 @@ export interface TeamModel extends Model<InferAttributes<TeamModel>,InferCreatio
     name: string,
     competitions?: CompetitionModel[],
     players?: PlayerModel[]
+    code: number
     
 }
 
@@ -23,6 +24,11 @@ const Team = sequelize.define<TeamModel>('team',{
         type: DataTypes.STRING,
         allowNull: false
     },
+    code: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    }
     
 }, {
     tableName: 'teams'

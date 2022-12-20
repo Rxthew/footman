@@ -18,7 +18,7 @@ let seeTeamResults: seeTeamResults = {
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
-      const seeTeamQuery = async function(){
+      const seeTeamQuery = async function(){ 
             const attributes = seeTeamAttributes()
             const team = await Team.findOne({
                   where: {

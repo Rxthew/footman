@@ -20,6 +20,7 @@ export interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCre
     goalkeeping: number | null,
     intelligence: number | null,
     technique: number | null,
+    code: number
     team?: {
         name: string,
         competitions: {name: string}[]
@@ -79,7 +80,12 @@ const Player = sequelize.define<PlayerModel>('player',{
     },
     technique: {
         type: DataTypes.INTEGER
-    },  
+    },
+    code: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    }  
     
 }, {
     tableName: 'players'
