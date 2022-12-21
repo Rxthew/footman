@@ -7,6 +7,7 @@ import '../models/concerns/_runModels';
 
 
 
+
 const seeTeamAttributes = function(){
       return attributesPlaceholders.seeTeam
 }
@@ -22,16 +23,17 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
             const attributes = seeTeamAttributes()
             const team = await Team.findOne({
                   where: {
-                        name: attributes.name
+                        name: attributes.name,
+                        code: attributes.code
                   },
                   transaction: t
                   });
-            const players = await (team as any)?.getPlayers()
-            const competitions = await (team as any)?.getCompetitions()
+            const players = await (team as any)?.getPlayers() 
+            const competitions = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']})
             return {
                   team,
                   players,
-                  competitions
+                  competitions,
             }
 
       }
