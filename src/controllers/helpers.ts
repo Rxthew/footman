@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
+import { rmSync } from 'fs'
 import { Transaction } from 'sequelize'
 import { CompetitionModel } from '../models/competition'
 import { sequelize } from '../models/concerns/initdb'
 import { PlayerModel } from '../models/player'
+import { TeamModel } from '../models/team'
 
 
 
@@ -34,6 +36,12 @@ export interface seeTeamResults {
     code?: number
 }
 
+export interface seeCompetitionResults {
+    name: string,
+    teams?: TeamModel[],
+    code?: number
+}
+
 
 interface attributePlaceholderType {
     seePlayer : {
@@ -43,6 +51,11 @@ interface attributePlaceholderType {
         [index: string] : string | number | undefined 
     },
     seeTeam: {
+        name: string,
+        code?: number,
+        [index: string] : string | number | undefined 
+    }
+    seeCompetition: {
         name: string,
         code?: number,
         [index: string] : string | number | undefined 
@@ -58,6 +71,10 @@ export let attributesPlaceholders: attributePlaceholderType = {
         
     },
     seeTeam: {
+        name: '',
+        code: undefined
+    },
+    seeCompetition: {
         name: '',
         code: undefined
     }
@@ -96,6 +113,13 @@ export const renderers = {
 
            })
 
+    },
+
+    seeCompetition: function(res:Response, results: seeCompetitionResults){
+        res.render('seeCompetition',{
+            name: results.name,
+            teams: results.teams
+        })
     }
 }
 
@@ -132,6 +156,10 @@ export const syncAttributes = function(){
         },
         getSeeTeamAttributes: function(req: Request, next:NextFunction): void{
             _assessRequestParameters(req, next, 'seeTeam')
+        },
+        getSeeCompetitionAttributes: function(req: Request, next: NextFunction): void{
+            _assessRequestParameters(req,next,'seeCompetition')
+
         }
     }
     

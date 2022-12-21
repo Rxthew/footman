@@ -6,8 +6,6 @@ import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
 
 
-
-
 const seeTeamAttributes = function(){
       return attributesPlaceholders.seeTeam
 }
@@ -15,7 +13,6 @@ const seeTeamRenderer = renderers.seeTeam
 let seeTeamResults: seeTeamResults = {
       name: ''
 }
-
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
