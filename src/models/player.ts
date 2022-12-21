@@ -1,16 +1,15 @@
-import { DataTypes, BelongsToGetAssociationMixin, InferAttributes, InferCreationAttributes, Model, Sequelize} from "sequelize";
+import { DataTypes, BelongsToGetAssociationMixin, InferAttributes, InferCreationAttributes, Model} from "sequelize";
 import { sequelize } from "./concerns/initdb";
-import Team from "./team";
 import { TeamModel } from "./team";
 
 
 export interface PlayerModel extends Model<InferAttributes<PlayerModel>,InferCreationAttributes<PlayerModel>>{
-    id: string | undefined,
+    id?: string,
     firstName: string,
     lastName: string,
     nationality: string,
-    age: number | null,
-    position: string | null,
+    age: number,
+    position: string,
     goals: number | null,
     assists: number | null,
     speed: number | null,
@@ -49,10 +48,12 @@ const Player = sequelize.define<PlayerModel>('player',{
         allowNull: false
     },
     age: {
-        type: DataTypes.INTEGER
+        type: DataTypes.INTEGER,
+        allowNull: false
     },
     position: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false
     },
     goals: {
         type: DataTypes.INTEGER
