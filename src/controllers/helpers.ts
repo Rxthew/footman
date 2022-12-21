@@ -22,6 +22,7 @@ export interface seePlayerResults {
     goalkeeping?: number,
     intelligence?: number,
     technique?: number,
+    code?: number
     
 
 }
@@ -30,6 +31,7 @@ export interface seeTeamResults {
     name: string
     players?: PlayerModel[]
     competitions?: CompetitionModel[]
+    code?: number
 }
 
 
@@ -37,11 +39,12 @@ interface attributePlaceholderType {
     seePlayer : {
         firstName: string,
         lastName: string,
-        nationality: string
+        code?: number
         [index: string] : string | number | undefined 
     },
     seeTeam: {
         name: string,
+        code?: number,
         [index: string] : string | number | undefined 
     }
    
@@ -51,11 +54,12 @@ export let attributesPlaceholders: attributePlaceholderType = {
     seePlayer : {
         firstName: '',
         lastName: '',
-        nationality: ''
+        code: undefined
         
     },
     seeTeam: {
-        name: ''
+        name: '',
+        code: undefined
     }
 
 }
@@ -97,8 +101,8 @@ export const renderers = {
 
 export const syncAttributes = function(){
 
-    const _emptyStringHandler = function(value: string | undefined): Error | null{
-        const error = new Error('Something went wrong when fetching the details.');
+    const _emptyResultHandler = function(value: string | number | undefined): Error | null{
+        const error = new Error('Something went wrong when fetching the requested details.');
         const throwError = () => { throw error }
         return value === '' || value === undefined ? throwError() : null
     }
@@ -108,8 +112,8 @@ export const syncAttributes = function(){
             if(Object.prototype.hasOwnProperty.call(attributesPlaceholders, placeholderProperty)){           
                 let attributes: attributePlaceholderType[placeholderKey] = Object.assign({},attributesPlaceholders[placeholderProperty ])                     
                 for(let name of Object.keys(attributes)){
-                    attributes[name] = req.params[name] ? req.params[name] : ''
-                    _emptyStringHandler(attributes[name]?.toString())                       
+                    attributes[name] = req.params[name] ? req.params[name] : attributes[name]
+                    _emptyResultHandler(typeof attributes[name] === undefined ? attributes[name] : attributes[name]?.toString())                       
                 }
                 Object.assign(attributesPlaceholders, {[placeholderProperty]: attributes})
             }
