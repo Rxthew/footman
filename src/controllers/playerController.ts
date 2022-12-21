@@ -14,8 +14,7 @@ const seePlayerRenderer = renderers.seePlayer
 let seePlayerResults: seePlayerResults = {
       firstName: '',
       lastName: '',
-      nationality: '',
-      teamName: ''
+      code: undefined
 }
 
 
@@ -27,7 +26,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
                   where: {
                         firstName: attributes.firstName,
                         lastName: attributes.lastName,
-                        nationality: attributes.nationality
+                        code: attributes.code
                   },
                   transaction: t
                   });
