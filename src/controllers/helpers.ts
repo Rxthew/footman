@@ -9,8 +9,8 @@ import { PlayerModel } from '../models/player'
 export interface seePlayerResults {
     firstName: string,
     lastName: string,
-    nationality: string, 
-    teamName: string,
+    nationality?: string, 
+    teamName?: string,
     age?: number,
     position?: string,
     goals?: number,
