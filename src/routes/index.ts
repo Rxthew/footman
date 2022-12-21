@@ -8,7 +8,7 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/player/:firstName.:lastName.:nationality', seePlayer);
+router.get('/player/:firstName_:lastName_:code', seePlayer);
 
 
 
