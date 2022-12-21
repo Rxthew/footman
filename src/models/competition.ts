@@ -6,8 +6,9 @@ import { TeamModel } from "./team";
 export interface CompetitionModel extends Model<InferAttributes<CompetitionModel>,InferCreationAttributes<CompetitionModel>>{
     id: string | undefined,
     name: string,
+    code: number,
     teams?: TeamModel[];
-    code: number
+    
 }
 
 const Competition = sequelize.define<CompetitionModel>('competition',{
@@ -24,7 +25,8 @@ const Competition = sequelize.define<CompetitionModel>('competition',{
         type: DataTypes.INTEGER,
         autoIncrement: true,
         allowNull: false
-    }
+    },
+   
     
 }, {
     tableName: 'competitions'

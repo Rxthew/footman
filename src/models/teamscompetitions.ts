@@ -9,6 +9,7 @@ interface TeamsCompetitionsModel extends Model<InferAttributes<TeamsCompetitions
     teamId: string,
     competitionId: string,
     points: number | null,
+    ranking: number | null
     season: string
 }
 
@@ -24,8 +25,7 @@ const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompeti
         references: {
             model: Team,
             key: 'id'
-        },
-                
+        },            
     },
     competitionId: {
         type: DataTypes.UUID,
@@ -33,8 +33,11 @@ const TeamsCompetitions = sequelize.define<TeamsCompetitionsModel>('TeamsCompeti
             model: Competition,
             key: 'id'
         },        
-    },
+    }, 
     points: {
+        type: DataTypes.INTEGER
+    },
+    ranking: {
         type: DataTypes.INTEGER
     },
     season: {
