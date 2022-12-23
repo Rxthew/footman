@@ -1,21 +1,34 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, renderers, seePlayerResults, syncAttributes, transactionWrapper } from './helpers';
+import { attributesPlaceholders, preFormCreatePlayerResults, renderers, seePlayerResults, syncAttributes, transactionWrapper } from './helpers';
 import  Player from '../models/player';
-import { Transaction } from 'sequelize';
+import { Transaction } from 'sequelize'
+import  Team  from '../models/team';
 import '../models/concerns/_runModels';
+import Competition from '../models/competition';
 
 
 
 let seePlayerAttributes = function(){
       return attributesPlaceholders.seePlayer
-}
-const seePlayerRenderer = renderers.seePlayer
+};
+
+
+
+const seePlayerRenderer = renderers.seePlayer;
+const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer
+
+
 let seePlayerResults: seePlayerResults = {
       firstName: '',
       lastName: '',
       code: undefined
-}
+};
+let preFormCreatePlayerResults: preFormCreatePlayerResults = {
+      teams: [],
+      seasons: []
+
+};
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
@@ -61,15 +74,80 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
     
   };
 
-export const seePlayer = async function(req: Request, res: Response, next: NextFunction){
+export const seePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      const attributes = syncAttributes()
-      attributes.getSeePlayerAttributes(req,next)
+      const attributes = syncAttributes();
+      attributes.getSeePlayerAttributes(req,next);
       
-      await transactionWrapper(seePlayerCb)
-      seePlayerRenderer(res,seePlayerResults)
+      await transactionWrapper(seePlayerCb);
+      seePlayerRenderer(res,seePlayerResults);
       
       return 
+}
+
+
+const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
+
+      const getAllTeams = async function(){
+            const teams = await Team.findAll({
+                  include: [{
+                        model: Competition,
+                        through: {
+                              attributes: ['season']
+                        }
+                  }],
+                  transaction: t
+            })
+            return teams
+      }
+
+      const results = await getAllTeams()
+
+      const getAllTeamNames = async function(){
+            const names = results.filter(team => team.getDataValue('name'))
+            const uniqueNames = Array.from(new Set(names))
+            return uniqueNames
+      }
+
+      const getAllSeasons = async function(){
+            const competitions = results.filter(team => team.competitions).flat() 
+            const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].season) 
+            const uniqueSeasons = Array.from(new Set(seasons))
+            return uniqueSeasons
+      }
+      
+
+      const populatePreFormCreatePlayer = function(){
+            if(results){
+                  const teams = getAllTeamNames();
+                  const seasons = getAllSeasons(); 
+                  Object.assign(preFormCreatePlayerResults, teams, seasons);                  
+            }
+            else{
+                  const err = new Error('Query returned invalid data.')
+                  throw err
+
+            }
+      }
+
+      try {
+           populatePreFormCreatePlayer()
+      }
+      catch(err){
+            console.log(err)
+      }
+ 
+      return  
+}
+
+
+export const preFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+      
+      await transactionWrapper(preFormCreatePlayerCb);
+      preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
+
+      return
+
 }
 
 

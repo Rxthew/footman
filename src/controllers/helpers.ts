@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express'
-import { rmSync } from 'fs'
 import { Transaction } from 'sequelize'
 import { CompetitionModel } from '../models/competition'
 import { sequelize } from '../models/concerns/initdb'
@@ -42,6 +41,11 @@ export interface seeCompetitionResults {
     code?: number
 }
 
+export interface preFormCreatePlayerResults {
+    teams: string[],
+    seasons: string[]
+}
+
 
 interface attributePlaceholderType {
     seePlayer : {
@@ -54,12 +58,13 @@ interface attributePlaceholderType {
         name: string,
         code?: number,
         [index: string] : string | number | undefined 
-    }
+    },
     seeCompetition: {
         name: string,
         code?: number,
         [index: string] : string | number | undefined 
-    }
+    },
+    
    
 }
 
@@ -77,7 +82,7 @@ export let attributesPlaceholders: attributePlaceholderType = {
     seeCompetition: {
         name: '',
         code: undefined
-    }
+    },
 
 }
 
@@ -119,6 +124,14 @@ export const renderers = {
         res.render('seeCompetition',{
             name: results.name,
             teams: results.teams
+        })
+    },
+
+    preFormCreatePlayer: function(res: Response, results: preFormCreatePlayerResults){
+        res.render('createPlayer', {
+            teams: results.teams,
+            seasons: results.seasons
+
         })
     }
 }
