@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { body } from 'express-validator'
 import { Transaction } from 'sequelize'
 import { CompetitionModel } from '../models/competition'
 import { sequelize } from '../models/concerns/initdb'
@@ -43,7 +44,8 @@ export interface seeCompetitionResults {
 
 export interface preFormCreatePlayerResults {
     teams: string[],
-    seasons: string[]
+    seasons: string[],
+    errors: string[]
 }
 
 
@@ -83,6 +85,7 @@ export let attributesPlaceholders: attributePlaceholderType = {
         name: '',
         code: undefined
     },
+    
 
 }
 
@@ -134,6 +137,39 @@ export const renderers = {
 
         })
     }
+}
+
+export const validators = function(){
+
+    const _sanitiseString = function(stringsArray: string[]){
+        stringsArray.forEach(val => 
+            body(val, `${val} must not be empty.`)
+            .trim()
+            .isLength({min: 2})
+            .escape()
+        )
+    }
+
+    const _alphabeticalOnly = function(stringsArray: string[]){
+        stringsArray.forEach(val => 
+            body(val)
+            .isAlpha()
+            .withMessage(`${val} must be alphabetical characters only.`)
+        )
+        
+    }
+
+
+    return {
+        postFormCreatePlayer: () => {
+            const requiredValues = ['First name', 'Last name', 'Age', 'Nationality', 'Position']
+            _sanitiseString(requiredValues);
+            _alphabeticalOnly(['First name', 'Last name']);
+
+        }
+
+    }
+
 }
 
 export const syncAttributes = function(){
