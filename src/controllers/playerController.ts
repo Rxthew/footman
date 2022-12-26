@@ -1,6 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, preFormCreatePlayerResults, renderers, seePlayerResults, syncAttributes, transactionWrapper } from './helpers';
+import { validationResult } from 'express-validator';
+import { attributesPlaceholders, preFormCreatePlayerResults, renderers, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -16,7 +17,11 @@ let seePlayerAttributes = function(){
 
 
 const seePlayerRenderer = renderers.seePlayer;
-const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer
+const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
+const postFormCreatePlayerRenderer = renderers.postFormCreatePlayer;
+
+const createPlayerValidator = validators().postFormCreatePlayer;
+
 
 
 let seePlayerResults: seePlayerResults = {
@@ -26,9 +31,10 @@ let seePlayerResults: seePlayerResults = {
 };
 let preFormCreatePlayerResults: preFormCreatePlayerResults = {
       teams: [],
-      seasons: []
-
+      seasons: [],
+      errors: {}
 };
+//let postForm..c&..c
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
@@ -121,7 +127,7 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
             if(results){
                   const teams = getAllTeamNames();
                   const seasons = getAllSeasons(); 
-                  Object.assign(preFormCreatePlayerResults, teams, seasons);                  
+                  Object.assign(preFormCreatePlayerResults, teams, seasons);                 
             }
             else{
                   const err = new Error('Query returned invalid data.')
@@ -148,6 +154,26 @@ export const preFormCreatePlayer = async function(req: Request, res: Response, n
 
       return
 
+}
+
+
+const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
+      
+
+
+}
+
+export const postFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction){      
+      createPlayerValidator();
+      const errors = validationResult(req);
+      if(!errors.isEmpty()){
+            Object.assign(preFormCreatePlayerResults, errors.mapped())
+            preFormCreatePlayerRenderer(res, preFormCreatePlayerResults)
+      }
+      else{
+            await transactionWrapper(postFormCreatePlayerCb)
+            //res.redirect with values from submitted form.
+      }
 }
 
 
