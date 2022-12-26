@@ -45,7 +45,7 @@ export interface seeCompetitionResults {
 export interface preFormCreatePlayerResults {
     teams: string[],
     seasons: string[],
-    errors: string[]
+    errors: {[index:string]: string}
 }
 
 
@@ -133,7 +133,8 @@ export const renderers = {
     preFormCreatePlayer: function(res: Response, results: preFormCreatePlayerResults){
         res.render('createPlayer', {
             teams: results.teams,
-            seasons: results.seasons
+            seasons: results.seasons,
+            errors: results.errors
 
         })
     }
@@ -165,6 +166,8 @@ export const validators = function(){
             const requiredValues = ['First name', 'Last name', 'Age', 'Nationality', 'Position']
             _sanitiseString(requiredValues);
             _alphabeticalOnly(['First name', 'Last name']);
+
+
 
         }
 
