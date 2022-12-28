@@ -6,7 +6,11 @@ import { sequelize } from '../models/concerns/initdb'
 import { PlayerModel } from '../models/player'
 import { TeamModel } from '../models/team'
 
-
+interface resultsGeneratorType {
+    seePlayer: seePlayerResults,
+    preFormCreatePlayer: preFormCreatePlayerResults,
+    postFormCreatePlayer: postFormCreatePlayerResults
+}
 
 export interface seePlayerResults {
     firstName: string,
@@ -45,7 +49,31 @@ export interface seeCompetitionResults {
 export interface preFormCreatePlayerResults {
     teams: string[],
     seasons: string[],
-    errors: {[index:string]: string}
+    errors?: {[index: string]: string | number},
+    team?: string,
+    season?: string
+    
+}
+
+export interface postFormCreatePlayerResults {
+    firstName: string,
+    lastName: string,
+    nationality: string,
+    age: number,
+    position: string,
+    goals?: number,
+    assists?: number,
+    speed?: number,
+    strength?: number,
+    attack?: number, 
+    defense?: number,
+    goalkeeping?: number,
+    intelligence?: number,
+    technique?: number,
+    team?: string,
+    season?: string,
+    code?: number
+    
 }
 
 
@@ -140,6 +168,27 @@ export const renderers = {
     }
 }
 
+export const resultsGenerator : () => resultsGeneratorType = function(){
+    return {
+        seePlayer : {
+            firstName: '',
+            lastName: '',
+            code: undefined
+        },
+        preFormCreatePlayer: {
+            teams: [],
+            seasons: [],     
+        },
+        postFormCreatePlayer:  {
+            firstName: '',
+            lastName: '',
+            nationality: '',
+            age: 15,
+            position: '',
+      }
+    }
+}
+
 export const validators = function(){
 
     const _sanitiseString = function(stringsArray: string[]){
@@ -151,22 +200,10 @@ export const validators = function(){
         )
     }
 
-    const _alphabeticalOnly = function(stringsArray: string[]){
-        stringsArray.forEach(val => 
-            body(val)
-            .isAlpha()
-            .withMessage(`${val} must be alphabetical characters only.`)
-        )
-        
-    }
-
-
     return {
         postFormCreatePlayer: () => {
-            const requiredValues = ['First name', 'Last name', 'Age', 'Nationality', 'Position']
+            const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position']
             _sanitiseString(requiredValues);
-            _alphabeticalOnly(['First name', 'Last name']);
-
 
 
         }
