@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreatePlayerResults, preFormCreatePlayerResults, renderers, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { attributesPlaceholders, postFormCreatePlayerResults, preFormCreatePlayerResults, renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -11,16 +11,17 @@ import Competition from '../models/competition';
 
 
 let seePlayerAttributes = function(){
-      return attributesPlaceholders.seePlayer
+      const resetSeePlayer = resetPlaceholderAttributes(attributesPlaceholders.seePlayer)
+      return {
+            seePlayer: attributesPlaceholders.seePlayer,
+            reset: resetSeePlayer
+      }
 };
-
-
 
 const seePlayerRenderer = renderers.seePlayer;
 const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
 
 const createPlayerValidator = validators().postFormCreatePlayer;
-
 
 
 let seePlayerResults: seePlayerResults = resultsGenerator().seePlayer;
@@ -31,7 +32,7 @@ let postFormCreatePlayerResults: postFormCreatePlayerResults = resultsGenerator(
 const seePlayerCb = async function (t:Transaction): Promise<void>{
       
       const seePlayerQuery = async function(){
-            const attributes = seePlayerAttributes()
+            const attributes = seePlayerAttributes().seePlayer
             const player = await Player.findOne({
                   where: {
                         firstName: attributes.firstName,
@@ -78,7 +79,9 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
       
       await transactionWrapper(seePlayerCb);
       seePlayerRenderer(res,seePlayerResults);
-      seePlayerResults = resultsGenerator().seePlayer
+
+      seePlayerAttributes().reset()
+      seePlayerResults = resultsGenerator().seePlayer;
       
       return 
 }
