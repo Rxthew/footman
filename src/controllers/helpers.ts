@@ -3,8 +3,9 @@ import { body } from 'express-validator'
 import { Transaction } from 'sequelize'
 import { CompetitionModel } from '../models/competition'
 import { sequelize } from '../models/concerns/initdb'
+import Competition from '../models/competition'
 import { PlayerModel } from '../models/player'
-import { TeamModel } from '../models/team'
+import  Team, { TeamModel } from '../models/team'
 
 interface resultsGeneratorType {
     seePlayer: seePlayerResults,
@@ -120,6 +121,36 @@ export let attributesPlaceholders: attributePlaceholderType = {
 }
 
 type placeholderKey = keyof attributePlaceholderType
+
+
+export const queryHelpers = {
+
+    getAllTeams : async function(t:Transaction){
+        const teams = await Team.findAll({
+              include: [{
+                    model: Competition,
+                    through: {
+                          attributes: ['season']
+                    }
+              }],
+              transaction: t
+        })
+        return teams
+    },
+
+    getAllTeamNames : function(results: TeamModel[]){
+        const names = results.filter(team => team.getDataValue('name'))
+        const uniqueNames = Array.from(new Set(names))
+        return uniqueNames
+  },
+
+    getAllSeasons : function(results: TeamModel[]){
+        const competitions = results.filter(team => team.competitions).flat() 
+        const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].season) 
+        const uniqueSeasons = Array.from(new Set(seasons))
+        return uniqueSeasons
+  }
+}
 
 
 export const renderers = {
