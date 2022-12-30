@@ -7,19 +7,21 @@ import Competition from '../models/competition'
 import { PlayerModel } from '../models/player'
 import  Team, { TeamModel } from '../models/team'
 
+
 interface resultsGeneratorType {
     seePlayer: seePlayerResults,
     preFormCreatePlayer: preFormCreatePlayerResults,
-    postFormCreatePlayer: postFormCreatePlayerResults
+    postFormCreatePlayer: postFormCreatePlayerResults,
+    preFormUpdatePlayer: preFormUpdatePlayerResults,
 }
 
 export interface seePlayerResults {
     firstName: string,
     lastName: string,
-    nationality?: string, 
+    nationality: string, 
     teamName?: string,
-    age?: number,
-    position?: string,
+    age: number,
+    position: string,
     goals?: number,
     assists?: number,
     speed?: number,
@@ -76,6 +78,8 @@ export interface postFormCreatePlayerResults {
     code?: number
     
 }
+
+export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {}
 
 
 interface attributePlaceholderType {
@@ -145,9 +149,9 @@ export const queryHelpers = {
   },
 
     getAllSeasons : function(results: TeamModel[]){
-        const competitions = results.filter(team => team.competitions).flat() 
-        const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].season) 
-        const uniqueSeasons = Array.from(new Set(seasons))
+        const competitions = results.filter(team => team.competitions).flat(); 
+        const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')); 
+        const uniqueSeasons = Array.from(new Set(seasons));
         return uniqueSeasons
   }
 }
@@ -198,6 +202,31 @@ export const renderers = {
             errors: results.errors
 
         })
+    },
+
+    preFormUpdatePlayer: function(res: Response, results: preFormUpdatePlayerResults){
+        res.render('updatePlayer',{
+            firstName: results.firstName,
+            lastName: results.lastName,
+            teamName: results.teamName,
+            nationality: results.nationality,
+            age: results.age,
+            position: results.position,
+            goals: results.goals,
+            assists: results.assists,
+            speed: results.speed,
+            strength: results.strength,
+            attack: results.attack,
+            defense: results.defense,
+            goalkeeping: results.goalkeeping,
+            intelligence: results.intelligence,
+            technique: results.technique,
+            season: results.season,
+            teams: results.teams,
+            seasons: results.seasons,
+            errors: results.errors
+
+        })
     }
 }
 
@@ -206,7 +235,10 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
         seePlayer : {
             firstName: '',
             lastName: '',
-            code: undefined
+            code: undefined,
+            nationality: '',
+            position: '',
+            age: 15
         },
         preFormCreatePlayer: {
             teams: [],
@@ -218,7 +250,18 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
             nationality: '',
             age: 15,
             position: '',
-      }
+      },
+        preFormUpdatePlayer: {
+            firstName: '',
+            lastName: '',
+            code: undefined,
+            nationality: '',
+            position: '',
+            age: 15,
+            teams: [],
+            seasons: []
+            
+        }
     }
 }
 
