@@ -13,6 +13,7 @@ interface resultsGeneratorType {
     preFormCreatePlayer: preFormCreatePlayerResults,
     postFormCreatePlayer: postFormCreatePlayerResults,
     preFormUpdatePlayer: preFormUpdatePlayerResults,
+    
 }
 
 export interface seePlayerResults {
@@ -79,7 +80,8 @@ export interface postFormCreatePlayerResults {
     
 }
 
-export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {}
+export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
+export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
 
 
 interface attributePlaceholderType {
@@ -227,7 +229,8 @@ export const renderers = {
             errors: results.errors
 
         })
-    }
+    },
+    
 }
 
 export const resultsGenerator : () => resultsGeneratorType = function(){
