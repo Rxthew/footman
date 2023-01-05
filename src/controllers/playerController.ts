@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { attributesPlaceholders, postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -22,13 +22,15 @@ const seePlayerRenderer = renderers.seePlayer;
 const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
 const preFormUpdatePlayerRenderer = renderers.preFormUpdatePlayer;
 
-const createPlayerValidator = validators().postFormCreatePlayer;
+const submitPlayerValidator = validators().postFormPlayer;
+
 
 
 let seePlayerResults: seePlayerResults = resultsGenerator().seePlayer;
 let preFormCreatePlayerResults: preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
 let postFormCreatePlayerResults: postFormCreatePlayerResults = resultsGenerator().postFormCreatePlayer;
 let preFormUpdatePlayerResults: preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
+let postFormUpdatePlayerResults: postFormUpdatePlayerResults = resultsGenerator().postFormCreatePlayer;
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
@@ -172,7 +174,7 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
             if(postFormCreatePlayerResults.team && postFormCreatePlayerResults.season){
                   const team = await getTeam()
-                  await (newPlayer as any).addTeam(team, {transaction: t})
+                  await (newPlayer as any).setTeam(team, {transaction: t})
 
             }
             
@@ -201,7 +203,7 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
             }
       }
 
-      createPlayerValidator();
+      submitPlayerValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -216,6 +218,7 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
             
       }
 
+      preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
       postFormCreatePlayerResults = resultsGenerator().postFormCreatePlayer;
 
 }
@@ -302,7 +305,75 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
 }
 
 
+const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
+      const getTeam = async function(){
+            const team = await Team.findOne({
+                  where: {
+                        name: postFormCreatePlayerResults.team,
+                  },
+                  include: {
+                        model: Competition,
+                        through: {
+                              where: {
+                                    season: postFormCreatePlayerResults.season
+                              }
+                        }
+                  },
+                  transaction: t
+            
+            
+                  })
+            
+            return team
+      }
+
+      
+      const updatePlayer = async function(){
+            const playerParameters = {...postFormUpdatePlayerResults};
+            Object.assign(playerParameters, {team: undefined}, {season: undefined});
+            const updatedPlayer = await Player.update({
+                  ...playerParameters
+                   },{where: {code: postFormUpdatePlayerResults.code}, transaction: t}); 
+
+            if(postFormUpdatePlayerResults.team && postFormUpdatePlayerResults.season){
+                  const team = await getTeam()
+                  await (updatedPlayer as any).setTeam(team, {transaction: t})
+
+            }
+            
+      }
+
+      updatePlayer()
+       
+}
+
+
+
+export const postFormUpdatePlayer = async function(req: Request, res: Response, next:NextFunction): Promise<void>{
+
+      Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
+      submitPlayerValidator();
+
+      const errors = validationResult(req);
+
+      if(!errors.isEmpty()){
+            await transactionWrapper(preFormUpdatePlayerCb);
+            Object.assign(preFormUpdatePlayerResults, req.body, {errors: errors.mapped()});
+            preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
+
+      }
+      else{
+            Object.assign(postFormUpdatePlayerResults,req.body);
+            await transactionWrapper(postFormUpdatePlayerCb);
+            const [firstName,lastName,code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
+            res.redirect(`/player/${firstName}_${lastName}_${code}`);
+      }
+      
+      preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
+      postFormUpdatePlayerResults = resultsGenerator().postFormCreatePlayer;
+
+}
 
   
   
