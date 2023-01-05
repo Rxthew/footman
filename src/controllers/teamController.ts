@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, renderers, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
+import { attributesPlaceholders, queryHelpers, renderers, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -67,6 +67,42 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
       seeTeamRenderer(res,seeTeamResults)
       
       return 
+}
+
+const preFormCreateTeamCb = async function(t: Transaction){
+
+      const getAllSeasons = queryHelpers.getAllSeasons;
+      const getAllCompetitions = queryHelpers.getAllCompetitions;
+      const getAllCompetitionNames = queryHelpers.getAllCompetitionnames;
+
+      const results = getAllCompetitions(t)
+
+      const populatePreFormCreateTeam = async function(){
+            if(results){
+                  const competitions = getAllCompetitionnames();
+                  const seasons = getAllSeasons()
+                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: seasons})
+            }
+            else{
+                  const err = new Error('Query returned invalid data.')
+                  throw err
+
+            }
+      }
+
+      try {
+            populatePreFormCreateTeam()
+       }
+       catch(err){
+             console.log(err)
+       }
+  
+       return  
+
+}
+
+export const preFormCreateTeam = async function(){
+
 }
 
 
