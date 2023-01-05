@@ -264,7 +264,8 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
             teams: [],
             seasons: []
             
-        }
+        },
+        
     }
 }
 
@@ -280,7 +281,7 @@ export const validators = function(){
     }
 
     return {
-        postFormCreatePlayer: () => {
+        postFormPlayer: () => {
             const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position']
             _sanitiseString(requiredValues);
 
