@@ -13,6 +13,8 @@ interface resultsGeneratorType {
     preFormCreatePlayer: preFormCreatePlayerResults,
     postFormCreatePlayer: postFormCreatePlayerResults,
     preFormUpdatePlayer: preFormUpdatePlayerResults,
+    seeTeam: seeTeamResults,
+    preFormCreateTeam: preFormCreateTeamResults
     
 }
 
@@ -57,6 +59,14 @@ export interface preFormCreatePlayerResults {
     team?: string,
     season?: string
     
+}
+
+export interface preFormCreateTeamResults {
+    competitions: string[],
+    seasons: string[],
+    errors?: {[index: string]: string | number},
+    competition?: string,
+    season?: string
 }
 
 export interface postFormCreatePlayerResults {
@@ -302,8 +312,14 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
             age: 15,
             teams: [],
             seasons: []
-            
         },
+        seeTeam: {
+            name: ''
+        },
+        preFormCreateTeam: {
+            competitions: [],
+            seasons: []
+        }
         
     }
 }
