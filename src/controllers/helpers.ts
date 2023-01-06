@@ -130,6 +130,27 @@ type placeholderKey = keyof attributePlaceholderType
 
 
 export const queryHelpers = {
+    getAllCompetitions: async function(t:Transaction){
+        const competitions = await Competition.findAll({
+            include: [{
+                model: Team,
+                through: {
+                    attributes: ['season']
+                }
+            }],
+            transaction: t
+        })
+        return competitions
+        
+
+    },
+
+    getAllCompetitionNames: async function(results: CompetitionModel[]){
+        const names = results.filter(competition => competition.getDataValue('name'))
+        const uniqueNames = Array.from(new Set(names))
+        return uniqueNames
+
+    },
 
     getAllTeams : async function(t:Transaction){
         const teams = await Team.findAll({
@@ -150,12 +171,30 @@ export const queryHelpers = {
         return uniqueNames
   },
 
-    getAllSeasons : function(results: TeamModel[]){
-        const competitions = results.filter(team => team.competitions).flat(); 
-        const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')); 
-        const uniqueSeasons = Array.from(new Set(seasons));
-        return uniqueSeasons
-  }
+    getAllSeasons : function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
+        
+        const getThroughTeams = function(res: TeamModel[]){
+            const competitions = res.filter(team => team.competitions).flat(); 
+            const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')); 
+            const uniqueSeasons = Array.from(new Set(seasons));
+            return uniqueSeasons
+        }
+
+        const getThroughCompetitions = function(res: CompetitionModel[]){
+            const teams = res.filter(comp => comp.teams).flat(); 
+            const seasons = (teams as any[]).map(team => team['TeamsCompetitions'].get('season')); 
+            const uniqueSeasons = Array.from(new Set(seasons));
+            return uniqueSeasons
+        }
+
+        switch(input){
+            case 'team': return getThroughTeams(results as TeamModel[]);
+            case 'competition': return getThroughCompetitions(results as CompetitionModel[]);
+        }
+        
+  },
+
+    
 }
 
 
