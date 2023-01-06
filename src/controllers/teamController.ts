@@ -1,9 +1,10 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { attributesPlaceholders, preFormCreateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
-import  Team from '../models/team';
+import  Team, { TeamModel } from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
+import { CompetitionModel } from '../models/competition';
 
 
 let seeTeamAttributes = function(){
@@ -80,31 +81,20 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
 
 const preFormCreateTeamCb = async function(t: Transaction){
 
-      const getAllSeasons = queryHelpers.getAllSeasons;
       const getAllCompetitions = queryHelpers.getAllCompetitions;
       const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
       const getAllTeams = queryHelpers.getAllTeams;
+      const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
+            return queryHelpers.seasonsGenerator(comps,teams)
+      }
 
       const results = await getAllCompetitions(t);
       const teams = await getAllTeams(t);
 
-      const seasonsGenerator = function(){
-            if(results && results.length > 0){
-                  return getAllSeasons(results, 'competition')
-            }
-            else if(teams && results.length>0){
-                  return getAllSeasons(teams, 'team')
-            }
-            else{
-                  return ['2021/22']
-            }
-
-      }
-
       const populatePreFormCreateTeam = async function(){
             if(results){
                   const competitions = getAllCompetitionNames(results);
-                  const seasons =  seasonsGenerator()
+                  const seasons =  seasonsGenerator(results, teams)
                   Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: seasons});
             }
             else{
@@ -130,6 +120,10 @@ export const preFormCreateTeam = async function(req: Request, res: Response, nex
       await transactionWrapper(preFormCreateTeamCb);
       preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
+
+}
+
+const postFormCreateTeamCb = async function(t:Transaction){
 
 }
 

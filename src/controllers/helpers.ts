@@ -204,6 +204,19 @@ export const queryHelpers = {
         
   },
 
+    seasonsGenerator: function(competitions: CompetitionModel[], teams: TeamModel[]){
+        if(competitions && competitions.length > 0){
+            return this.getAllSeasons(competitions, 'competition')
+        }
+        else if(teams && teams.length>0){
+            return this.getAllSeasons(teams, 'team')
+        }
+        else{
+            return ['2021/22']
+        }
+
+    }
+
     
 }
 
