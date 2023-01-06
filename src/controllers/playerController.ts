@@ -107,7 +107,7 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
       const populatePreFormCreatePlayer = function(){
             if(results){
                   const teams = getAllTeamNames(results);
-                  const seasons = getAllSeasons(results); 
+                  const seasons = getAllSeasons(results, 'team'); 
                   Object.assign(preFormCreatePlayerResults, teams, seasons);                 
             }
             else{
@@ -250,7 +250,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
                   ]
             })
             const teams = getAllTeamNames(allTeams);
-            const seasons = getAllSeasons(allTeams);
+            const seasons = getAllSeasons(allTeams, 'team');
             const season = team.competitions[0]['TeamsCompetitions'].get('season');
             return {
                   player,
