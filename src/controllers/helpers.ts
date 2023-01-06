@@ -250,7 +250,9 @@ export const renderers = {
         res.render('createPlayer', {
             teams: results.teams,
             seasons: results.seasons,
-            errors: results.errors
+            errors: results.errors,
+            team: results.team,
+            season: results.season
 
         })
     },
@@ -279,6 +281,17 @@ export const renderers = {
 
         })
     },
+
+    preFormCreateTeam: function(res: Response, results: preFormCreateTeamResults){
+        res.render('createTeam',{
+            competitions: results.competitions,
+            seasons: results.seasons,
+            errors: results.errors,
+            competition: results.competition,
+            season: results.season
+
+        })
+    }
     
 }
 
