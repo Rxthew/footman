@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
+import { attributesPlaceholders, preFormCreateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -14,8 +14,11 @@ let seeTeamAttributes = function(){
       }
 };
 
-const seeTeamRenderer = renderers.seeTeam
+const seeTeamRenderer = renderers.seeTeam;
+const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
+
 let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
+let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
@@ -122,7 +125,11 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
 }
 
-export const preFormCreateTeam = async function(){
+export const preFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+
+      await transactionWrapper(preFormCreateTeamCb);
+      preFormCreateTeamRenderer(res, preFormCreateTeamResults);
+      preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 
 }
 
