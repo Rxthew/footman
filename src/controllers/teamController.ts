@@ -83,19 +83,13 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
       const getAllCompetitions = queryHelpers.getAllCompetitions;
       const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
-      const getAllTeams = queryHelpers.getAllTeams;
-      const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
-            return queryHelpers.seasonsGenerator(comps,teams)
-      }
-
       const results = await getAllCompetitions(t);
-      const teams = await getAllTeams(t);
+      
 
       const populatePreFormCreateTeam = async function(){
             if(results){
                   const competitions = getAllCompetitionNames(results);
-                  const seasons =  seasonsGenerator(results, teams)
-                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: seasons});
+                  Object.assign(preFormCreateTeamResults,{competitions: competitions});
             }
             else{
                   const err = new Error('Query returned invalid data.')
@@ -124,6 +118,16 @@ export const preFormCreateTeam = async function(req: Request, res: Response, nex
 }
 
 const postFormCreateTeamCb = async function(t:Transaction){
+
+      const getAllCompetitions = queryHelpers.getAllCompetitions;
+      const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
+      const getAllTeams = queryHelpers.getAllTeams;
+      const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
+            return queryHelpers.seasonsGenerator(comps,teams)
+      }
+
+      const results = await getAllCompetitions(t);
+      const teams = await getAllTeams(t);
 
 }
 

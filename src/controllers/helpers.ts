@@ -63,10 +63,9 @@ export interface preFormCreatePlayerResults {
 
 export interface preFormCreateTeamResults {
     competitions: string[],
-    seasons: string[],
     errors?: {[index: string]: string | number},
-    competition?: string,
-    season?: string
+    chosenCompetitions?: string[],
+    
 }
 
 export interface postFormCreatePlayerResults {
@@ -298,10 +297,9 @@ export const renderers = {
     preFormCreateTeam: function(res: Response, results: preFormCreateTeamResults){
         res.render('createTeam',{
             competitions: results.competitions,
-            seasons: results.seasons,
             errors: results.errors,
-            competition: results.competition,
-            season: results.season
+            chosenCompetitions: results.chosenCompetitions,
+            
 
         })
     }
