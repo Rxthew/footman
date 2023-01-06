@@ -1,23 +1,26 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, queryHelpers, renderers, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
+import { attributesPlaceholders, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
 
 
-const seeTeamAttributes = function(){
-      return attributesPlaceholders.seeTeam
-}
+let seeTeamAttributes = function(){
+      const resetSeeTeam = resetPlaceholderAttributes(attributesPlaceholders.seeTeam)
+      return {
+            seeTeam: attributesPlaceholders.seeTeam,
+            reset: resetSeeTeam
+      }
+};
+
 const seeTeamRenderer = renderers.seeTeam
-let seeTeamResults: seeTeamResults = {
-      name: ''
-}
+let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
       const seeTeamQuery = async function(){ 
-            const attributes = seeTeamAttributes()
+            const attributes = seeTeamAttributes().seeTeam
             const team = await Team.findOne({
                   where: {
                         name: attributes.name,
@@ -60,11 +63,14 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
 
 export const seeTeam = async function(req: Request, res: Response, next: NextFunction){
 
-      const attributes = syncAttributes()
-      attributes.getSeeTeamAttributes(req,next)
+      const attributes = syncAttributes();
+      attributes.getSeeTeamAttributes(req,next);
       
-      await transactionWrapper(seeTeamCb)
-      seeTeamRenderer(res,seeTeamResults)
+      await transactionWrapper(seeTeamCb);
+      seeTeamRenderer(res,seeTeamResults);
+
+      seeTeamAttributes().reset();
+      seeTeamResults = resultsGenerator().seeTeam;
       
       return 
 }
@@ -73,21 +79,36 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
       const getAllSeasons = queryHelpers.getAllSeasons;
       const getAllCompetitions = queryHelpers.getAllCompetitions;
-      const getAllCompetitionNames = queryHelpers.getAllCompetitionnames;
+      const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
+      const getAllTeams = queryHelpers.getAllTeams;
 
-      const results = getAllCompetitions(t)
+      const results = await getAllCompetitions(t);
+      const teams = await getAllTeams(t);
+
+      const seasonsGenerator = function(){
+            if(results && results.length > 0){
+                  return getAllSeasons(results, 'competition')
+            }
+            else if(teams && results.length>0){
+                  return getAllSeasons(teams, 'team')
+            }
+            else{
+                  return ['2021/22']
+            }
+
+      }
 
       const populatePreFormCreateTeam = async function(){
             if(results){
-                  const competitions = getAllCompetitionnames();
-                  const seasons = getAllSeasons()
-                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: seasons})
+                  const competitions = getAllCompetitionNames(results);
+                  const seasons =  seasonsGenerator()
+                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: seasons});
             }
             else{
                   const err = new Error('Query returned invalid data.')
                   throw err
 
-            }
+            }  
       }
 
       try {
