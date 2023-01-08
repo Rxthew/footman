@@ -154,6 +154,8 @@ export const queryHelpers = {
                 }
             }],
             transaction: t
+        }).catch(function(error:Error){
+            throw error
         })
         return competitions
         
@@ -176,6 +178,8 @@ export const queryHelpers = {
                     }
               }],
               transaction: t
+        }).catch(function(error:Error){
+            throw error
         })
         return teams
     },
@@ -433,7 +437,9 @@ export const syncAttributes = function(){
 
 export const transactionWrapper = async function(callback: (t:Transaction) => Promise<void>){
     try {
-        const result = await sequelize.transaction(callback)
+        const result = await sequelize.transaction(callback).catch(function(error:Error){
+            throw error
+        })
         
     }
     catch (error){

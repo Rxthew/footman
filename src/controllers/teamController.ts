@@ -32,9 +32,15 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
                         code: attributes.code
                   },
                   transaction: t
-                  });
-            const players = await (team as any)?.getPlayers() 
-            const competitions = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']})
+                  }).catch(function(error:Error){
+                        throw error
+                    });
+            const players = await (team as any)?.getPlayers().catch(function(error:Error){
+                  throw error
+              }) 
+            const competitions = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']}).catch(function(error:Error){
+                  throw error
+              })
             return {
                   team,
                   players,
@@ -42,7 +48,9 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
             }
 
       }
-      const results = await seeTeamQuery()
+      const results = await seeTeamQuery().catch(function(error:Error){
+            throw error
+        })
       
       const populateSeeTeamResults = function(){
             if(results.team && results.players && results.competitions ){ 
@@ -71,7 +79,9 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
       const attributes = syncAttributes();
       attributes.getSeeTeamAttributes(req,next);
       
-      await transactionWrapper(seeTeamCb);
+      await transactionWrapper(seeTeamCb).catch(function(error:Error){
+            throw error
+        });
       seeTeamRenderer(res,seeTeamResults);
 
       seeTeamAttributes().reset();
@@ -84,7 +94,9 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
       const getAllCompetitions = queryHelpers.getAllCompetitions;
       const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
-      const results = await getAllCompetitions(t);
+      const results = await getAllCompetitions(t).catch(function(error:Error){
+            throw error
+        });
       
 
       const populatePreFormCreateTeam = async function(){
@@ -112,7 +124,9 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
 export const preFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      await transactionWrapper(preFormCreateTeamCb);
+      await transactionWrapper(preFormCreateTeamCb).catch(function(error:Error){
+            throw error
+        });
       preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 
@@ -136,7 +150,9 @@ const postFormCreateTeamCb = async function(t:Transaction){
 
                   },
                   transaction: t
-            })
+            }).catch(function(error:Error){
+                  throw error
+              })
             return nextCompetition
       }
 
@@ -148,8 +164,12 @@ const postFormCreateTeamCb = async function(t:Transaction){
                   return queryHelpers.seasonsGenerator(comps,teams)
             }
 
-            const competitions = await getAllCompetitions(t);
-            const teams = await getAllTeams(t);
+            const competitions = await getAllCompetitions(t).catch(function(error:Error){
+                  throw error
+              });
+            const teams = await getAllTeams(t).catch(function(error:Error){
+                  throw error
+              });
 
             if(competitions || teams){
                   return seasonsGenerator(competitions, teams)
@@ -218,7 +238,7 @@ const postFormCreateTeamCb = async function(t:Transaction){
 
 
       await createTeams().catch(function(err:Error){
-            console.log(err);
+            throw err;
       })
 
 }

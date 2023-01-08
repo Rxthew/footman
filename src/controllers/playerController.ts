@@ -44,15 +44,21 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
                         code: attributes.code
                   },
                   transaction: t
-                  });
-            const team = await (player as any)?.getTeam()
+                  }).catch(function(error:Error){
+                        throw error
+                    });
+            const team = await (player as any)?.getTeam().catch(function(error:Error){
+                  throw error
+              })
             return {
                   player,
                   team
             }
 
       }
-      const results = await seePlayerQuery()
+      const results = await seePlayerQuery().catch(function(error:Error){
+            throw error
+        })
       
       const populateSeePlayerResults = function(){
             if(results.player){ 
@@ -86,7 +92,9 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
       const attributes = syncAttributes();
       attributes.getSeePlayerAttributes(req,next);
       
-      await transactionWrapper(seePlayerCb);
+      await transactionWrapper(seePlayerCb).catch(function(error:Error){
+            throw error
+        });
       seePlayerRenderer(res,seePlayerResults);
 
       seePlayerAttributes().reset()
@@ -102,7 +110,9 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
       const getAllTeamNames = queryHelpers.getAllTeamNames
       const getAllSeasons = queryHelpers.getAllSeasons
 
-      const results = await getAllTeams(t)
+      const results = await getAllTeams(t).catch(function(error:Error){
+            throw error
+        })
 
       const populatePreFormCreatePlayer = function(){
             if(results){
@@ -130,7 +140,9 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
 export const preFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
       
-      await transactionWrapper(preFormCreatePlayerCb);
+      await transactionWrapper(preFormCreatePlayerCb).catch(function(error:Error){
+            throw error
+        });
       preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
 
@@ -156,9 +168,9 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
                         }
                   },
                   transaction: t
-            
-            
-                  })
+            }).catch(function(error:Error){
+                  throw error
+              })
             
             return team
       }
@@ -170,11 +182,17 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
             
             const newPlayer = await Player.create({
                   ...playerParameters
-                   },{transaction: t}); 
+                   },{transaction: t}).catch(function(error:Error){
+                        throw error
+                    }); 
 
             if(postFormCreatePlayerResults.team && postFormCreatePlayerResults.season){
-                  const team = await getTeam()
-                  await (newPlayer as any).setTeam(team, {transaction: t})
+                  const team = await getTeam().catch(function(error:Error){
+                        throw error
+                    })
+                  await (newPlayer as any).setTeam(team, {transaction: t}).catch(function(error:Error){
+                        throw error
+                    })
 
             }
             
@@ -189,7 +207,9 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
       
       const goToPlayerPage = async function(){
             try{
-            const latestCode = await Player.max('code');
+            const latestCode = await Player.max('code').catch(function(error:Error){
+                  throw error
+              });
             const firstName = postFormCreatePlayerResults.firstName;
             const lastName = postFormCreatePlayerResults.lastName;
             
@@ -207,14 +227,20 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormCreatePlayerCb);
+            await transactionWrapper(preFormCreatePlayerCb).catch(function(error:Error){
+                  throw error
+              });
             Object.assign(preFormCreatePlayerResults, {errors: errors.mapped()},  {team: req.body.team}, {season: req.body.season});
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       }
       else{
             Object.assign(postFormCreatePlayerResults, req.body);
-            await transactionWrapper(postFormCreatePlayerCb);
-            await goToPlayerPage() 
+            await transactionWrapper(postFormCreatePlayerCb).catch(function(error:Error){
+                  throw error
+              });
+            await goToPlayerPage().catch(function(error:Error){
+                  throw error
+              }) 
             
       }
 
@@ -229,7 +255,9 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
       const getAllTeamNames = queryHelpers.getAllTeamNames
       const getAllSeasons = queryHelpers.getAllSeasons
 
-      const allTeams = await getAllTeams(t)
+      const allTeams = await getAllTeams(t).catch(function(error:Error){
+            throw error
+        })
 
       const updatePlayerQuery = async function(){
             const attributes = seePlayerAttributes().seePlayer
@@ -240,7 +268,9 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
                         code: attributes.code
                   },
                   transaction: t
-                  });
+                  }).catch(function(error:Error){
+                        throw error
+                    });
             const team = await (player as any)?.getTeam({
                   include: [
                         {
@@ -248,7 +278,9 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
                               through: {attributes: ['season']}
                         }
                   ]
-            })
+            }).catch(function(error:Error){
+                  throw error
+              })
             const teams = getAllTeamNames(allTeams);
             const seasons = getAllSeasons(allTeams, 'team');
             const season = team.competitions[0]['TeamsCompetitions'].get('season');
@@ -261,7 +293,9 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
             }
 
       }
-      const results = await updatePlayerQuery();
+      const results = await updatePlayerQuery().catch(function(error:Error){
+            throw error
+        });
       
       const populatePreFormUpdatePlayer = function(){
             if(results.player && results.teams && results.seasons ){ 
@@ -295,7 +329,9 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
       attributes.getSeePlayerAttributes(req,next);
       
       
-      await transactionWrapper(preFormUpdatePlayerCb); 
+      await transactionWrapper(preFormUpdatePlayerCb).catch(function(error:Error){
+            throw error
+        }); 
       preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
       seePlayerAttributes().reset()
       preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
@@ -321,9 +357,9 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
                         }
                   },
                   transaction: t
-            
-            
-                  })
+            }).catch(function(error:Error){
+                  throw error
+              })
             
             return team
       }
@@ -334,11 +370,17 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
             Object.assign(playerParameters, {team: undefined}, {season: undefined});
             const updatedPlayer = await Player.update({
                   ...playerParameters
-                   },{where: {code: postFormUpdatePlayerResults.code}, transaction: t}); 
+                   },{where: {code: postFormUpdatePlayerResults.code}, transaction: t}).catch(function(error:Error){
+                        throw error
+                    }); 
 
             if(postFormUpdatePlayerResults.team && postFormUpdatePlayerResults.season){
-                  const team = await getTeam()
-                  await (updatedPlayer as any).setTeam(team, {transaction: t})
+                  const team = await getTeam().catch(function(error:Error){
+                        throw error
+                    })
+                  await (updatedPlayer as any).setTeam(team, {transaction: t}).catch(function(error:Error){
+                        throw error
+                    })
 
             }
             
@@ -358,14 +400,18 @@ export const postFormUpdatePlayer = async function(req: Request, res: Response, 
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormUpdatePlayerCb);
+            await transactionWrapper(preFormUpdatePlayerCb).catch(function(error:Error){
+                  throw error
+              });
             Object.assign(preFormUpdatePlayerResults, req.body, {errors: errors.mapped()});
             preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
 
       }
       else{
             Object.assign(postFormUpdatePlayerResults,req.body);
-            await transactionWrapper(postFormUpdatePlayerCb);
+            await transactionWrapper(postFormUpdatePlayerCb).catch(function(error:Error){
+                  throw error
+              });
             const [firstName,lastName,code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
             res.redirect(`/player/${firstName}_${lastName}_${code}`);
       }

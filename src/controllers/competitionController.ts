@@ -24,8 +24,12 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
                         code: attributes.code
                   },
                   transaction: t
-                  });
-            const teams = await (competition as any)?.getTeams({joinTableAttributes: ['season','points','ranking']})
+                  }).catch(function(error:Error){
+                        throw error
+                    });
+            const teams = await (competition as any)?.getTeams({joinTableAttributes: ['season','points','ranking']}).catch(function(error:Error){
+                  throw error
+              })
             return {
                   competition,
                   teams,
@@ -61,7 +65,9 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       const attributes = syncAttributes()
       attributes.getSeeCompetitionAttributes(req,next)
       
-      await transactionWrapper(seeCompetitionCb)
+      await transactionWrapper(seeCompetitionCb).catch(function(error:Error){
+            throw error
+        })
       seeCompetitionRenderer(res,seeCompetitionResults)
       
       return 
