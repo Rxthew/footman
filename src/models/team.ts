@@ -10,7 +10,7 @@ export interface TeamModel extends Model<InferAttributes<TeamModel>,InferCreatio
     name: string,
     competitions?: CompetitionModel[],
     players?: PlayerModel[]
-    code: number
+    code?: number
     
 }
 
