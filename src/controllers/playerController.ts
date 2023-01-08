@@ -198,7 +198,9 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
             
       }
 
-      createPlayer()
+      await createPlayer().catch(function(err:Error){
+            throw err
+      })
        
 }
 
@@ -386,7 +388,9 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
             
       }
 
-      updatePlayer()
+      await updatePlayer().catch(function(err){
+            throw err
+      })
        
 }
 
