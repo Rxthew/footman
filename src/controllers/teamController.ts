@@ -1,6 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper } from './helpers';
+import { validationResult } from 'express-validator';
+import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Team, { TeamModel } from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -17,6 +18,8 @@ let seeTeamAttributes = function(){
 
 const seeTeamRenderer = renderers.seeTeam;
 const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
+
+const submitTeamValidator = validators().postFormTeam;
 
 let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
@@ -235,11 +238,54 @@ const postFormCreateTeamCb = async function(t:Transaction){
             }
       }
 
-
-
       await createTeams().catch(function(err:Error){
             throw err;
       })
+
+}
+
+export const postFormCreateTeam = async function(req: Request, res: Response, next: NextFunction){
+      
+      const goToTeamPage = async function(){
+            try{
+            const latestCode = await Team.max('code').catch(function(error:Error){
+                  throw error
+              });
+            const teamName = postFormCreateTeamResults.name;
+            
+            res.redirect(`/team/${teamName}_${latestCode}`)
+            }
+            catch(err){
+                  if(err){
+                        console.log(err)
+                        return next(err)
+                  }
+            }
+      }
+
+      submitTeamValidator();
+      const errors = validationResult(req);
+
+      if(!errors.isEmpty()){
+            await transactionWrapper(preFormCreateTeamCb).catch(function(error:Error){
+                  throw error
+              });
+            Object.assign(preFormCreateTeamResults, {errors: errors.mapped()},  {chosenCompetitions: req.body.chosenCompetitions});
+            preFormCreateTeamRenderer(res, preFormCreateTeamResults);
+      }
+      else{
+            Object.assign(postFormCreateTeamResults, req.body);
+            await transactionWrapper(postFormCreateTeamCb).catch(function(error:Error){
+                  throw error
+              });
+            await goToTeamPage().catch(function(error:Error){
+                  throw error
+              }) 
+            
+      }
+
+      preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
+      postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
 
 }
 

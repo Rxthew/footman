@@ -376,8 +376,9 @@ export const validators = function(){
         postFormPlayer: () => {
             const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position']
             _sanitiseString(requiredValues);
-
-
+        },
+        postFormTeam: () => {
+            _sanitiseString(['name'])
         }
 
     }
