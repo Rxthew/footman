@@ -15,7 +15,8 @@ interface resultsGeneratorType {
     preFormUpdatePlayer: preFormUpdatePlayerResults,
     seeTeam: seeTeamResults,
     preFormCreateTeam: preFormCreateTeamResults,
-    postFormCreateTeam: postFormCreateTeamResults
+    postFormCreateTeam: postFormCreateTeamResults,
+    preFormUpdateTeam: preFormUpdateTeamResults
     
 }
 
@@ -97,6 +98,9 @@ export interface postFormCreateTeamResults {
 
 export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
 export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
+export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
+    name: string,
+};
 
 
 interface attributePlaceholderType {
@@ -162,7 +166,7 @@ export const queryHelpers = {
 
     },
 
-    getAllCompetitionNames: async function(results: CompetitionModel[]){
+    getAllCompetitionNames: function(results: CompetitionModel[]){
         const names = results.filter(competition => competition.getDataValue('name'))
         const uniqueNames = Array.from(new Set(names))
         return uniqueNames
@@ -312,6 +316,17 @@ export const renderers = {
             
 
         })
+    },
+
+    preFormUpdateTeam: function(res: Response, results: preFormUpdateTeamResults){
+        res.render('updateTeam',{
+            name: results.name,
+            competitions: results.competitions,
+            errors: results.errors,
+            chosenCompetitions: results.chosenCompetitions,
+            
+
+        })
     }
     
 }
@@ -352,10 +367,13 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
         },
         preFormCreateTeam: {
             competitions: [],
-            seasons: []
         },
         postFormCreateTeam: {
             name: '',
+        },
+        preFormUpdateTeam: {
+            name: '',
+            competitions: []
         }
         
     }

@@ -1,7 +1,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeTeamResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
+seeTeamResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Team, { TeamModel } from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -17,6 +18,7 @@ let seeTeamAttributes = function(){
 };
 
 const seeTeamRenderer = renderers.seeTeam;
+const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
 const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
 
 const submitTeamValidator = validators().postFormTeam;
@@ -24,6 +26,7 @@ const submitTeamValidator = validators().postFormTeam;
 let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 let postFormCreateTeamResults: postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
+let preFormUpdateTeamResults: preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
@@ -102,7 +105,7 @@ const preFormCreateTeamCb = async function(t: Transaction){
         });
       
 
-      const populatePreFormCreateTeam = async function(){
+      const populatePreFormCreateTeam = function(){
             if(results){
                   const competitions = getAllCompetitionNames(results);
                   Object.assign(preFormCreateTeamResults,{competitions: competitions});
@@ -288,6 +291,64 @@ export const postFormCreateTeam = async function(req: Request, res: Response, ne
       postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
 
 }
+
+const preFormUpdateTeamCb = async function(t: Transaction){
+
+      const getAllCompetitions = queryHelpers.getAllCompetitions;
+      const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
+      const results = await getAllCompetitions(t).catch(function(error:Error){
+            throw error
+        });
+      
+      const teamCompetitions = await (Team as any).getCompetitions().catch(function(error:Error){
+            throw error
+      })
+      
+
+      const populatePreFormUpdateTeam = function(){
+            if(results){
+                  const attributes = seeTeamAttributes().seeTeam;
+                  const competitions = getAllCompetitionNames(results);
+                  if(teamCompetitions && teamCompetitions.length > 0){
+                        const chosen = (teamCompetitions as any[]).map(comp => comp.getDataValue('name'))
+                        Object.assign(preFormUpdateTeamResults, {chosenCompetitions: chosen})
+                        competitions.filter(comp => !chosen.includes(comp))
+                  }
+                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: attributes.name});
+            }
+            else{
+                  const err = new Error('Query returned invalid data.')
+                  throw err
+
+            }  
+      }
+
+      try {
+            populatePreFormUpdateTeam()
+       }
+       catch(err){
+             console.log(err)
+       }
+  
+       return 
+
+}
+
+export const preFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+      const attributes = syncAttributes();
+      attributes.getSeeTeamAttributes(req,next);
+
+      await transactionWrapper(preFormUpdateTeamCb).catch(function(error:Error){
+            throw error
+        }); 
+      preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);
+      seeTeamAttributes().reset()
+      preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
+      
+      return
+}
+
+
 
 
 
