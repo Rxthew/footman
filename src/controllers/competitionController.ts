@@ -2,7 +2,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { attributesPlaceholders, preFormCreateCompetitionResults, postFormCreateCompetitionResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
-seeCompetitionResults, syncAttributes, transactionWrapper, validators } from './helpers';
+seeCompetitionResults, syncAttributes, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
 import Competition, {CompetitionModel} from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
@@ -19,12 +19,14 @@ let seeCompetitionAttributes = function(){
 };
 
 const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
+const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
 const seeCompetitionRenderer = renderers.seeCompetition;
 
 const submitCompetitionValidator = validators().postFormCompetition;
 
 let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
 let postFormCreateCompetitionResults: postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
+let preFormUpdateCompetitionResults: preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
 let seeCompetitionResults: seeCompetitionResults = resultsGenerator().seeCompetition;
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
@@ -314,8 +316,59 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
       preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
       postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
 
-
 };
+
+const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
+
+      const getAllTeams = queryHelpers.getAllTeams;
+      const getAllTeamNames = queryHelpers.getAllTeamNames;
+
+      const results = await getAllTeams(t).catch(function(error:Error){
+            throw error
+        });
+
+      const competitionTeams = await (Competition as any).getTeams().catch(function(error:Error){
+            throw error
+      })
+      
+      const populatePreFormUpdateCompetition = function(){
+            if(results){
+                  const teamNames = getAllTeamNames(results);
+                  if(competitionTeams && competitionTeams.length > 0){
+                        const chosen = (competitionTeams as any[]).map(team => team.getDataValue('name'));
+                        Object.assign(preFormUpdateCompetitionResults, {chosenTeams: chosen});
+                        teamNames.filter(teamName => !chosen.includes(teamName))
+                  }
+                  Object.assign(preFormUpdateCompetitionResults,{teams: teamNames});
+            }
+            else{
+                  const err = new Error('Query returned invalid data.')
+                  throw err
+
+            }  
+      }
+
+      try {
+            populatePreFormUpdateCompetition()
+       }
+       catch(err){
+             console.log(err)
+       }
+  
+       return 
+
+}
+
+export const preFormUpdateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
+      const attributes = syncAttributes();
+      attributes.getSeeCompetitionAttributes(req,next);
+
+      await transactionWrapper(preFormUpdateCompetitionCb).catch(function(error:Error){throw error});
+      preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
+
+      seeCompetitionAttributes().reset();
+      preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
+}
 
 
 

@@ -11,6 +11,7 @@ import  Team, { TeamModel } from '../models/team'
 interface resultsGeneratorType {
     preFormCreateCompetition: preFormCreateCompetitionResults,
     postFormCreateCompetition: postFormCreateCompetitionResults,  
+    preFormUpdateCompetition: preFormUpdateCompetitionResults,
     seeCompetition: seeCompetitionResults,
     seePlayer: seePlayerResults,
     preFormCreatePlayer: preFormCreatePlayerResults,
@@ -72,6 +73,7 @@ export interface preFormCreateCompetitionResults {
     teams: string[],
     errors?: {[index: string]: string | number},
     chosenTeams?: string[],
+    ranking?: boolean
 }
 
 export interface preFormCreateTeamResults {
@@ -119,6 +121,9 @@ export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
 };
 export interface postFormUpdateTeamResults extends postFormCreateTeamResults {};
+export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
+    name: string,
+};
 
 
 interface attributePlaceholderType {
@@ -274,6 +279,19 @@ export const renderers = {
         })
 
     },
+
+    preFormUpdateCompetition: function(res:Response, results: preFormUpdateCompetitionResults){
+        res.render('updateCompetition',{
+            name: results.name,
+            errors: results.errors,
+            teams: results.teams,
+            chosenTeams: results.chosenTeams,
+            ranking: results.ranking
+
+
+        })
+
+    },
     
     seeCompetition: function(res:Response, results: seeCompetitionResults){
         res.render('seeCompetition',{
@@ -378,6 +396,11 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
         },
         postFormCreateCompetition: {
             name: ''
+        },
+        preFormUpdateCompetition: {
+            name: '',
+            teams: []
+
         },
         seeCompetition: {
             name: ''
