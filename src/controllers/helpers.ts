@@ -105,6 +105,7 @@ export interface postFormCreatePlayerResults {
 export interface postFormCreateCompetitionResults {
     name: string,
     chosenTeams?: string[]
+    ranking?: boolean
 }
 
 export interface postFormCreateTeamResults {

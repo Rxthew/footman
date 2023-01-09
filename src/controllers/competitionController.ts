@@ -180,13 +180,13 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             }
       }
 
+      const seasons = await allSeasons().catch(function(err){
+            throw(err);
+      });
+
 
       const getRelevantTeams = async function(){
 
-            const seasons = await allSeasons().catch(function(err){
-                  throw(err);
-            });
-           
             let teamPromises:((() => Promise<TeamModel|null>)[])[] = [];
             const teamNames = postFormCreateCompetitionResults.chosenTeams;
             if(teamNames && teamNames.length > 0){
@@ -236,8 +236,36 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             }
       }
 
+      const applyRanking = async function(){
+            if(postFormCreateCompetitionResults.ranking){
+                  const latestCompetition = await Competition.findOne({
+                        where: {
+                              name: postFormCreateCompetitionResults.name
+                        },
+                        include: [{
+                              model: Team,
+                              where: {
+                                    attributes: {
+                                          season: seasons[seasons.length - 1]
+                                    }
+                              }
+                        }],
+                        transaction: t
+                  }).catch(function(err:Error){throw err})
+
+                 const chosenTeams = postFormCreateCompetitionResults.chosenTeams
+
+                 const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
+                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name'))))
+            }
+
+      }
+
 
       await createCompetitions().catch(function(err:Error){
+            throw err;
+      })
+      await applyRanking().catch(function(err:Error){
             throw err;
       })
 
