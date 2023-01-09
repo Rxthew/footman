@@ -9,6 +9,7 @@ import  Team, { TeamModel } from '../models/team'
 
 
 interface resultsGeneratorType {
+    preFormCreateCompetition: preFormCreateCompetitionResults,
     seeCompetition: seeCompetitionResults,
     seePlayer: seePlayerResults,
     preFormCreatePlayer: preFormCreatePlayerResults,
@@ -64,6 +65,12 @@ export interface preFormCreatePlayerResults {
     team?: string,
     season?: string
     
+}
+
+export interface preFormCreateCompetitionResults {
+    teams: string[],
+    errors?: {[index: string]: string | number},
+    chosenTeams?: string[],
 }
 
 export interface preFormCreateTeamResults {
@@ -239,36 +246,18 @@ export const queryHelpers = {
 
 
 export const renderers = {
-    seePlayer: function(res:Response, results: seePlayerResults){
-        res.render('seePlayer', {
-            name: results.firstName + ' ' + results.lastName,
-            teamName: results.teamName,
-            nationality: results.nationality,
-            age: results.age,
-            position: results.position,
-            goals: results.goals,
-            assists: results.assists,
-            speed: results.speed,
-            strength: results.strength,
-            attack: results.attack,
-            defense: results.defense,
-            goalkeeping: results.goalkeeping,
-            intelligence: results.intelligence,
-            technique: results.technique
+
+    preFormCreateCompetition: function(res:Response, results: preFormCreateCompetitionResults){
+        res.render('createCompetition',{
+            errors: results.errors,
+            teams: results.teams,
+            chosenTeams: results.chosenTeams,
+
 
         })
-    },
-
-    seeTeam: function(res: Response, results: seeTeamResults){
-           res.render('seeTeam',{
-            name: results.name,
-            players: results.players,
-            competitions: results.competitions
-
-           })
 
     },
-
+    
     seeCompetition: function(res:Response, results: seeCompetitionResults){
         res.render('seeCompetition',{
             name: results.name,
@@ -312,6 +301,26 @@ export const renderers = {
         })
     },
 
+    seePlayer: function(res:Response, results: seePlayerResults){
+        res.render('seePlayer', {
+            name: results.firstName + ' ' + results.lastName,
+            teamName: results.teamName,
+            nationality: results.nationality,
+            age: results.age,
+            position: results.position,
+            goals: results.goals,
+            assists: results.assists,
+            speed: results.speed,
+            strength: results.strength,
+            attack: results.attack,
+            defense: results.defense,
+            goalkeeping: results.goalkeeping,
+            intelligence: results.intelligence,
+            technique: results.technique
+
+        })
+    },
+
     preFormCreateTeam: function(res: Response, results: preFormCreateTeamResults){
         res.render('createTeam',{
             competitions: results.competitions,
@@ -331,12 +340,25 @@ export const renderers = {
             
 
         })
-    }
+    },
+
+    seeTeam: function(res: Response, results: seeTeamResults){
+        res.render('seeTeam',{
+         name: results.name,
+         players: results.players,
+         competitions: results.competitions
+
+        })
+
+    },
     
 }
 
 export const resultsGenerator : () => resultsGeneratorType = function(){
     return {
+        preFormCreateCompetition: {
+            teams: []
+        },
         seeCompetition: {
             name: ''
 

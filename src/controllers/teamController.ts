@@ -17,17 +17,18 @@ let seeTeamAttributes = function(){
       }
 };
 
-const seeTeamRenderer = renderers.seeTeam;
-const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
 const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
+const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
+const seeTeamRenderer = renderers.seeTeam;
 
 const submitTeamValidator = validators().postFormTeam;
 
-let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
+
 let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 let postFormCreateTeamResults: postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
 let preFormUpdateTeamResults: preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
 let postFormUpdateTeamResults: postFormUpdateTeamResults = resultsGenerator().postFormUpdateTeam;
+let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       

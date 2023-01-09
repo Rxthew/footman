@@ -1,6 +1,6 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { attributesPlaceholders, renderers, resetPlaceholderAttributes, resultsGenerator, seeCompetitionResults, syncAttributes, transactionWrapper } from './helpers';
+import { attributesPlaceholders, preFormCreateCompetitionResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seeCompetitionResults, syncAttributes, transactionWrapper } from './helpers';
 import  Competition from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -15,7 +15,10 @@ let seeCompetitionAttributes = function(){
       
 };
 
+const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const seeCompetitionRenderer = renderers.seeCompetition;
+
+let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
 let seeCompetitionResults: seeCompetitionResults = resultsGenerator().seeCompetition;
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
@@ -82,6 +85,40 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       
       return 
 }
+
+const preFormCreateCompetitionCb = async function(t:Transaction){
+
+      const getAllTeams = queryHelpers.getAllTeams;
+      const getAllTeamNames = queryHelpers.getAllTeamNames;
+
+      const results = await getAllTeams(t).catch(function(error:Error){
+            throw error
+        });
+      
+
+      const populatePreFormCreateCompetition = function(){
+            if(results){
+                  const teamNames = getAllTeamNames(results);
+                  Object.assign(preFormCreateCompetitionResults,{teams: teamNames});
+            }
+            else{
+                  const err = new Error('Query returned invalid data.')
+                  throw err
+
+            }  
+      }
+
+      try {
+            populatePreFormCreateCompetition()
+       }
+       catch(err){
+             console.log(err)
+       }
+  
+       return 
+}
+
+
 
 
 
