@@ -1,7 +1,8 @@
 
 import { Request, Response, NextFunction } from 'express';
+import { validationResult } from 'express-validator';
 import { attributesPlaceholders, preFormCreateCompetitionResults, postFormCreateCompetitionResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
-seeCompetitionResults, syncAttributes, transactionWrapper } from './helpers';
+seeCompetitionResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import Competition, {CompetitionModel} from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
@@ -19,6 +20,8 @@ let seeCompetitionAttributes = function(){
 
 const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const seeCompetitionRenderer = renderers.seeCompetition;
+
+const submitCompetitionValidator = validators().postFormCompetition;
 
 let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
 let postFormCreateCompetitionResults: postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
@@ -72,7 +75,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
     
   };
 
-export const seeCompetition = async function(req: Request, res: Response, next: NextFunction){
+export const seeCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
       const attributes = syncAttributes();
       attributes.getSeeCompetitionAttributes(req,next);
@@ -87,9 +90,9 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       seeCompetitionResults = resultsGenerator().seeCompetition;
       
       return 
-}
+};
 
-const preFormCreateCompetitionCb = async function(t:Transaction){
+const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       const getAllTeams = queryHelpers.getAllTeams;
       const getAllTeamNames = queryHelpers.getAllTeamNames;
@@ -119,7 +122,7 @@ const preFormCreateCompetitionCb = async function(t:Transaction){
        }
   
        return 
-}
+};
 
 export const preFormCreateCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
@@ -128,7 +131,7 @@ export const preFormCreateCompetition = async function(req: Request, res: Respon
         });
       preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
       preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
-}
+};
 
 const postFormCreateCompetitionCb = async function(t:Transaction){
 
@@ -238,9 +241,53 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             throw err;
       })
 
+};
+
+export const postFormCreateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
+
+      const goToCompetitionPage = async function(){
+            try{
+            const latestCode = await Competition.max('code').catch(function(error:Error){
+                  throw error
+              });
+            const competitionName = postFormCreateCompetitionResults.name;
+            
+            res.redirect(`/competition/${competitionName}_${latestCode}`)
+            }
+            catch(err){
+                  if(err){
+                        console.log(err)
+                        return next(err)
+                  }
+            }
+      }
+
+      submitCompetitionValidator();
+      const errors = validationResult(req);
+
+      if(!errors.isEmpty()){
+            await transactionWrapper(preFormCreateCompetitionCb).catch(function(error:Error){
+                  throw error
+              });
+            Object.assign(preFormCreateCompetitionResults, {errors: errors.mapped()},  {chosenTeams: req.body.chosenCompetitions});
+            preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+      }
+      else{
+            Object.assign(postFormCreateCompetitionResults, req.body);
+            await transactionWrapper(postFormCreateCompetitionCb).catch(function(error:Error){
+                  throw error
+              });
+            await goToCompetitionPage().catch(function(error:Error){
+                  throw error
+              }) 
+            
+      }
+
+      preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
+      postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
 
 
-}
+};
 
 
 

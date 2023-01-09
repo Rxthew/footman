@@ -214,14 +214,14 @@ export const queryHelpers = {
     getAllSeasons : function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
         
         const getThroughTeams = function(res: TeamModel[]){
-            const competitions = res.filter(team => team.competitions).flat(); 
+            const competitions = res.map(team => team.competitions).flat(); 
             const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')); 
             const uniqueSeasons = Array.from(new Set(seasons));
             return uniqueSeasons
         }
 
         const getThroughCompetitions = function(res: CompetitionModel[]){
-            const teams = res.filter(comp => comp.teams).flat(); 
+            const teams = res.map(comp => comp.teams).flat(); 
             const seasons = (teams as any[]).map(team => team['TeamsCompetitions'].get('season')); 
             const uniqueSeasons = Array.from(new Set(seasons));
             return uniqueSeasons
@@ -438,6 +438,9 @@ export const validators = function(){
             _sanitiseString(requiredValues);
         },
         postFormTeam: () => {
+            _sanitiseString(['name'])
+        },
+        postFormCompetition: () => {
             _sanitiseString(['name'])
         }
 

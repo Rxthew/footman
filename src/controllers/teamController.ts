@@ -249,7 +249,7 @@ const postFormCreateTeamCb = async function(t:Transaction){
 
 }
 
-export const postFormCreateTeam = async function(req: Request, res: Response, next: NextFunction){
+export const postFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
       
       const goToTeamPage = async function(){
             try{
