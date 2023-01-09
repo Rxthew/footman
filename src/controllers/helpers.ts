@@ -16,7 +16,8 @@ interface resultsGeneratorType {
     seeTeam: seeTeamResults,
     preFormCreateTeam: preFormCreateTeamResults,
     postFormCreateTeam: postFormCreateTeamResults,
-    preFormUpdateTeam: preFormUpdateTeamResults
+    preFormUpdateTeam: preFormUpdateTeamResults,
+    postFormUpdateTeam: postFormUpdateTeamResults
     
 }
 
@@ -101,6 +102,7 @@ export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults
 export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
 };
+export interface postFormUpdateTeamResults extends postFormCreateTeamResults {};
 
 
 interface attributePlaceholderType {
@@ -374,6 +376,9 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
         preFormUpdateTeam: {
             name: '',
             competitions: []
+        },
+        postFormUpdateTeam: {
+            name: ''
         }
         
     }

@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
+import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
 seeTeamResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Team, { TeamModel } from '../models/team';
 import { Transaction } from 'sequelize';
@@ -27,6 +27,7 @@ let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
 let postFormCreateTeamResults: postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
 let preFormUpdateTeamResults: preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
+let postFormUpdateTeamResults: postFormUpdateTeamResults = resultsGenerator().postFormUpdateTeam;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
@@ -346,6 +347,133 @@ export const preFormUpdateTeam = async function(req: Request, res: Response, nex
       preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
       
       return
+}
+
+const postFormUpdateTeamCb = async function(t:Transaction){
+      
+      const nextCompetitionTemplate = async function(season:string,competitionName:string){
+            const nextCompetition = await Competition.findOne({
+                  where: {
+                        name: competitionName
+                  },
+                  include: {
+                        model: Team,
+                        through: {
+                              where: {
+                                    season: season
+                              }
+                        }
+
+                  },
+                  transaction: t
+            }).catch(function(error:Error){
+                  throw error
+              })
+            return nextCompetition
+      }
+
+      const allSeasons = async function(){
+
+            const getAllCompetitions = queryHelpers.getAllCompetitions;
+            const getAllTeams = queryHelpers.getAllTeams;
+            const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
+                  return queryHelpers.seasonsGenerator(comps,teams)
+            }
+
+            const competitions = await getAllCompetitions(t).catch(function(error:Error){
+                  throw error
+              });
+            const teams = await getAllTeams(t).catch(function(error:Error){
+                  throw error
+              });
+
+            if(competitions || teams){
+                  return seasonsGenerator(competitions, teams)
+            }
+            else{
+                  const error = new Error('Query did not return valid data.')
+                  throw(error)
+            }
+      }
+
+      const seasons = await allSeasons().catch(function(err){
+            throw(err);
+      });
+
+      const getRelevantCompetitions = async function(){
+           
+            let competitionPromises:((() => Promise<CompetitionModel|null>)[])[] = [];
+            const competitionNames = postFormUpdateTeamResults.chosenCompetitions;
+            if(competitionNames && competitionNames.length > 0){
+                  for(let season of seasons){
+                        let seasonCompetitions:(() => Promise<CompetitionModel | null>)[] = []
+                        for(let compName of competitionNames){
+                              const nextPromise = async function(){
+                                   return await nextCompetitionTemplate(season,compName).catch(function(err:Error){
+                                       throw err;
+                                    })
+                                    
+                               } 
+                        seasonCompetitions = [...seasonCompetitions, nextPromise]
+                        }
+                        competitionPromises = [...competitionPromises, seasonCompetitions]
+                  }
+            }    
+            return competitionPromises 
+      };
+
+      const updateTeams = async function(){
+
+            const teamParameters = {...postFormUpdateTeamResults};
+            Object.assign(teamParameters, {chosenCompetitions: undefined});
+            
+            const promiseArrays = await getRelevantCompetitions().catch(function(err:Error){
+                  throw err;
+            }); 
+            const relevantCompetitions = promiseArrays.map(async function(competitionPromises){
+                  await Promise.all(competitionPromises).catch(function(err:Error){
+                        throw err;
+                  })
+            });
+
+            let seasonsIndex = 0; 
+            for (let competitionSet of relevantCompetitions){
+                  const updatedTeam = await Team.findOne(
+                        {where: {
+                              name: teamParameters.name
+                        },
+                        include: {
+                              model: Competition,
+                              through: {
+                                    where: {
+                                          season: seasons[seasonsIndex]
+                                    }
+                              }
+                        },
+                        transaction: t}
+
+                  ).catch(function(err:Error){
+                        throw err
+                  })
+
+                  updatedTeam?.set({...teamParameters})
+
+                  await (updatedTeam as any).setCompetitions(competitionSet, {transaction: t}).catch(function(err:Error){
+                        throw err
+                  })
+
+                  await updatedTeam?.save().catch(function(err:Error){
+                        throw err
+                  })
+
+                  seasonsIndex++
+            }
+      }
+
+      await updateTeams().catch(function(err:Error){
+            throw err;
+      })
+     
 }
 
 
