@@ -9,6 +9,7 @@ import  Team, { TeamModel } from '../models/team'
 
 
 interface resultsGeneratorType {
+    seeCompetition: seeCompetitionResults,
     seePlayer: seePlayerResults,
     preFormCreatePlayer: preFormCreatePlayerResults,
     postFormCreatePlayer: postFormCreatePlayerResults,
@@ -17,7 +18,8 @@ interface resultsGeneratorType {
     preFormCreateTeam: preFormCreateTeamResults,
     postFormCreateTeam: postFormCreateTeamResults,
     preFormUpdateTeam: preFormUpdateTeamResults,
-    postFormUpdateTeam: postFormUpdateTeamResults
+    postFormUpdateTeam: postFormUpdateTeamResults,
+    
     
 }
 
@@ -335,6 +337,10 @@ export const renderers = {
 
 export const resultsGenerator : () => resultsGeneratorType = function(){
     return {
+        seeCompetition: {
+            name: ''
+
+        },
         seePlayer : {
             firstName: '',
             lastName: '',
