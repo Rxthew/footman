@@ -6,7 +6,7 @@ import { TeamModel } from "./team";
 export interface CompetitionModel extends Model<InferAttributes<CompetitionModel>,InferCreationAttributes<CompetitionModel>>{
     id: string | undefined,
     name: string,
-    code: number,
+    code?: number,
     teams?: TeamModel[];
     
 }

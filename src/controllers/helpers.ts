@@ -10,6 +10,7 @@ import  Team, { TeamModel } from '../models/team'
 
 interface resultsGeneratorType {
     preFormCreateCompetition: preFormCreateCompetitionResults,
+    postFormCreateCompetition: postFormCreateCompetitionResults,  
     seeCompetition: seeCompetitionResults,
     seePlayer: seePlayerResults,
     preFormCreatePlayer: preFormCreatePlayerResults,
@@ -99,6 +100,11 @@ export interface postFormCreatePlayerResults {
     season?: string,
     code?: number
     
+}
+
+export interface postFormCreateCompetitionResults {
+    name: string,
+    chosenTeams?: string[]
 }
 
 export interface postFormCreateTeamResults {
@@ -358,6 +364,9 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
     return {
         preFormCreateCompetition: {
             teams: []
+        },
+        postFormCreateCompetition: {
+            name: ''
         },
         seeCompetition: {
             name: ''
