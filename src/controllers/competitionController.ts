@@ -118,6 +118,15 @@ const preFormCreateCompetitionCb = async function(t:Transaction){
        return 
 }
 
+export const preFormCreateCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+
+      await transactionWrapper(preFormCreateCompetitionCb).catch(function(error:Error){
+            throw error
+        });
+      preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+      preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
+}
+
 
 
 
