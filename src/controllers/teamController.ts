@@ -454,19 +454,19 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
                   ).catch(function(err:Error){
                         throw err
-                  })
+                  });
 
-                  updatedTeam?.set({...teamParameters})
+                  updatedTeam?.set({...teamParameters});
 
                   await (updatedTeam as any).setCompetitions(competitionSet, {transaction: t}).catch(function(err:Error){
                         throw err
-                  })
+                  });
 
                   await updatedTeam?.save().catch(function(err:Error){
                         throw err
-                  })
+                  });
 
-                  seasonsIndex++
+                  seasonsIndex++;
             }
       }
 
@@ -474,6 +474,34 @@ const postFormUpdateTeamCb = async function(t:Transaction){
             throw err;
       })
      
+}
+
+export const postFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+
+      submitTeamValidator();
+      const errors = validationResult(req);
+
+      if(!errors.isEmpty()){
+
+            await transactionWrapper(preFormUpdateTeamCb).catch(function(err){
+                  throw err
+            });
+            Object.assign(preFormUpdateTeamResults, req.body, {errors: errors.mapped()});
+            preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);       
+
+      }
+      else{
+            Object.assign(postFormUpdateTeamResults, req.body);
+            await transactionWrapper(postFormUpdateTeamCb).catch(function(error:Error){
+                  throw error
+              });
+            const [name,code] = [postFormUpdateTeamResults.name, req.params.code];
+            res.redirect(`/team/${name}_${code}`);
+
+      }
+
+      preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
+      postFormUpdateTeamResults = resultsGenerator().postFormUpdateTeam;
 }
 
 
