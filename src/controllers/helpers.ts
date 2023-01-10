@@ -75,6 +75,7 @@ export interface preFormCreateCompetitionResults {
     errors?: {[index: string]: string | number},
     chosenTeams?: string[],
     ranking?: boolean
+    points?: {[index: string]: number}
 }
 
 export interface preFormCreateTeamResults {
@@ -109,6 +110,7 @@ export interface postFormCreateCompetitionResults {
     name: string,
     chosenTeams?: string[]
     ranking?: boolean
+    points?: {[index: string]: number}
 }
 
 export interface postFormCreateTeamResults {
@@ -483,6 +485,7 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
 }
 
 export const validators = function(){
+
 
     const _sanitiseString = function(stringsArray: string[]){
         stringsArray.forEach(val => 
