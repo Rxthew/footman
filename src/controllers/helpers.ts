@@ -108,9 +108,10 @@ export interface postFormCreatePlayerResults {
 
 export interface postFormCreateCompetitionResults {
     name: string,
-    chosenTeams?: string[]
-    ranking?: boolean
-    points?: {[index: string]: number}
+    chosenTeams?: string[],
+    ranking?: boolean,
+    points?: {[index: string]: number},
+    season?: string
 }
 
 export interface postFormCreateTeamResults {
@@ -200,6 +201,47 @@ export const queryHelpers = {
 
     },
 
+    getDissociatedTeam: async function(t:Transaction, givenName: string){
+        const teams = await Team.findAll({
+            where: {
+                name: givenName
+            },
+            include: [{
+                model: Competition,
+                through: {
+                    attributes: ['season']
+                }
+            }],
+            transaction: t
+        }).catch(function(error:Error){
+            throw error
+        })
+
+        const dissociated = teams.filter(team => (team as any).countCompetitions() === 0)
+        return dissociated.length > 0 ? dissociated[0] : null
+
+    },
+
+    getTeamBySeason: async function(t:Transaction, givenName: string, chosenSeason: string){
+        const team = await Team.findOne({
+            where: {
+                name: givenName
+            },
+            include: [{
+                model: Competition,
+                where: {
+                    season: chosenSeason
+                }
+            }]
+
+        }).catch(function(error:Error){
+            throw error
+        })
+
+        return team
+
+    },
+
     getAllTeams : async function(t:Transaction){
         const teams = await Team.findAll({
               include: [{
@@ -219,7 +261,26 @@ export const queryHelpers = {
         const names = results.filter(team => team.getDataValue('name'))
         const uniqueNames = Array.from(new Set(names))
         return uniqueNames
-  },
+    },
+
+    getSeasons: function(){
+        return ['2021/22']
+    },
+
+    nextTeamTemplate: async function(t: Transaction,givenName: string, season: string){
+        const nextTeam = await this.getTeamBySeason(t,givenName,season).catch(function(err:Error){throw err});
+            if(nextTeam){
+                  return nextTeam
+            }
+            const nextDissociatedTeam = await this.getDissociatedTeam(t,givenName).catch(function(err:Error){throw err});
+            if(nextDissociatedTeam){
+                  return nextDissociatedTeam
+            }
+            else{
+                  return await Team.create({name: givenName},{transaction:t}).catch(function(err:Error){throw err});
+            }
+
+    },
 
     getAllSeasons : function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
 
