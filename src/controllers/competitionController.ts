@@ -61,7 +61,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
                   Object.assign(seeCompetitionResults, results.competition.get(), {teams: results.teams.get()});   
             }
             else{
-                  const err = new Error('Query returned invalid data.');
+                  const err = new Error('Query regarding competition viewing returned invalid data.');
                   throw err;
 
             }
@@ -111,7 +111,7 @@ const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
                   Object.assign(preFormCreateCompetitionResults,{teams: teamNames});
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding competition creation returned invalid data.')
                   throw err
 
             }  
@@ -327,7 +327,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                   Object.assign(preFormUpdateCompetitionResults,{teams: teamNames});
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding competition update returned invalid data.')
                   throw err
 
             }  

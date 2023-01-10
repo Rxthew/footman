@@ -65,7 +65,7 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
                   Object.assign(seeTeamResults, results.team.get(), {players: results.players.get()}, {competitions: results.competitions.get()});   
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding team viewing returned invalid data.')
                   throw err
 
             }
@@ -113,7 +113,7 @@ const preFormCreateTeamCb = async function(t: Transaction){
                   Object.assign(preFormCreateTeamResults,{competitions: competitions});
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding team creation returned invalid data.')
                   throw err
 
             }  
@@ -303,7 +303,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
                   Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: attributes.name});
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding team update returned invalid data.')
                   throw err
 
             }  

@@ -70,7 +70,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
             }
             
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding player viewing returned invalid data.')
                   throw err
 
             }
@@ -121,7 +121,7 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
                   Object.assign(preFormCreatePlayerResults, teams, seasons);                 
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding player creation returned invalid data.')
                   throw err
 
             }
@@ -309,7 +309,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
                             
             }
             else{
-                  const err = new Error('Query returned invalid data.')
+                  const err = new Error('Query regarding player update returned invalid data.')
                   throw err
 
             }
