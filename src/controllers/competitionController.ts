@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { attributesPlaceholders, preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
 seeCompetitionResults, syncAttributes, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
-import Competition, {CompetitionModel} from '../models/competition';
+import Competition from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -161,26 +161,10 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
 
       const allSeasons = async function(){
 
-            const getAllCompetitions = queryHelpers.getAllCompetitions;
-            const getAllTeams = queryHelpers.getAllTeams;
-            const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
-                  return queryHelpers.seasonsGenerator(comps,teams)
-            }
-
-            const competitions = await getAllCompetitions(t).catch(function(error:Error){
-                  throw error
-              });
-            const teams = await getAllTeams(t).catch(function(error:Error){
-                  throw error
-              });
-
-            if(competitions || teams){
-                  return seasonsGenerator(competitions, teams)
-            }
-            else{
-                  const error = new Error('Query did not return valid data.')
-                  throw(error)
-            }
+            return await queryHelpers.generateAllSeasons(t).catch(function(err){
+                  throw(err)
+            });
+      
       }
 
       const seasons = await allSeasons().catch(function(err){
@@ -397,26 +381,10 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       const allSeasons = async function(){
 
-            const getAllCompetitions = queryHelpers.getAllCompetitions;
-            const getAllTeams = queryHelpers.getAllTeams;
-            const seasonsGenerator = function(comps: CompetitionModel[],teams: TeamModel[]){
-                  return queryHelpers.seasonsGenerator(comps,teams)
-            }
-
-            const competitions = await getAllCompetitions(t).catch(function(error:Error){
-                  throw error
-              });
-            const teams = await getAllTeams(t).catch(function(error:Error){
-                  throw error
-              });
-
-            if(competitions || teams){
-                  return seasonsGenerator(competitions, teams)
-            }
-            else{
-                  const error = new Error('Query did not return valid data.')
-                  throw(error)
-            }
+            return await queryHelpers.generateAllSeasons(t).catch(function(err){
+                  throw(err)
+            });
+      
       }
 
       const seasons = await allSeasons().catch(function(err){
@@ -516,7 +484,6 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             }
 
       }
-
 
       await updateCompetitions().catch(function(err:Error){
             throw err;
