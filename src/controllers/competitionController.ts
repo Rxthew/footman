@@ -22,7 +22,8 @@ const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
 const seeCompetitionRenderer = renderers.seeCompetition;
 
-const submitCompetitionValidator = validators().postFormCompetition;
+const createCompetitionValidator = validators().postFormCreateCompetition;
+const updateCompetitionValidator = validators().postFormUpdateCompetition;
 
 let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
 let postFormCreateCompetitionResults: postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
@@ -279,8 +280,8 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
                   }
             }
       }
-
-      submitCompetitionValidator();
+                
+      createCompetitionValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -361,7 +362,6 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
 
 const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
-      const attributes = seeCompetitionAttributes().seeCompetition;
 
       const nextTeamTemplate = async function(givenName:string, season:string){
             return queryHelpers.nextTeamTemplate(t,givenName, season)
@@ -406,7 +406,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             const updatedCompetition = await Competition.findOne({
                   where: {
                         name: competitionParameters.name,
-                        code: attributes.code
+                        code: competitionParameters.code
                   },
                   include: [{
                         model: Team
@@ -487,13 +487,13 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
       latestCompetition ? await applyRanking(latestCompetition).catch(function(err:Error){
             throw err;
       }): false;
-      seeCompetitionAttributes().reset();
 
 };
 
 export const postFormUpdateCompetition = async function(req:Request,res:Response,next:NextFunction):Promise<void>{
 
-      submitCompetitionValidator();
+      postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, {code: req.params.code}) : false;
+      updateCompetitionValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){

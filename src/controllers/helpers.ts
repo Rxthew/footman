@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import { body } from 'express-validator'
-import { Transaction } from 'sequelize'
+import { Op, Transaction } from 'sequelize'
 import { CompetitionModel } from '../models/competition'
 import { sequelize } from '../models/concerns/initdb'
 import Competition from '../models/competition'
@@ -111,7 +111,8 @@ export interface postFormCreateCompetitionResults {
     chosenTeams?: string[],
     ranking?: boolean,
     points?: {[index: string]: number},
-    season?: string
+    season?: string,
+    
 }
 
 export interface postFormCreateTeamResults {
@@ -128,7 +129,9 @@ export interface postFormUpdateTeamResults extends postFormCreateTeamResults {};
 export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
     name: string,
 };
-export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {};
+export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
+    code?: number
+};
 
 
 interface attributePlaceholderType {
@@ -547,6 +550,62 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
 
 export const validators = function(){
 
+    const _finderFunctions = {
+        duplicateCreateCompetition: async function(valuesArray:string[]){
+            const [chosenName, chosenSeason] = valuesArray;
+            if(chosenSeason){
+                const duplicate = await Competition.findOne({
+                    where: {
+                        name: chosenName,
+                    },
+                    include: [{
+                        model: Team,
+                        where: {
+                            season: chosenSeason
+                        }
+                    }]
+                }).catch(function(err:Error){throw err})
+    
+                return duplicate ? Promise.reject('There appears to be a duplicate for this. Try a different season or name')  : Promise.resolve() 
+            }
+            else{
+                return Promise.resolve()
+            }
+
+        },
+        duplicateUpdateCompetition: async function(valuesArray: string[]){
+            const [chosenName,code,chosenSeason] = valuesArray;
+            if(code && chosenSeason){
+                const duplicate = await Competition.findOne({
+                    where: {
+                        name: chosenName,
+                        code: {
+                            [Op.not]: code
+                        }
+                    },
+                    include: [{
+                        model: Team,
+                        where: {
+                            season: chosenSeason
+                        }
+                    }]
+                }).catch(function(err:Error){throw err})
+    
+                return duplicate ? Promise.reject('There appears to be a duplicate for this. Try a different season or name')  : Promise.resolve() 
+            }
+            else{
+                return Promise.resolve()
+            }
+             
+        }
+    }
+
+    const _checkDuplicate = async function(finderFunction:(valuesArray:string[])=>Promise<void>, valuesArray:string[]){
+        body(valuesArray).custom(
+            finderFunction
+        )
+
+    }
 
     const _sanitiseString = function(stringsArray: string[]){
         stringsArray.forEach(val => 
@@ -565,8 +624,13 @@ export const validators = function(){
         postFormTeam: () => {
             _sanitiseString(['name'])
         },
-        postFormCompetition: () => {
+        postFormCreateCompetition: () => {
             _sanitiseString(['name'])
+            _checkDuplicate(_finderFunctions.duplicateCreateCompetition,['name','season'])
+        },
+        postFormUpdateCompetition: () => {
+            _sanitiseString(['name'])
+            _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,['name','code','season'])
         }
 
     }
