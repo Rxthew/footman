@@ -385,40 +385,6 @@ export const queryHelpers = {
         
   },
 
-    seasonsGenerator: function(competitions: CompetitionModel[], teams: TeamModel[]){
-        if(competitions && competitions.length > 0){
-            return this.getAllSeasons(competitions, 'competition')
-        }
-        else if(teams && teams.length>0){
-            return this.getAllSeasons(teams, 'team')
-        }
-        else{
-            return ['2021/22']
-        }
-
-    },
-
-    generateAllSeasons: async function(t:Transaction){
-        const getAllCompetitions = queryHelpers.getAllCompetitions;
-            const getAllTeams = queryHelpers.getAllTeams;
-            const seasonsGenerator = this.seasonsGenerator;
-            
-
-            const competitions = await getAllCompetitions(t).catch(function(error:Error){
-                  throw error
-              });
-            const teams = await getAllTeams(t).catch(function(error:Error){
-                  throw error
-              });
-
-            if(competitions || teams){
-                  return seasonsGenerator(competitions, teams)
-            }
-            else{
-                  const error = new Error('Query requesting seasons did not return valid data.')
-                  throw(error)
-            }
-    }
 
     
 }
