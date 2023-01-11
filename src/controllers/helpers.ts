@@ -719,6 +719,27 @@ export const validators = function(){
 
     }
 
+    const _teamSeasonCheck = async function(valuesArray: string[]){
+        const [givenName, chosenSeason] = valuesArray;
+        const team = await Team.findOne({
+            where: {
+                name: givenName
+            },
+            include: [{
+                model: Competition,
+                where: {
+                    season: chosenSeason
+                }
+            }],
+        }).catch(function(error:Error){
+            throw error
+        })
+        
+        return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose. You can either create the team for that season and come back or choose a different team for this player.')
+
+
+    }
+
     const _sanitiseString = function(stringsArray: string[]){
         stringsArray.forEach(val => 
             body(val, `${val} must not be empty.`)
@@ -729,9 +750,10 @@ export const validators = function(){
     }
 
     return {
-        postFormPlayer: () => {
+        postFormPlayer: (teamSeason: boolean) => {
             const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position']
             _sanitiseString(requiredValues);
+            teamSeason ? body(['team','season']).custom(_teamSeasonCheck) : teamSeason
         },
         postFormCreateTeam: () => {
             _sanitiseString(['name'])

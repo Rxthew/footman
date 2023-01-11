@@ -1,7 +1,8 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { attributesPlaceholders, postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
+      renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -225,9 +226,9 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
                         return next(err)
                   }
             }
-      }
+      };
 
-      submitPlayerValidator();
+      (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -390,6 +391,11 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
                     })
 
             }
+            else{
+                  await (updatedPlayer as any).setTeam(null, {transaction: t}).catch(function(error:Error){
+                        throw error
+                  })
+            }
             
       }
 
@@ -404,7 +410,7 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 export const postFormUpdatePlayer = async function(req: Request, res: Response, next:NextFunction): Promise<void>{
 
       Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
-      submitPlayerValidator();
+      (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
 
       const errors = validationResult(req);
 
