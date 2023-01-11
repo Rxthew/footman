@@ -106,9 +106,10 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
 
 const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
-      const getAllTeams = queryHelpers.getAllTeams
-      const getAllTeamNames = queryHelpers.getAllTeamNames
-      const getAllSeasons = queryHelpers.getAllSeasons
+      const getAllTeams = queryHelpers.getAllTeams;
+      const getAllTeamsWithCompetitions = queryHelpers.getAllTeamsWithCompetitions;
+      const getAllTeamNames = queryHelpers.getAllTeamNames;
+      const getAllSeasons = queryHelpers.getAllSeasons;
 
       const results = await getAllTeams(t).catch(function(error:Error){
             throw error
@@ -116,7 +117,8 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
       const populatePreFormCreatePlayer = function(){
             if(results){
-                  const teams = getAllTeamNames(results);
+                  const associatedTeams = getAllTeamsWithCompetitions(results);
+                  const teams = getAllTeamNames(associatedTeams);
                   const seasons = getAllSeasons(results, 'team'); 
                   Object.assign(preFormCreatePlayerResults, teams, seasons);                 
             }
@@ -253,13 +255,16 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
 
 const preFormUpdatePlayerCb = async function(t: Transaction){
 
-      const getAllTeams = queryHelpers.getAllTeams
-      const getAllTeamNames = queryHelpers.getAllTeamNames
-      const getAllSeasons = queryHelpers.getAllSeasons
+      const getAllTeams = queryHelpers.getAllTeams;
+      const getAllTeamsWithCompetitions = queryHelpers.getAllTeamsWithCompetitions;
+      const getAllTeamNames = queryHelpers.getAllTeamNames;
+      const getAllSeasons = queryHelpers.getAllSeasons;
 
       const allTeams = await getAllTeams(t).catch(function(error:Error){
             throw error
         })
+      
+      const allAssociatedTeams = getAllTeamsWithCompetitions(allTeams);
 
       const updatePlayerQuery = async function(){
             const attributes = seePlayerAttributes().seePlayer
@@ -283,7 +288,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
             }).catch(function(error:Error){
                   throw error
               })
-            const teams = getAllTeamNames(allTeams);
+            const teams = getAllTeamNames(allAssociatedTeams);
             const seasons = getAllSeasons(allTeams, 'team');
             const season = team.competitions[0]['TeamsCompetitions'].get('season');
             return {

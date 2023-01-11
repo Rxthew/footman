@@ -288,6 +288,11 @@ export const queryHelpers = {
 
     },
 
+    getAllTeamsWithCompetitions : function(results: TeamModel[]){
+        const teams = results.filter(team =>  (team as any).countCompetitions() > 0);
+        return teams
+    },
+
     getAllTeams : async function(t:Transaction){
         const teams = await Team.findAll({
               include: [{
