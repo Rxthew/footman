@@ -117,7 +117,8 @@ export interface postFormCreateCompetitionResults {
 
 export interface postFormCreateTeamResults {
     name: string,
-    chosenCompetitions?: string[]
+    chosenCompetitions?: string[],
+    season?: string
 }
 
 export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
@@ -125,7 +126,9 @@ export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults
 export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
 };
-export interface postFormUpdateTeamResults extends postFormCreateTeamResults {};
+export interface postFormUpdateTeamResults extends postFormCreateTeamResults {
+    code?: number
+};
 export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
     name: string,
 };
@@ -204,6 +207,25 @@ export const queryHelpers = {
 
     },
 
+    getDissociatedCompetition: async function(t:Transaction,givenName:string){
+        const competitions = Competition.findAll({
+            where: {
+                name: givenName
+            },
+            include: [{
+                model: Team,
+                through: {
+                    attributes: ['season']
+                }
+            }],
+            transaction: t
+        }).catch(function(error:Error){throw error})
+
+        const dissociated = (await competitions).filter(competition => (competition as any).countTeams() === 0)
+        return dissociated.length > 0 ? dissociated[0] : null
+
+    },
+
     getDissociatedTeam: async function(t:Transaction, givenName: string){
         const teams = await Team.findAll({
             where: {
@@ -225,6 +247,26 @@ export const queryHelpers = {
 
     },
 
+    getCompetitionBySeason: async function(t: Transaction, givenName:string, chosenSeason:string){
+        const competition = await Competition.findOne({
+            where: {
+                name: givenName
+            },
+            include: [{
+                model: Team,
+                where: {
+                    season: chosenSeason
+                }
+            }],
+            transaction: t
+        }).catch(function(error:Error){
+            throw error
+        })
+
+        return competition
+
+    },
+
     getTeamBySeason: async function(t:Transaction, givenName: string, chosenSeason: string){
         const team = await Team.findOne({
             where: {
@@ -235,7 +277,8 @@ export const queryHelpers = {
                 where: {
                     season: chosenSeason
                 }
-            }]
+            }],
+            transaction: t
 
         }).catch(function(error:Error){
             throw error
@@ -268,6 +311,21 @@ export const queryHelpers = {
 
     getSeasons: function(){
         return ['2021/22']
+    },
+
+    nextCompetitionTemplate: async function(t:Transaction, givenName:string, season:string){
+        const nextCompetition = await this.getCompetitionBySeason(t,givenName,season).catch(function(err:Error){throw err});
+        if(nextCompetition){
+            return nextCompetition
+        }
+        const nextDissociatedCompetition = await this.getDissociatedCompetition(t,givenName).catch(function(err:Error){throw err});
+        if(nextDissociatedCompetition){
+            return nextDissociatedCompetition
+        }
+        else{
+            return await Competition.create({name: givenName}).catch(function(err:Error){throw err});
+        }
+
     },
 
     nextTeamTemplate: async function(t: Transaction,givenName: string, season: string){
@@ -597,6 +655,55 @@ export const validators = function(){
                 return Promise.resolve()
             }
              
+        },
+
+        duplicateCreateTeam: async function(valuesArray: string[]){
+            const [chosenName, chosenSeason] = valuesArray;
+            if(chosenSeason){
+                const duplicate = await Team.findOne({
+                    where: {
+                        name: chosenName,
+                    },
+                    include: [{
+                        model: Competition,
+                        where: {
+                            season: chosenSeason
+                        }
+                    }]
+                }).catch(function(err:Error){throw err})
+    
+                return duplicate ? Promise.reject('There appears to be a duplicate for this. Try a different season or name')  : Promise.resolve() 
+            }
+            else{
+                return Promise.resolve()
+            }
+            
+        },
+
+        duplicateUpdateTeam: async function(valuesArray: string[]){
+            const [chosenName,code,chosenSeason] = valuesArray;
+            if(code && chosenSeason){
+                const duplicate = await Team.findOne({
+                    where: {
+                        name: chosenName,
+                        code: {
+                            [Op.not]: code
+                        }
+                    },
+                    include: [{
+                        model: Competition,
+                        where: {
+                            season: chosenSeason
+                        }
+                    }]
+                }).catch(function(err:Error){throw err})
+    
+                return duplicate ? Promise.reject('There appears to be a duplicate for this. Try a different season or name')  : Promise.resolve() 
+            }
+            else{
+                return Promise.resolve()
+            }
+
         }
     }
 
@@ -621,8 +728,13 @@ export const validators = function(){
             const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position']
             _sanitiseString(requiredValues);
         },
-        postFormTeam: () => {
+        postFormCreateTeam: () => {
             _sanitiseString(['name'])
+            _checkDuplicate(_finderFunctions.duplicateCreateTeam,['name','season'])
+        },
+        postFormUpdateTeam: () => {
+            _sanitiseString(['name'])
+            _checkDuplicate(_finderFunctions.duplicateUpdateTeam,['name','season'])
         },
         postFormCreateCompetition: () => {
             _sanitiseString(['name'])

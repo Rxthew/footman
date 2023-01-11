@@ -182,7 +182,7 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             });
 
             if(teamPromises.length === 0){
-                  return createDissociatedCompetition()
+                  return await createDissociatedCompetition()
             }
              
             const relevantTeams = await Promise.all(teamPromises).catch(function(err:Error){throw err});
