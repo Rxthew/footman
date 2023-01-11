@@ -72,16 +72,20 @@ export interface preFormCreatePlayerResults {
 
 export interface preFormCreateCompetitionResults {
     teams: string[],
+    seasons: string[],
     errors?: {[index: string]: string | number},
     chosenTeams?: string[],
-    ranking?: boolean
-    points?: {[index: string]: number}
+    ranking?: boolean,
+    points?: {[index: string]: number},
+    season?: string
 }
 
 export interface preFormCreateTeamResults {
     competitions: string[],
+    seasons: string[],
     errors?: {[index: string]: string | number},
     chosenCompetitions?: string[],
+    season?: string
     
 }
 
@@ -545,14 +549,16 @@ export const renderers = {
 export const resultsGenerator : () => resultsGeneratorType = function(){
     return {
         preFormCreateCompetition: {
-            teams: []
+            teams: [],
+            seasons: []
         },
         postFormCreateCompetition: {
             name: ''
         },
         preFormUpdateCompetition: {
             name: '',
-            teams: []
+            teams: [],
+            seasons: []
 
         },
         postFormUpdateCompetition: {
@@ -596,13 +602,15 @@ export const resultsGenerator : () => resultsGeneratorType = function(){
         },
         preFormCreateTeam: {
             competitions: [],
+            seasons: []
         },
         postFormCreateTeam: {
             name: '',
         },
         preFormUpdateTeam: {
             name: '',
-            competitions: []
+            competitions: [],
+            seasons: []
         },
         postFormUpdateTeam: {
             name: ''
@@ -735,7 +743,8 @@ export const validators = function(){
             throw error
         })
         
-        return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose. You can either create the team for that season and come back or choose a different team for this player.')
+        return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.'+
+         ' You can either create the team for that season and come back or choose a different team for this player.')
 
 
     }

@@ -121,7 +121,7 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
                   const associatedTeams = getAllTeamsWithCompetitions(results);
                   const teams = getAllTeamNames(associatedTeams);
                   const seasons = getAllSeasons(results, 'team'); 
-                  Object.assign(preFormCreatePlayerResults, teams, seasons);                 
+                  Object.assign(preFormCreatePlayerResults, {teams: teams}, {seasons: seasons});                 
             }
             else{
                   const err = new Error('Query regarding player creation returned invalid data.')

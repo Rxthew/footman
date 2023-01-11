@@ -103,6 +103,7 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
       const getAllCompetitions = queryHelpers.getAllCompetitions;
       const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
+      const getAllSeasons = queryHelpers.getSeasons
       const results = await getAllCompetitions(t).catch(function(error:Error){
             throw error
         });
@@ -111,7 +112,7 @@ const preFormCreateTeamCb = async function(t: Transaction){
       const populatePreFormCreateTeam = function(){
             if(results){
                   const competitions = getAllCompetitionNames(results);
-                  Object.assign(preFormCreateTeamResults,{competitions: competitions});
+                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: getAllSeasons()});
             }
             else{
                   const err = new Error('Query regarding team creation returned invalid data.')
@@ -251,6 +252,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 
       const getAllCompetitions = queryHelpers.getAllCompetitions;
       const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
+      const getSeasons = queryHelpers.getSeasons;
       const results = await getAllCompetitions(t).catch(function(error:Error){
             throw error
         });
@@ -269,7 +271,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
                         Object.assign(preFormUpdateTeamResults, {chosenCompetitions: chosen})
                         competitions.filter(comp => !chosen.includes(comp))
                   }
-                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: attributes.name});
+                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: attributes.name}, {seasons: getSeasons()});
             }
             else{
                   const err = new Error('Query regarding team update returned invalid data.')
