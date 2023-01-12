@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
 import * as queryHelpers from './helpers/queries';
-import { renderers } from './helpers/renderers';
+import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
 import  Team from '../models/team';
