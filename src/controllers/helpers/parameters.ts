@@ -22,35 +22,36 @@ interface competitionParametersType {
 };
 
 
-export let competitionParameters: competitionParametersType = {
+let competitionParameters: competitionParametersType = {
     name: '',
     code: undefined
 
 };
 
-export let playerParameters: playerParametersType = {
+let playerParameters: playerParametersType = {
     firstName: '',
     lastName: '',
     code: undefined
 
 };
 
-export let teamParameters: teamParametersType = {
+let teamParameters: teamParametersType = {
     name: '',
     code: undefined
 
 };
 
 
-export const resetPlaceholderAttributes = function<T extends {}>(obj:T){
+const _resetPlaceholderParameters = function<T extends {}>(obj:T){
     const placeholders = Object.assign({},obj);
     const resetAttributes = function(){
         Object.assign(obj, placeholders) 
     }
     return resetAttributes
-}
+};
 
-export const syncAttributes = function(){
+
+const _syncParameters = function(placeholderObject:competitionParametersType | playerParametersType | teamParametersType){
 
     const _emptyResultHandler = function(value: string | number | undefined): Error | null{
         const error = new Error('Something went wrong when fetching the requested details.');
@@ -58,7 +59,7 @@ export const syncAttributes = function(){
         return value === '' || value === undefined ? throwError() : null
     };
 
-    const _assessRequestParameters = function(req: Request, next: NextFunction, placeholderObject:competitionParametersType | playerParametersType | teamParametersType): void{
+    const _assessRequestParameters = function(req: Request, next: NextFunction,): void{
         try {           
             let attributes = Object.assign({},placeholderObject)                     
             for(let name of Object.keys(attributes)){
@@ -75,17 +76,37 @@ export const syncAttributes = function(){
 
     }
 
-    return {
-        getSeePlayerAttributes: function(req: Request, next: NextFunction): void{
-            _assessRequestParameters(req, next, playerParameters)
-        },
-        getSeeTeamAttributes: function(req: Request, next:NextFunction): void{
-            _assessRequestParameters(req, next, teamParameters)
-        },
-        getSeeCompetitionAttributes: function(req: Request, next: NextFunction): void{
-            _assessRequestParameters(req,next,competitionParameters)
-
-        }
+    return function(req: Request, next: NextFunction,){
+        _assessRequestParameters(req, next)
     }
     
 }
+
+export const competitionParameterPlaceholder = function(){
+    const resetCompetitionParameters = _resetPlaceholderParameters(competitionParameters);
+    return {
+        parameters: competitionParameters,
+        reset: resetCompetitionParameters
+    }
+}
+
+export const playerParameterPlaceholder = function(){
+    const resetPlayerParameters = _resetPlaceholderParameters(playerParameters);
+    return {
+        parameters: playerParameters,
+        reset: resetPlayerParameters
+    }
+}
+
+export const teamParameterPlaceholder = function(){
+    const resetTeamParameters = _resetPlaceholderParameters(teamParameters);
+    return {
+        parameters: teamParameters,
+        reset: resetTeamParameters
+    }
+}
+
+
+export const assessCompetitionParameters = _syncParameters(competitionParameters);
+export const assessPlayerParameters = _syncParameters(playerParameters);
+export const assessTeamParameters = _syncParameters(teamParameters);
