@@ -2,7 +2,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
-import { preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, renderers, resultsGenerator, 
+import { renderers } from './helpers/renderers';
+import { preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, resultsGenerator, 
 seeCompetitionResults, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
 import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';

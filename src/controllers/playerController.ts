@@ -2,8 +2,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
+import { renderers } from './helpers/renderers';
 import { postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
-      renderers, resultsGenerator, seePlayerResults, transactionWrapper, validators } from './helpers';
+       resultsGenerator, seePlayerResults, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';

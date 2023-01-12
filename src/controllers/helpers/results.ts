@@ -3,7 +3,7 @@ import { PlayerModel } from '../../models/player';
 import { TeamModel } from '../../models/team';
 
 
-interface seePlayerResults {
+export interface seePlayerResults {
     firstName: string,
     lastName: string,
     nationality: string, 
@@ -24,20 +24,20 @@ interface seePlayerResults {
 
 }
 
-interface seeTeamResults {
+export interface seeTeamResults {
     name: string
     players?: PlayerModel[]
     competitions?: CompetitionModel[]
     code?: number
 }
 
-interface seeCompetitionResults {
+export interface seeCompetitionResults {
     name: string,
     teams?: TeamModel[],
     code?: number
 }
 
-interface preFormCreatePlayerResults {
+export interface preFormCreatePlayerResults {
     teams: string[],
     seasons: string[],
     errors?: {[index: string]: string | number},
@@ -46,7 +46,7 @@ interface preFormCreatePlayerResults {
     
 }
 
-interface preFormCreateCompetitionResults {
+export interface preFormCreateCompetitionResults {
     teams: string[],
     seasons: string[],
     errors?: {[index: string]: string | number},
@@ -56,7 +56,7 @@ interface preFormCreateCompetitionResults {
     season?: string
 }
 
-interface preFormCreateTeamResults {
+export interface preFormCreateTeamResults {
     competitions: string[],
     seasons: string[],
     errors?: {[index: string]: string | number},
@@ -65,7 +65,7 @@ interface preFormCreateTeamResults {
     
 }
 
-interface postFormCreatePlayerResults {
+export interface postFormCreatePlayerResults {
     firstName: string,
     lastName: string,
     nationality: string,
@@ -86,7 +86,7 @@ interface postFormCreatePlayerResults {
     
 }
 
-interface postFormCreateCompetitionResults {
+export interface postFormCreateCompetitionResults {
     name: string,
     chosenTeams?: string[],
     ranking?: boolean,
@@ -95,24 +95,24 @@ interface postFormCreateCompetitionResults {
     
 }
 
-interface postFormCreateTeamResults {
+export interface postFormCreateTeamResults {
     name: string,
     chosenCompetitions?: string[],
     season?: string
 }
 
-interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
-interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
-interface preFormUpdateTeamResults extends preFormCreateTeamResults {
+export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
+export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
+export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
 };
-interface postFormUpdateTeamResults extends postFormCreateTeamResults {
+export interface postFormUpdateTeamResults extends postFormCreateTeamResults {
     code?: number
 };
-interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
+export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
     name: string,
 };
-interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
+export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
     code?: number
 };
 
