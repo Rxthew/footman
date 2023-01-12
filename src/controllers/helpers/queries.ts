@@ -4,8 +4,8 @@ import { sequelize } from '../../models/concerns/initdb';
 import Team, { TeamModel } from '../../models/team';
 
 
-export const queryHelpers = {
-    getAllCompetitions: async function(t:Transaction){
+
+export const getAllCompetitions = async function(t:Transaction){
         const competitions = await Competition.findAll({
             include: [{
                 model: Team,
@@ -20,16 +20,17 @@ export const queryHelpers = {
         return competitions
         
 
-    },
+ };
 
-    getAllCompetitionNames: function(results: CompetitionModel[]){
+
+export const getAllCompetitionNames = function(results: CompetitionModel[]){
         const names = results.filter(competition => competition.getDataValue('name'))
         const uniqueNames = Array.from(new Set(names))
         return uniqueNames
 
-    },
+};
 
-    getDissociatedCompetition: async function(t:Transaction,givenName:string){
+export const getDissociatedCompetition = async function(t:Transaction,givenName:string){
         const competitions = Competition.findAll({
             where: {
                 name: givenName
@@ -46,9 +47,9 @@ export const queryHelpers = {
         const dissociated = (await competitions).filter(competition => (competition as any).countTeams() === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
-    },
+};
 
-    getDissociatedTeam: async function(t:Transaction, givenName: string){
+export const getDissociatedTeam = async function(t:Transaction, givenName: string){
         const teams = await Team.findAll({
             where: {
                 name: givenName
@@ -67,9 +68,9 @@ export const queryHelpers = {
         const dissociated = teams.filter(team => (team as any).countCompetitions() === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
-    },
+};
 
-    getCompetitionBySeason: async function(t: Transaction, givenName:string, chosenSeason:string){
+export const getCompetitionBySeason = async function(t: Transaction, givenName:string, chosenSeason:string){
         const competition = await Competition.findOne({
             where: {
                 name: givenName
@@ -87,9 +88,9 @@ export const queryHelpers = {
 
         return competition
 
-    },
+};
 
-    getTeamBySeason: async function(t:Transaction, givenName: string, chosenSeason: string){
+export const getTeamBySeason = async function(t:Transaction, givenName: string, chosenSeason: string){
         const team = await Team.findOne({
             where: {
                 name: givenName
@@ -108,14 +109,14 @@ export const queryHelpers = {
 
         return team
 
-    },
+};
 
-    getAllTeamsWithCompetitions : function(results: TeamModel[]){
+export const getAllTeamsWithCompetitions = function(results: TeamModel[]){
         const teams = results.filter(team =>  (team as any).countCompetitions() > 0);
         return teams
-    },
+};
 
-    getAllTeams : async function(t:Transaction){
+export const  getAllTeams = async function(t:Transaction){
         const teams = await Team.findAll({
               include: [{
                     model: Competition,
@@ -128,24 +129,24 @@ export const queryHelpers = {
             throw error
         })
         return teams
-    },
+};
 
-    getAllTeamNames : function(results: TeamModel[]){
+export const getAllTeamNames = function(results: TeamModel[]){
         const names = results.filter(team => team.getDataValue('name'))
         const uniqueNames = Array.from(new Set(names))
         return uniqueNames
-    },
+ };
 
-    getSeasons: function(){
+export const getSeasons = function(){
         return ['2021/22']
-    },
+};
 
-    nextCompetitionTemplate: async function(t:Transaction, givenName:string, season:string){
-        const nextCompetition = await this.getCompetitionBySeason(t,givenName,season).catch(function(err:Error){throw err});
+export const nextCompetitionTemplate = async function(t:Transaction, givenName:string, season:string){
+        const nextCompetition = await getCompetitionBySeason(t,givenName,season).catch(function(err:Error){throw err});
         if(nextCompetition){
             return nextCompetition
         }
-        const nextDissociatedCompetition = await this.getDissociatedCompetition(t,givenName).catch(function(err:Error){throw err});
+        const nextDissociatedCompetition = await getDissociatedCompetition(t,givenName).catch(function(err:Error){throw err});
         if(nextDissociatedCompetition){
             return nextDissociatedCompetition
         }
@@ -153,14 +154,14 @@ export const queryHelpers = {
             return await Competition.create({name: givenName}).catch(function(err:Error){throw err});
         }
 
-    },
+};
 
-    nextTeamTemplate: async function(t: Transaction,givenName: string, season: string){
-        const nextTeam = await this.getTeamBySeason(t,givenName,season).catch(function(err:Error){throw err});
+export const  nextTeamTemplate = async function(t: Transaction,givenName: string, season: string){
+        const nextTeam = await getTeamBySeason(t,givenName,season).catch(function(err:Error){throw err});
             if(nextTeam){
                   return nextTeam
             }
-            const nextDissociatedTeam = await this.getDissociatedTeam(t,givenName).catch(function(err:Error){throw err});
+            const nextDissociatedTeam = await getDissociatedTeam(t,givenName).catch(function(err:Error){throw err});
             if(nextDissociatedTeam){
                   return nextDissociatedTeam
             }
@@ -168,9 +169,9 @@ export const queryHelpers = {
                   return await Team.create({name: givenName},{transaction:t}).catch(function(err:Error){throw err});
             }
 
-    },
+};
 
-    getAllSeasons : function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
+export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
 
         const orderSeasons = function(seasons:string[]){
             const years = seasons.map(season => parseInt(season.slice(0,4)));
@@ -201,11 +202,8 @@ export const queryHelpers = {
             case 'competition': return getThroughCompetitions(results as CompetitionModel[]);
         }
         
-  },
+  };
 
-
-    
-}
 
 export const transactionWrapper = async function(callback: (t:Transaction) => Promise<void>){
     try {
