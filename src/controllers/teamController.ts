@@ -2,8 +2,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
-import { postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, renderers, resultsGenerator, 
-seeTeamResults, transactionWrapper, validators } from './helpers';
+import { renderers } from './helpers/renderers';
+import * as validators from './helpers/validators';
+import { postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, resultsGenerator, 
+seeTeamResults, transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -14,8 +16,8 @@ const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
 const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
 const seeTeamRenderer = renderers.seeTeam;
 
-const createTeamValidator = validators().postFormCreateTeam;
-const updateTeamValidator = validators().postFormUpdateTeam;
+const createTeamValidator = validators.postFormCreateTeam;
+const updateTeamValidator = validators.postFormUpdateTeam;
 
 
 let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;

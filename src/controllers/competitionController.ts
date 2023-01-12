@@ -3,8 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
 import { renderers } from './helpers/renderers';
+import * as validators from './helpers/validators';
 import { preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, resultsGenerator, 
-seeCompetitionResults, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
+seeCompetitionResults, transactionWrapper, preFormUpdateCompetitionResults } from './helpers';
 import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
@@ -15,8 +16,8 @@ const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
 const seeCompetitionRenderer = renderers.seeCompetition;
 
-const createCompetitionValidator = validators().postFormCreateCompetition;
-const updateCompetitionValidator = validators().postFormUpdateCompetition;
+const createCompetitionValidator = validators.postFormCreateCompetition;
+const updateCompetitionValidator = validators.postFormUpdateCompetition;
 
 let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
 let postFormCreateCompetitionResults: postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;

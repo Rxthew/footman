@@ -3,8 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
 import { renderers } from './helpers/renderers';
+import * as validators from './helpers/validators';
 import { postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
-       resultsGenerator, seePlayerResults, transactionWrapper, validators } from './helpers';
+       resultsGenerator, seePlayerResults, transactionWrapper } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -17,9 +18,7 @@ const seePlayerRenderer = renderers.seePlayer;
 const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
 const preFormUpdatePlayerRenderer = renderers.preFormUpdatePlayer;
 
-const submitPlayerValidator = validators().postFormPlayer;
-
-
+const submitPlayerValidator = validators.postFormPlayer;
 
 let seePlayerResults: seePlayerResults = resultsGenerator().seePlayer;
 let preFormCreatePlayerResults: preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
