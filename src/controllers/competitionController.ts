@@ -1,22 +1,14 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
-seeCompetitionResults, syncAttributes, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
+import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
+import { preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, renderers, resultsGenerator, 
+seeCompetitionResults, transactionWrapper, validators, preFormUpdateCompetitionResults } from './helpers';
 import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
 
-
-let seeCompetitionAttributes = function(){
-      const resetSeeCompetition = resetPlaceholderAttributes(attributesPlaceholders.seeCompetition);
-      return {
-            seeCompetition: attributesPlaceholders.seeCompetition,
-            reset: resetSeeCompetition
-      }
-      
-};
 
 const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
@@ -33,12 +25,12 @@ let seeCompetitionResults: seeCompetitionResults = resultsGenerator().seeCompeti
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       
-      const seeCompetitionQuery = async function(){ 
-            const attributes = seeCompetitionAttributes().seeCompetition;
+      const seeCompetitionQuery = async function(){
+            const parameters = competitionParameterPlaceholder().parameters; 
             const competition = await Competition.findOne({
                   where: {
-                        name: attributes.name,
-                        code: attributes.code
+                        name: parameters.name,
+                        code: parameters.code
                   },
                   transaction: t
                   }).catch(function(error:Error){
@@ -81,8 +73,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
 export const seeCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      const attributes = syncAttributes();
-      attributes.getSeeCompetitionAttributes(req,next);
+      assessCompetitionParameters(req,next);
       
       await transactionWrapper(seeCompetitionCb).catch(function(error:Error){
             throw error
@@ -90,7 +81,7 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
 
       seeCompetitionRenderer(res,seeCompetitionResults);
 
-      seeCompetitionAttributes().reset();
+      competitionParameterPlaceholder().reset();
       seeCompetitionResults = resultsGenerator().seeCompetition;
       
       return 
@@ -351,13 +342,12 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 };
 
 export const preFormUpdateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
-      const attributes = syncAttributes();
-      attributes.getSeeCompetitionAttributes(req,next);
+      assessCompetitionParameters(req,next);
 
       await transactionWrapper(preFormUpdateCompetitionCb).catch(function(error:Error){throw error});
       preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
 
-      seeCompetitionAttributes().reset();
+      competitionParameterPlaceholder().reset();
       preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
 };
 

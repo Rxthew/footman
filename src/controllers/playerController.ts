@@ -1,8 +1,9 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
-      renderers, resetPlaceholderAttributes, resultsGenerator, seePlayerResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
+import { postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
+      renderers, resultsGenerator, seePlayerResults, transactionWrapper, validators } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -10,14 +11,6 @@ import '../models/concerns/_runModels';
 import Competition from '../models/competition';
 
 
-
-let seePlayerAttributes = function(){
-      const resetSeePlayer = resetPlaceholderAttributes(attributesPlaceholders.seePlayer)
-      return {
-            seePlayer: attributesPlaceholders.seePlayer,
-            reset: resetSeePlayer
-      }
-};
 
 const seePlayerRenderer = renderers.seePlayer;
 const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
@@ -37,12 +30,12 @@ let postFormUpdatePlayerResults: postFormUpdatePlayerResults = resultsGenerator(
 const seePlayerCb = async function (t:Transaction): Promise<void>{
       
       const seePlayerQuery = async function(){
-            const attributes = seePlayerAttributes().seePlayer
+            const parameters = playerParameterPlaceholder().parameters
             const player = await Player.findOne({
                   where: {
-                        firstName: attributes.firstName,
-                        lastName: attributes.lastName,
-                        code: attributes.code
+                        firstName: parameters.firstName,
+                        lastName: parameters.lastName,
+                        code: parameters.code
                   },
                   transaction: t
                   }).catch(function(error:Error){
@@ -90,15 +83,14 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
 
 export const seePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      const attributes = syncAttributes();
-      attributes.getSeePlayerAttributes(req,next);
+      assessPlayerParameters(req,next)
       
       await transactionWrapper(seePlayerCb).catch(function(error:Error){
             throw error
         });
       seePlayerRenderer(res,seePlayerResults);
 
-      seePlayerAttributes().reset()
+      playerParameterPlaceholder().reset()
       seePlayerResults = resultsGenerator().seePlayer;
       
       return 
@@ -268,12 +260,12 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
       const allAssociatedTeams = getAllTeamsWithCompetitions(allTeams);
 
       const updatePlayerQuery = async function(){
-            const attributes = seePlayerAttributes().seePlayer
+            const parameters = playerParameterPlaceholder().parameters
             const player = await Player.findOne({
                   where: {
-                        firstName: attributes.firstName,
-                        lastName: attributes.lastName,
-                        code: attributes.code
+                        firstName: parameters.firstName,
+                        lastName: parameters.lastName,
+                        code: parameters.code
                   },
                   transaction: t
                   }).catch(function(error:Error){
@@ -333,15 +325,15 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
 }
 
 export const preFormUpdatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-      const attributes = syncAttributes();
-      attributes.getSeePlayerAttributes(req,next);
+
+      assessPlayerParameters(req,next);
       
       
       await transactionWrapper(preFormUpdatePlayerCb).catch(function(error:Error){
             throw error
         }); 
       preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
-      seePlayerAttributes().reset()
+      playerParameterPlaceholder().reset()
       preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
       
       return

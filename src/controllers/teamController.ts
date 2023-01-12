@@ -1,21 +1,14 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { attributesPlaceholders, postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, renderers, resetPlaceholderAttributes, resultsGenerator, 
-seeTeamResults, syncAttributes, transactionWrapper, validators } from './helpers';
+import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
+import { postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, renderers, resultsGenerator, 
+seeTeamResults, transactionWrapper, validators } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
 import Competition, { CompetitionModel } from '../models/competition';
 
-
-let seeTeamAttributes = function(){
-      const resetSeeTeam = resetPlaceholderAttributes(attributesPlaceholders.seeTeam)
-      return {
-            seeTeam: attributesPlaceholders.seeTeam,
-            reset: resetSeeTeam
-      }
-};
 
 const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
 const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
@@ -34,11 +27,11 @@ let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
       const seeTeamQuery = async function(){ 
-            const attributes = seeTeamAttributes().seeTeam
+            const parameters = teamParameterPlaceholder().parameters;
             const team = await Team.findOne({
                   where: {
-                        name: attributes.name,
-                        code: attributes.code
+                        name: parameters.name,
+                        code: parameters.code
                   },
                   transaction: t
                   }).catch(function(error:Error){
@@ -85,15 +78,14 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
 
 export const seeTeam = async function(req: Request, res: Response, next: NextFunction){
 
-      const attributes = syncAttributes();
-      attributes.getSeeTeamAttributes(req,next);
+      assessTeamParameters(req,next)
       
       await transactionWrapper(seeTeamCb).catch(function(error:Error){
             throw error
         });
       seeTeamRenderer(res,seeTeamResults);
 
-      seeTeamAttributes().reset();
+      teamParameterPlaceholder().reset();
       seeTeamResults = resultsGenerator().seeTeam;
       
       return 
@@ -260,18 +252,18 @@ const preFormUpdateTeamCb = async function(t: Transaction){
       const teamCompetitions = await (Team as any).getCompetitions().catch(function(error:Error){
             throw error
       })
-      
+      ;
 
       const populatePreFormUpdateTeam = function(){
             if(results){
-                  const attributes = seeTeamAttributes().seeTeam;
+                  const parameters = teamParameterPlaceholder().parameters;
                   const competitions = getAllCompetitionNames(results);
                   if(teamCompetitions && teamCompetitions.length > 0){
                         const chosen = (teamCompetitions as any[]).map(comp => comp.getDataValue('name'))
                         Object.assign(preFormUpdateTeamResults, {chosenCompetitions: chosen})
                         competitions.filter(comp => !chosen.includes(comp))
                   }
-                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: attributes.name}, {seasons: getSeasons()});
+                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: parameters.name}, {seasons: getSeasons()});
             }
             else{
                   const err = new Error('Query regarding team update returned invalid data.')
@@ -292,14 +284,13 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 }
 
 export const preFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-      const attributes = syncAttributes();
-      attributes.getSeeTeamAttributes(req,next);
+      assessTeamParameters(req,next)
 
       await transactionWrapper(preFormUpdateTeamCb).catch(function(error:Error){
             throw error
         }); 
       preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);
-      seeTeamAttributes().reset()
+      teamParameterPlaceholder().reset()
       preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
       
       return
