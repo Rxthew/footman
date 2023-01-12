@@ -2,15 +2,14 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
+import * as queryHelpers from './helpers/queries';
 import { renderers } from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import {  queryHelpers,transactionWrapper,  } from './helpers';
 import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
-
 
 const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
 const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
@@ -24,6 +23,7 @@ let postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetitio
 let preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
 let postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 let seeCompetitionResults = resultsGenerator.seeCompetition();
+const transactionWrapper = queryHelpers.transactionWrapper;
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       

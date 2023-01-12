@@ -2,10 +2,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
+import * as queryHelpers from './helpers/queries';
 import { renderers } from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import { queryHelpers,  transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -25,6 +25,7 @@ let postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
 let preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
 let postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
 let seeTeamResults = resultsGenerator.seeTeam();
+const transactionWrapper = queryHelpers.transactionWrapper;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       

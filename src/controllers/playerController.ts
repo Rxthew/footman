@@ -2,16 +2,15 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
+import * as queryHelpers from './helpers/queries';
 import { renderers } from './helpers/renderers';
 import * as validators from './helpers/validators';
 import * as resultsGenerator from './helpers/results';
-import {  queryHelpers,  transactionWrapper } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
 import '../models/concerns/_runModels';
 import Competition from '../models/competition';
-
 
 
 const seePlayerRenderer = renderers.seePlayer;
@@ -25,6 +24,7 @@ let preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
 let postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
 let preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
 let postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
+const transactionWrapper = queryHelpers.transactionWrapper;
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
