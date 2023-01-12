@@ -4,8 +4,8 @@ import { validationResult } from 'express-validator';
 import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
 import { renderers } from './helpers/renderers';
 import * as validators from './helpers/validators';
-import { postFormCreatePlayerResults, postFormUpdatePlayerResults, preFormCreatePlayerResults, preFormUpdatePlayerResults, queryHelpers, 
-       resultsGenerator, seePlayerResults, transactionWrapper } from './helpers';
+import * as resultsGenerator from './helpers/results';
+import {  queryHelpers,  transactionWrapper } from './helpers';
 import  Player from '../models/player';
 import { Transaction } from 'sequelize'
 import  Team  from '../models/team';
@@ -20,11 +20,11 @@ const preFormUpdatePlayerRenderer = renderers.preFormUpdatePlayer;
 
 const submitPlayerValidator = validators.postFormPlayer;
 
-let seePlayerResults: seePlayerResults = resultsGenerator().seePlayer;
-let preFormCreatePlayerResults: preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
-let postFormCreatePlayerResults: postFormCreatePlayerResults = resultsGenerator().postFormCreatePlayer;
-let preFormUpdatePlayerResults: preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
-let postFormUpdatePlayerResults: postFormUpdatePlayerResults = resultsGenerator().postFormCreatePlayer;
+let seePlayerResults = resultsGenerator.seePlayer();
+let preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
+let postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
+let preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
+let postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
 
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
@@ -91,7 +91,7 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
       seePlayerRenderer(res,seePlayerResults);
 
       playerParameterPlaceholder().reset()
-      seePlayerResults = resultsGenerator().seePlayer;
+      seePlayerResults = resultsGenerator.seePlayer();
       
       return 
 }
@@ -139,7 +139,7 @@ export const preFormCreatePlayer = async function(req: Request, res: Response, n
             throw error
         });
       preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
-      preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
+      preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
 
       return
 
@@ -241,8 +241,8 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
             
       }
 
-      preFormCreatePlayerResults = resultsGenerator().preFormCreatePlayer;
-      postFormCreatePlayerResults = resultsGenerator().postFormCreatePlayer;
+      preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
+      postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
 
 }
 
@@ -334,7 +334,7 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
         }); 
       preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
       playerParameterPlaceholder().reset()
-      preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
+      preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
       
       return
 
@@ -423,8 +423,8 @@ export const postFormUpdatePlayer = async function(req: Request, res: Response, 
             res.redirect(`/player/${firstName}_${lastName}_${code}`);
       }
       
-      preFormUpdatePlayerResults = resultsGenerator().preFormUpdatePlayer;
-      postFormUpdatePlayerResults = resultsGenerator().postFormCreatePlayer;
+      preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
+      postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
 
 }
 

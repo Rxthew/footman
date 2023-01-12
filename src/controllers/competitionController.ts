@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
 import { renderers } from './helpers/renderers';
+import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import { preFormCreateCompetitionResults, postFormCreateCompetitionResults, postFormUpdateCompetitionResults, queryHelpers, resultsGenerator, 
-seeCompetitionResults, transactionWrapper, preFormUpdateCompetitionResults } from './helpers';
+import {  queryHelpers,transactionWrapper,  } from './helpers';
 import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
@@ -19,11 +19,11 @@ const seeCompetitionRenderer = renderers.seeCompetition;
 const createCompetitionValidator = validators.postFormCreateCompetition;
 const updateCompetitionValidator = validators.postFormUpdateCompetition;
 
-let preFormCreateCompetitionResults: preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
-let postFormCreateCompetitionResults: postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
-let preFormUpdateCompetitionResults: preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
-let postFormUpdateCompetitionResults: postFormUpdateCompetitionResults = resultsGenerator().postFormUpdateCompetition;
-let seeCompetitionResults: seeCompetitionResults = resultsGenerator().seeCompetition;
+let preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
+let postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
+let preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
+let postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+let seeCompetitionResults = resultsGenerator.seeCompetition();
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       
@@ -84,7 +84,7 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       seeCompetitionRenderer(res,seeCompetitionResults);
 
       competitionParameterPlaceholder().reset();
-      seeCompetitionResults = resultsGenerator().seeCompetition;
+      seeCompetitionResults = resultsGenerator.seeCompetition();
       
       return 
 };
@@ -128,7 +128,7 @@ export const preFormCreateCompetition = async function(req: Request, res: Respon
             throw error
         });
       preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
-      preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
+      preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
 };
 
 const postFormCreateCompetitionCb = async function(t:Transaction){
@@ -296,8 +296,8 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
             
       }
 
-      preFormCreateCompetitionResults = resultsGenerator().preFormCreateCompetition;
-      postFormCreateCompetitionResults = resultsGenerator().postFormCreateCompetition;
+      preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
+      postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
 
 };
 
@@ -350,7 +350,7 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
       preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
 
       competitionParameterPlaceholder().reset();
-      preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
+      preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
 };
 
 
@@ -509,8 +509,8 @@ export const postFormUpdateCompetition = async function(req:Request,res:Response
 
       }
 
-      preFormUpdateCompetitionResults = resultsGenerator().preFormUpdateCompetition;
-      postFormUpdateCompetitionResults = resultsGenerator().postFormUpdateCompetition;
+      preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
+      postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 
 }
 

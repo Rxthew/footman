@@ -3,9 +3,9 @@ import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
 import { renderers } from './helpers/renderers';
+import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import { postFormCreateTeamResults, preFormCreateTeamResults, preFormUpdateTeamResults, postFormUpdateTeamResults, queryHelpers, resultsGenerator, 
-seeTeamResults, transactionWrapper } from './helpers';
+import { queryHelpers,  transactionWrapper } from './helpers';
 import  Team from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -20,11 +20,11 @@ const createTeamValidator = validators.postFormCreateTeam;
 const updateTeamValidator = validators.postFormUpdateTeam;
 
 
-let preFormCreateTeamResults:preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
-let postFormCreateTeamResults: postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
-let preFormUpdateTeamResults: preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
-let postFormUpdateTeamResults: postFormUpdateTeamResults = resultsGenerator().postFormUpdateTeam;
-let seeTeamResults: seeTeamResults = resultsGenerator().seeTeam;
+let preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+let postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
+let preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
+let postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
+let seeTeamResults = resultsGenerator.seeTeam();
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
       
@@ -88,7 +88,7 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
       seeTeamRenderer(res,seeTeamResults);
 
       teamParameterPlaceholder().reset();
-      seeTeamResults = resultsGenerator().seeTeam;
+      seeTeamResults = resultsGenerator.seeTeam();
       
       return 
 }
@@ -132,7 +132,7 @@ export const preFormCreateTeam = async function(req: Request, res: Response, nex
             throw error
         });
       preFormCreateTeamRenderer(res, preFormCreateTeamResults);
-      preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
+      preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
 
 }
 
@@ -237,8 +237,8 @@ export const postFormCreateTeam = async function(req: Request, res: Response, ne
             
       }
 
-      preFormCreateTeamResults = resultsGenerator().preFormCreateTeam;
-      postFormCreateTeamResults = resultsGenerator().postFormCreateTeam;
+      preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+      postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
 
 }
 
@@ -293,7 +293,7 @@ export const preFormUpdateTeam = async function(req: Request, res: Response, nex
         }); 
       preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);
       teamParameterPlaceholder().reset()
-      preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
+      preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
       
       return
 }
@@ -394,8 +394,8 @@ export const postFormUpdateTeam = async function(req: Request, res: Response, ne
 
       }
 
-      preFormUpdateTeamResults = resultsGenerator().preFormUpdateTeam;
-      postFormUpdateTeamResults = resultsGenerator().postFormUpdateTeam;
+      preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
+      postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
 }
 
 
