@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create Competition</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script>
+        function toggleStats(event){
+                if(teams.includes(event.target.id)){
+                    let rank = document.querySelector(`#{event.target.id}_ranking`);
+                    let points = document.querySelector(`#{event.target.id}_points`);
+                    if(event.target.checked){
+                        rank.disabled = false;
+                        points.disabled = false;
+                    }
+                    else{
+                        rank.disabled = true;
+                        points.disabled = true;
+                    }
+                }
+            }
+    </script>
+  </head>
+  <body>
+    <h1>Create Competition</h1>
+    <form action="" method="POST">
+        <div>
+            <% errors && errors.name ? %> <span><%= errors.name.msg %></span><% : false %>
+            <label for="name">Name:</label>
+            <input id="name" name="name" type="text">
+        </div>
+        <div>
+             <label for="teams">Teams:</label>
+             <div onclick="toggleStats(event)">
+                <% for(let team of teams){ %>
+                    <label for="chosenTeams"><%= team %></label>
+                    <input id="<%= team %>" name="chosenTeams" type="checkbox" <% if(chosenTeams && chosenTeams.includes(team)){%> checked=true <%}%>>
+                    <label for="rankings">Ranking:</label>
+                    <select id="<%= team %>_ranking" name="rankings" disabled="true">
+                        <% teams.forEach((team,index)=>{%>
+                            <option value="<%= index + 1 %>"><%= index + 1 %></option>
+                        <%})%>
+                    </select>
+                    <input id="<%= team %>_points" type="number" name="points" disabled="true">
+                <%}%>
+             </div>   
+        </div>
+        <div>
+            <label for="season">Seasons:</label>
+            <select id="season" name="season">
+                <% for(let single_season of seasons){ %>
+                    <option value="<%= single_season %>" <% if(season && season === single_season){%> selected=true <%}%>><%= single_season %></option>
+                <%}%>
+            </select>
+        </div>
+        <footer>
+            <button type="submit">Submit New Competition</button>
+        </footer>
+    </form>
+  </body>
+</html> 
