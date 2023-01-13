@@ -21,7 +21,7 @@ export const preFormUpdateCompetition = function(res:Response, results: res.preF
             errors: results.errors,
             teams: results.teams,
             chosenTeams: results.chosenTeams,
-            ranking: results.ranking
+            ranking: results.rankings
 
 
         })

@@ -201,13 +201,12 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
                   const teamsPoints = postFormCreateCompetitionResults.points;
 
                   const harmoniseRanking = function(){
-                        postFormCreateCompetitionResults.ranking = true;
 
                         if(postFormCreateCompetitionResults.chosenTeams){
                               let rankedTeams = [...postFormCreateCompetitionResults.chosenTeams];
 
                               rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[x] - teamsPoints[y]
+                                    return teamsPoints[rankedTeams.indexOf(x)] > teamsPoints[rankedTeams.indexOf(y)] ? -1 : 1
                               });
 
                               Object.assign(postFormCreateCompetitionResults, {chosenTeams: rankedTeams})
@@ -233,11 +232,18 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
       };
 
       const applyRanking = async function(latestCompetition: CompetitionModel){
-            if(postFormCreateCompetitionResults.ranking){
+            if(postFormCreateCompetitionResults.rankings){
                  const chosenTeams = postFormCreateCompetitionResults.chosenTeams
-
+                 if(!postFormCreateCompetitionResults.points && chosenTeams){
+                     let rankings = postFormCreateCompetitionResults.rankings;
+                     let rankedTeams:string[] = [...chosenTeams];
+                     rankedTeams.sort(function(x,y){
+                           return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
+                     })
+                     Object.assign(postFormCreateCompetitionResults, {chosenTeams: rankedTeams})
+                 }
                  const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name'))))
+                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
             }
 
       };
@@ -431,13 +437,11 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                   const teamsPoints = postFormUpdateCompetitionResults.points;
 
                   const harmoniseRanking = function(){
-                        postFormUpdateCompetitionResults.ranking = true;
-
                         if(postFormUpdateCompetitionResults.chosenTeams){
                               let rankedTeams = [...postFormUpdateCompetitionResults.chosenTeams];
 
                               rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[x] - teamsPoints[y]
+                                    return teamsPoints[rankedTeams.indexOf(x)] > teamsPoints[rankedTeams.indexOf(y)] ? -1 : 1
                               });
 
                               Object.assign(postFormUpdateCompetitionResults, {chosenTeams: rankedTeams})
@@ -463,11 +467,19 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
       };
 
       const applyRanking = async function(latestCompetition: CompetitionModel){
-            if(postFormUpdateCompetitionResults.ranking){
+            if(postFormUpdateCompetitionResults.rankings){
                  const chosenTeams = postFormUpdateCompetitionResults.chosenTeams
+                 if(!postFormUpdateCompetitionResults.points && chosenTeams){
+                  const rankings = postFormUpdateCompetitionResults.rankings;
+                  let rankedTeams:string[] = [...chosenTeams];
+                  rankedTeams.sort(function(x,y){
+                        return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
+                  })
+                  Object.assign(postFormUpdateCompetitionResults, {chosenTeams: rankedTeams})
+              }
 
                  const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name'))))
+                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
             }
 
       };
