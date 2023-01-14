@@ -1,24 +1,11 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Create Competition</title>
+    <title>Footman: Create Competition</title>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
-    <script>
-        function toggleStats(event){
-                if(teams.includes(event.target.id)){
-                    let rank = document.querySelector(`#{event.target.id}_ranking`);
-                    let points = document.querySelector(`#{event.target.id}_points`);
-                    if(event.target.checked){
-                        rank.disabled = false;
-                        points.disabled = false;
-                    }
-                    else{
-                        rank.disabled = true;
-                        points.disabled = true;
-                    }
-                }
-            }
-    </script>
+    <script src="/javascripts/competition.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
     <h1>Create Competition</h1>
@@ -30,19 +17,32 @@
         </div>
         <div>
              <label for="teams">Teams:</label>
-             <div onclick="toggleStats(event)">
+             <% if(teams.length > 0){%>
+             <div>
+                <label>Apply rankings?</label>
+                <input id="apply_ranking" type="checkbox">
+            </div>
+            <div>
+                <label>Apply points?</label>
+                <input id="apply_points" type="checkbox">
+             </div>    
+             <div>
                 <% for(let team of teams){ %>
                     <label for="chosenTeams"><%= team %></label>
                     <input id="<%= team %>" name="chosenTeams" type="checkbox" <% if(chosenTeams && chosenTeams.includes(team)){%> checked=true <%}%>>
                     <label for="rankings">Ranking:</label>
-                    <select id="<%= team %>_ranking" name="rankings" disabled="true">
+                    <select name="rankings" disabled="true">
                         <% teams.forEach((team,index)=>{%>
                             <option value="<%= index + 1 %>"><%= index + 1 %></option>
                         <%})%>
                     </select>
-                    <input id="<%= team %>_points" type="number" name="points" disabled="true">
+                    <label for="points">Points:</label>
+                    <input type="number" name="points" disabled="true">
                 <%}%>
-             </div>   
+             </div><%}
+              else{%>
+                   <span>No teams available</span>
+             <%}%>   
         </div>
         <div>
             <label for="season">Seasons:</label>
