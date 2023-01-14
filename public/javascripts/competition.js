@@ -1,11 +1,43 @@
+const checkCorrespondingChosenTeam = function(element, disableStatus){
+    const reference = element.classList[0];
+    const chosenTeams = document.querySelectorAll('input[name=chosenTeams]')
+    const referencedInput = Array.from(chosenTeams).filter(team => team.id === reference)[0];
+    if(referencedInput.checked){
+        element.disabled = disableStatus;
+    }
+    else{
+        element.disabled = true;
+    }
+    
+}
+
+const toggleCorrespondingSelectInputs = function(event){
+    if(event.target.hasAttribute('name') && event.target.getAttribute('name') === 'chosenTeams'){
+        const reference = event.target.id;
+        const selects = Array.from(document.querySelectorAll('select'));
+        const targets = selects.length > 0 ? selects.filter(select => select.classList.contains(reference)) : selects;
+        if(event.target.checked){
+            targets.length > 0 ? targets.forEach(target => target.disabled = false) : targets;
+        }
+        else{
+            targets.length > 0 ? targets.forEach(target =>  target.disabled = true) : targets;
+        }
+    }
+    return
+    
+}
+
+
+
+
 const togglePoints = function(event){
     if(event.target.id === 'apply_points'){
         const points = document.querySelectorAll('input[name=points]');
         if(event.target.checked){
-            points.forEach(point => point.disabled = false)
+            points.forEach(point => checkCorrespondingChosenTeam(point,false))
         }
         else{
-            points.forEach(point => point.disabled = true)
+            points.forEach(point => checkCorrespondingChosenTeam(point, true))
         }
 
     }
@@ -17,14 +49,14 @@ const toggleRanking = function(event){
             const pointsPermit = document.getElementById('apply_points');
             const ranksPermit = document.getElementById('apply_ranking');
             if(pointsPermit.checked){
-                ranks.forEach(rank => rank.disabled = false)
+                ranks.forEach(rank => checkCorrespondingChosenTeam(rank,false))
                 ranksPermit.checked = true
             }
             else if(ranksPermit.checked){
-                ranks.forEach(rank => rank.disabled = false)
+                ranks.forEach(rank => checkCorrespondingChosenTeam(rank,false))
             }
             else{
-                ranks.forEach(rank => rank.disabled = true)
+                ranks.forEach(rank => checkCorrespondingChosenTeam(rank,true))
             }
         }
         return
@@ -33,3 +65,4 @@ const toggleRanking = function(event){
 const form = document.querySelector('form');
 form.addEventListener('click',toggleRanking);
 form.addEventListener('click',togglePoints);
+form.addEventListener('click',toggleCorrespondingSelectInputs);

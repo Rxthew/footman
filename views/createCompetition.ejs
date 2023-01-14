@@ -31,13 +31,13 @@
                     <label for="chosenTeams"><%= team %></label>
                     <input id="<%= team %>" name="chosenTeams" type="checkbox" <% if(chosenTeams && chosenTeams.includes(team)){%> checked=true <%}%>>
                     <label for="rankings">Ranking:</label>
-                    <select name="rankings" disabled="true">
+                    <select class="<%= team %>" name="rankings" disabled="true">
                         <% teams.forEach((team,index)=>{%>
                             <option value="<%= index + 1 %>"><%= index + 1 %></option>
                         <%})%>
                     </select>
                     <label for="points">Points:</label>
-                    <input type="number" name="points" disabled="true">
+                    <input class="<%= team %>" type="number" name="points" disabled="true">
                 <%}%>
              </div><%}
               else{%>
