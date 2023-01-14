@@ -11,7 +11,7 @@
     <h1>Create Competition</h1>
     <form action="" method="POST">
         <div>
-            <% errors && errors.name ? %> <span><%= errors.name.msg %></span><% : false %>
+            <% (typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined') ? %> <span><%= errors.name.msg %></span><% : false %>
             <label for="name">Name:</label>
             <input id="name" name="name" type="text">
         </div>
@@ -27,9 +27,10 @@
                 <input id="apply_points" type="checkbox">
              </div>    
              <div>
+                <% (typeof errors !== 'undefined') && ( typeof errors.rankings !== 'undefined') ? %> <span><%= errors.rankings.msg %></span><% : false %>
                 <% for(let team of teams){ %>
                     <label for="chosenTeams"><%= team %></label>
-                    <input id="<%= team %>" name="chosenTeams" type="checkbox" <% if(chosenTeams && chosenTeams.includes(team)){%> checked=true <%}%>>
+                    <input id="<%= team %>" name="chosenTeams" type="checkbox" <% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
                     <label for="rankings">Ranking:</label>
                     <select class="<%= team %>" name="rankings" disabled="true">
                         <% teams.forEach((team,index)=>{%>
@@ -48,7 +49,7 @@
             <label for="season">Seasons:</label>
             <select id="season" name="season">
                 <% for(let single_season of seasons){ %>
-                    <option value="<%= single_season %>" <% if(season && season === single_season){%> selected=true <%}%>><%= single_season %></option>
+                    <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>
                 <%}%>
             </select>
         </div>
