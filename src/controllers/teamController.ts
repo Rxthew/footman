@@ -12,6 +12,7 @@ import '../models/concerns/_runModels';
 import Competition, { CompetitionModel } from '../models/competition';
 
 
+
 const preFormCreateTeamRenderer = renderers.preFormCreateTeam;
 const preFormUpdateTeamRenderer = renderers.preFormUpdateTeam;
 const seeTeamRenderer = renderers.seeTeam;
@@ -28,6 +29,8 @@ let seeTeamResults = resultsGenerator.seeTeam();
 const transactionWrapper = queryHelpers.transactionWrapper;
 
 const seeTeamCb = async function (t:Transaction): Promise<void>{
+
+      const getCompetitionNames = queryHelpers.getAllCompetitionNames;
       
       const seeTeamQuery = async function(){ 
             const parameters = teamParameterPlaceholder().parameters;
@@ -40,12 +43,15 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
                   }).catch(function(error:Error){
                         throw error
                     });
-            const players = await (team as any)?.getPlayers().catch(function(error:Error){
+            const playersResults = await (team as any)?.getPlayers().catch(function(error:Error){
                   throw error
               }) 
-            const competitions = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']}).catch(function(error:Error){
+            const competitionsResults = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']}).catch(function(error:Error){
                   throw error
               })
+            const competitions = competitionsResults && competitionsResults.length > 0 ? getCompetitionNames(competitionsResults) : competitionsResults;
+            const players = playersResults && playersResults.length > 0 ? (playersResults as any[]).map(player  => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
+
             return {
                   team,
                   players,
@@ -58,8 +64,8 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
         })
       
       const populateSeeTeamResults = function(){
-            if(results.team && results.players && results.competitions ){ 
-                  Object.assign(seeTeamResults, results.team.get(), {players: results.players.get()}, {competitions: results.competitions.get()});   
+            if(results.team && results.players && results.competitions ){
+                  Object.assign(seeTeamResults, results.team.get(), {players: results.players}, {competitions: results.competitions});   
             }
             else{
                   const err = new Error('Query regarding team viewing returned invalid data.')

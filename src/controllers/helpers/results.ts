@@ -1,7 +1,3 @@
-import { CompetitionModel } from '../../models/competition';
-import { PlayerModel } from '../../models/player';
-import { TeamModel } from '../../models/team';
-
 
 export interface seePlayerResults {
     firstName: string,
@@ -26,8 +22,8 @@ export interface seePlayerResults {
 
 export interface seeTeamResults {
     name: string
-    players?: PlayerModel[]
-    competitions?: CompetitionModel[]
+    players?: string[]
+    competitions?: string[]
     code?: number
 }
 
