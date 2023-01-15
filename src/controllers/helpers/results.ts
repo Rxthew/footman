@@ -49,6 +49,7 @@ export interface preFormCreatePlayerResults {
 export interface preFormCreateCompetitionResults {
     teams: string[],
     seasons: string[],
+    name?: string,
     errors?: {[index: string]: string | number},
     chosenTeams?: string[],
     rankings?: number[],
@@ -59,6 +60,7 @@ export interface preFormCreateCompetitionResults {
 export interface preFormCreateTeamResults {
     competitions: string[],
     seasons: string[],
+    name?: string,
     errors?: {[index: string]: string | number},
     chosenCompetitions?: string[],
     season?: string

@@ -6,9 +6,12 @@ import * as res from "./results";
 
 export const preFormCreateCompetition = function(res:Response, results: res.preFormCreateCompetitionResults){
         res.render('createCompetition',{
+            name: results.name,
             errors: results.errors,
             teams: results.teams,
             chosenTeams: results.chosenTeams,
+            rankings: results.rankings,
+            points: results.points
 
 
         })
@@ -21,7 +24,8 @@ export const preFormUpdateCompetition = function(res:Response, results: res.preF
             errors: results.errors,
             teams: results.teams,
             chosenTeams: results.chosenTeams,
-            ranking: results.rankings
+            ranking: results.rankings,
+            points: results.points
 
 
         })
