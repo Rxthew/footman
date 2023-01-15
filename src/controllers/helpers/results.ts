@@ -7,7 +7,7 @@ export interface seePlayerResults {
     firstName: string,
     lastName: string,
     nationality: string, 
-    teamName?: string,
+    team?: string,
     age: number,
     position: string,
     goals?: number,

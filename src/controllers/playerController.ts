@@ -58,7 +58,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
             if(results.player){ 
                   Object.assign(seePlayerResults, results.player.get());
                   if(results.team){
-                        Object.assign(seePlayerResults, {teamName: results.team.getDataValue('name')})
+                        Object.assign(seePlayerResults, {team: results.team.getDataValue('name')})
       
                   };                  
             }
@@ -301,7 +301,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
             if(results.player && results.teams && results.seasons ){ 
                   Object.assign(preFormUpdatePlayerResults, results.player.get(), {teams: results.teams}, {seasons: results.seasons});
                   if(results.team && results.season){
-                        Object.assign(preFormUpdatePlayerResults, {teamName: results.team.getDataValue('name')}, {season: results.season} )
+                        Object.assign(preFormUpdatePlayerResults, {team: results.team.getDataValue('name')}, {season: results.season} )
 
                   }       
                             

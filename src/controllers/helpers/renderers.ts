@@ -92,7 +92,7 @@ export const preFormUpdatePlayer = function(res: Response, results: res.preFormU
 export const seePlayer = function(res:Response, results: res.seePlayerResults){
         res.render('seePlayer', {
             name: results.firstName + ' ' + results.lastName,
-            teamName: results.teamName,
+            team: results.team,
             nationality: results.nationality,
             age: results.age,
             position: results.position,
@@ -111,6 +111,7 @@ export const seePlayer = function(res:Response, results: res.seePlayerResults){
 
 export const preFormCreateTeam = function(res: Response, results: res.preFormCreateTeamResults){
         res.render('createTeam',{
+            name: results.name,
             competitions: results.competitions,
             errors: results.errors,
             chosenCompetitions: results.chosenCompetitions,
