@@ -127,7 +127,7 @@ const _teamSeasonCheck = async function(valuesArray: string[]){
         throw error
     })
     
-    return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered w//ith that name for the season you chose.'+
+    return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.'+
      ' You can either create the team for that season and come back or choose a different team for this player.')
 
 };
