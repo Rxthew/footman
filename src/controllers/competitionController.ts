@@ -140,9 +140,13 @@ export const preFormCreateCompetition = async function(req: Request, res: Respon
 
 const postFormCreateCompetitionCb = async function(t:Transaction){
 
+      
+      const applyPoints = queryHelpers.applyPoints;
+      const applyRanking = queryHelpers.applyRanking;
       const nextTeamTemplate = async function(givenName:string, season:string){
             return queryHelpers.nextTeamTemplate(t,givenName, season)
       }
+
       
 
       const getRelevantTeams = async function(){
@@ -203,86 +207,14 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             return newCompetition
       }
 
-      const applyPoints = async function(latestCompetition: CompetitionModel){
-            if(postFormCreateCompetitionResults.points && postFormCreateCompetitionResults.chosenTeams){
-
-                  const generateTeamsPoints = function(){
-                        let teamsPoints: {[index:string]:number} = {};
-                        const chosenTeams = postFormUpdateCompetitionResults.chosenTeams;
-                        const chosenPoints = postFormUpdateCompetitionResults.points;
-                        if(chosenTeams && chosenPoints){
-                              chosenTeams.forEach((team,index)=>{
-                                    Object.assign(teamsPoints, {[team]: chosenPoints[index]})
-                              })
-                            return teamsPoints
-                        }
-                  };
-
-                  const teamsPoints = generateTeamsPoints()
-
-                  const harmoniseRanking = function(){
-
-                        if(postFormCreateCompetitionResults.chosenTeams && teamsPoints){
-                              let rankedTeams = [...postFormCreateCompetitionResults.chosenTeams];
-
-                              rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[x] > teamsPoints[y] ? -1 : 1
-                              });
-
-                              Object.assign(postFormCreateCompetitionResults, {chosenTeams: rankedTeams})
-                        }
-                        else{
-                              const err = new Error('Cannot harmoise ranking because chosen teams are not available')
-                              throw err
-                        }
-                       
-                  }
-
-                  const inputPoints = async function(){
-                        if(teamsPoints){
-                              const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
-                              teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
-                              return
-                        }
-                        else{
-                              throw Error('Something went wrong when querying chosen teams or their corresponding points. Please check your internet connection and try again.')
-                        }
-                        
-
-                  };
-
-                  harmoniseRanking();
-                  await inputPoints().catch(function(err:Error){throw err})
-                 
-            }
-      };
-
-      const applyRanking = async function(latestCompetition: CompetitionModel){
-            if(postFormCreateCompetitionResults.rankings){
-                 const chosenTeams = postFormCreateCompetitionResults.chosenTeams
-                 if(!postFormCreateCompetitionResults.points && chosenTeams){
-                     let rankings = postFormCreateCompetitionResults.rankings;
-                     let rankedTeams:string[] = [...chosenTeams];
-                     rankedTeams.sort(function(x,y){
-                           return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
-                     })
-                     Object.assign(postFormCreateCompetitionResults, {chosenTeams: rankedTeams})
-                 }
-                 const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
-            }
-
-      };
-
-
 
       const latestCompetition = await createCompetition().catch(function(err:Error){
             throw err;
       });
-      await applyPoints(latestCompetition).catch(function(err:Error){
+      await applyPoints(latestCompetition, postFormCreateCompetitionResults,t).catch(function(err:Error){
             throw err;
       });
-      await applyRanking(latestCompetition).catch(function(err:Error){
+      await applyRanking(latestCompetition,postFormCreateCompetitionResults,t).catch(function(err:Error){
             throw err;
       });
 
@@ -347,40 +279,17 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             throw error
       });
 
-      const getChosenTeams = function():string[] | undefined{
-            if(competitionTeams && competitionTeams.length > 0){
-                  return (competitionTeams as any[]).map(team => team.getDataValue('name'));
-            }
-      };
-
-      const getSeason = function():string | undefined{
-            if(competitionTeams && competitionTeams.length > 0){
-                  return competitionTeams[0]['TeamsCompetitions'].get('season') ? competitionTeams[0]['TeamsCompetitions'].getDataValue('season') : undefined
-            }
-      };
-
-      const getRankings = function():number[] | undefined{
-            if(competitionTeams && competitionTeams.length > 0){
-                  const rankings = (competitionTeams as any[]).map(team => team['TeamsCompetitions'].getDataValue('ranking'));
-                  return rankings.some(rank => rank === null || rank === undefined) ? undefined : rankings
-            }
-
-      };
-
-      const getPoints = function():number[] | undefined{
-            if(competitionTeams && competitionTeams.length > 0){
-                  const points = (competitionTeams as any[]).map(team => team['TeamsCompetitions'].getDataValue('points'));
-                  return points.some(value => value === null || value === undefined) ? undefined : points;
-            }
-
-      };
+      const getChosenTeams = queryHelpers.getAllTeamNames;
+      const getSeason = queryHelpers.getCompetitionSeason;
+      const getPoints = queryHelpers.getPoints;
+      const getRankings = queryHelpers.getRankings;
 
       const populatePreFormUpdateCompetition = function(){
             if(results){
                   const teamNames = getAllTeamNames(results);
                   if(competitionTeams && competitionTeams.length > 0){
-                        const chosen = getChosenTeams();
-                        Object.assign(preFormUpdateCompetitionResults, {chosenTeams: chosen}, {season: getSeason()}, {rankings: getRankings()}, {points: getPoints()});
+                        const chosen = getChosenTeams(competitionTeams);
+                        Object.assign(preFormUpdateCompetitionResults, {chosenTeams: chosen}, {season: getSeason(competitionTeams)}, {rankings: getRankings(competitionTeams)}, {points: getPoints(competitionTeams)});
                         if(chosen){
                               teamNames.filter(teamName => !chosen.includes(teamName))
                         }
@@ -419,6 +328,8 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
 
 const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
+      const applyPoints = queryHelpers.applyPoints;
+      const applyRanking = queryHelpers.applyRanking;
 
       const nextTeamTemplate = async function(givenName:string, season:string){
             return queryHelpers.nextTeamTemplate(t,givenName, season)
@@ -489,84 +400,15 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       }
             
-      const applyPoints = async function(latestCompetition: CompetitionModel){
-            if(postFormUpdateCompetitionResults.points && postFormUpdateCompetitionResults.chosenTeams){
-                  
-                  const generateTeamsPoints = function(){
-                        let teamsPoints: {[index:string]:number} = {};
-                        const chosenTeams = postFormUpdateCompetitionResults.chosenTeams;
-                        const chosenPoints = postFormUpdateCompetitionResults.points;
-                        if(chosenTeams && chosenPoints){
-                              chosenTeams.forEach((team,index)=>{
-                                    Object.assign(teamsPoints, {[team]: chosenPoints[index]})
-                              })
-                            return teamsPoints
-                        }
-                  };
 
-                  const teamsPoints = generateTeamsPoints();
-
-                  const harmoniseRanking = function(){
-                        if(postFormUpdateCompetitionResults.chosenTeams && teamsPoints){
-                              let rankedTeams = [...postFormUpdateCompetitionResults.chosenTeams];
-
-                              rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[x] > teamsPoints[y] ? -1 : 1
-                              });
-
-                              Object.assign(postFormUpdateCompetitionResults, {chosenTeams: rankedTeams})
-                        }
-                        else{
-                              const err = new Error('Cannot harmoise ranking because chosen teams are not available')
-                              throw err
-                        }
-                       
-                  };
-
-                  const inputPoints = async function(){
-                        if(teamsPoints){
-                              const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
-                              teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
-                              return
-                        }
-                        else{
-                              throw Error('Something went wrong when querying chosen teams or their corresponding points. Please check your internet connection and try again.')
-                        }
-                        
-
-                  };
-
-                  harmoniseRanking();
-                  await inputPoints().catch(function(err:Error){throw err})
-                 
-            }
-      };
-
-      const applyRanking = async function(latestCompetition: CompetitionModel){
-            if(postFormUpdateCompetitionResults.rankings){
-                 const chosenTeams = postFormUpdateCompetitionResults.chosenTeams
-                 if(!postFormUpdateCompetitionResults.points && chosenTeams){
-                  const rankings = postFormUpdateCompetitionResults.rankings;
-                  let rankedTeams:string[] = [...chosenTeams];
-                  rankedTeams.sort(function(x,y){
-                        return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
-                  })
-                  Object.assign(postFormUpdateCompetitionResults, {chosenTeams: rankedTeams})
-              }
-
-                 const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-                 teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
-            }
-
-      };
 
       const latestCompetition = await updateCompetition().catch(function(err:Error){
             throw err;
       });
-      latestCompetition ? await applyPoints(latestCompetition).catch(function(err:Error){
+      latestCompetition ? await applyPoints(latestCompetition, postFormUpdateCompetitionResults,t).catch(function(err:Error){
             throw err;
       }) : false;
-      latestCompetition ? await applyRanking(latestCompetition).catch(function(err:Error){
+      latestCompetition ? await applyRanking(latestCompetition, postFormUpdateCompetitionResults,t).catch(function(err:Error){
             throw err;
       }): false;
 

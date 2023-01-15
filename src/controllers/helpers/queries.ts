@@ -2,7 +2,79 @@ import { Transaction } from 'sequelize'
 import Competition, { CompetitionModel } from '../../models/competition';
 import { sequelize } from '../../models/concerns/initdb';
 import Team, { TeamModel } from '../../models/team';
+import { postFormCreateCompetitionResults, postFormUpdateCompetitionResults } from './results';
 
+
+export const applyPoints = async function(latestCompetition: CompetitionModel, results: postFormCreateCompetitionResults | postFormUpdateCompetitionResults, t: Transaction){
+    if(results.points && results.chosenTeams){
+          
+          const generateTeamsPoints = function(){
+                let teamsPoints: {[index:string]:number} = {};
+                const chosenTeams = results.chosenTeams;
+                const chosenPoints = results.points;
+                if(chosenTeams && chosenPoints){
+                      chosenTeams.forEach((team,index)=>{
+                            Object.assign(teamsPoints, {[team]: chosenPoints[index]})
+                      })
+                    return teamsPoints
+                }
+          };
+
+          const teamsPoints = generateTeamsPoints();
+
+          const harmoniseRanking = function(){
+                if(results.chosenTeams && teamsPoints){
+                      let rankedTeams = [...results.chosenTeams];
+
+                      rankedTeams?.sort(function(x,y){
+                            return teamsPoints[x] > teamsPoints[y] ? -1 : 1
+                      });
+
+                      Object.assign(results, {chosenTeams: rankedTeams})
+                }
+                else{
+                      const err = new Error('Cannot harmoise ranking because chosen teams are not available')
+                      throw err
+                }
+               
+          };
+
+          const inputPoints = async function(){
+                if(teamsPoints){
+                      const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
+                      teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
+                      return
+                }
+                else{
+                      throw Error('Something went wrong when querying chosen teams or their corresponding points. Please check your internet connection and try again.')
+                }
+                
+
+          };
+
+          harmoniseRanking();
+          await inputPoints().catch(function(err:Error){throw err})
+         
+    }
+};
+
+export const applyRanking = async function(latestCompetition: CompetitionModel, results: postFormCreateCompetitionResults | postFormUpdateCompetitionResults, t: Transaction){
+    if(results.rankings){
+         const chosenTeams = results.chosenTeams
+         if(!results.points && chosenTeams){
+          const rankings = results.rankings;
+          let rankedTeams:string[] = [...chosenTeams];
+          rankedTeams.sort(function(x,y){
+                return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
+          })
+          Object.assign(results, {chosenTeams: rankedTeams})
+      }
+
+         const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
+         teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
+    }
+
+};
 
 
 export const getAllCompetitionNames = function(results: CompetitionModel[]){
