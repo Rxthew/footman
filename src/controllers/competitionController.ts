@@ -197,16 +197,29 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
       }
 
       const applyPoints = async function(latestCompetition: CompetitionModel){
-            if(postFormCreateCompetitionResults.points){
-                  const teamsPoints = postFormCreateCompetitionResults.points;
+            if(postFormCreateCompetitionResults.points && postFormCreateCompetitionResults.chosenTeams){
+
+                  const generateTeamsPoints = function(){
+                        let teamsPoints: {[index:string]:number} = {};
+                        const chosenTeams = postFormUpdateCompetitionResults.chosenTeams;
+                        const chosenPoints = postFormUpdateCompetitionResults.points;
+                        if(chosenTeams && chosenPoints){
+                              chosenTeams.forEach((team,index)=>{
+                                    Object.assign(teamsPoints, {[team]: chosenPoints[index]})
+                              })
+                            return teamsPoints
+                        }
+                  };
+
+                  const teamsPoints = generateTeamsPoints()
 
                   const harmoniseRanking = function(){
 
-                        if(postFormCreateCompetitionResults.chosenTeams){
+                        if(postFormCreateCompetitionResults.chosenTeams && teamsPoints){
                               let rankedTeams = [...postFormCreateCompetitionResults.chosenTeams];
 
                               rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[rankedTeams.indexOf(x)] > teamsPoints[rankedTeams.indexOf(y)] ? -1 : 1
+                                    return teamsPoints[x] > teamsPoints[y] ? -1 : 1
                               });
 
                               Object.assign(postFormCreateCompetitionResults, {chosenTeams: rankedTeams})
@@ -219,11 +232,17 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
                   }
 
                   const inputPoints = async function(){
-                        const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
-                        teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
-                        return
+                        if(teamsPoints){
+                              const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
+                              teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
+                              return
+                        }
+                        else{
+                              throw Error('Something went wrong when querying chosen teams or their corresponding points. Please check your internet connection and try again.')
+                        }
+                        
 
-                  }
+                  };
 
                   harmoniseRanking();
                   await inputPoints().catch(function(err:Error){throw err})
@@ -464,15 +483,28 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
       }
             
       const applyPoints = async function(latestCompetition: CompetitionModel){
-            if(postFormUpdateCompetitionResults.points){
-                  const teamsPoints = postFormUpdateCompetitionResults.points;
+            if(postFormUpdateCompetitionResults.points && postFormUpdateCompetitionResults.chosenTeams){
+                  
+                  const generateTeamsPoints = function(){
+                        let teamsPoints: {[index:string]:number} = {};
+                        const chosenTeams = postFormUpdateCompetitionResults.chosenTeams;
+                        const chosenPoints = postFormUpdateCompetitionResults.points;
+                        if(chosenTeams && chosenPoints){
+                              chosenTeams.forEach((team,index)=>{
+                                    Object.assign(teamsPoints, {[team]: chosenPoints[index]})
+                              })
+                            return teamsPoints
+                        }
+                  };
+
+                  const teamsPoints = generateTeamsPoints();
 
                   const harmoniseRanking = function(){
-                        if(postFormUpdateCompetitionResults.chosenTeams){
+                        if(postFormUpdateCompetitionResults.chosenTeams && teamsPoints){
                               let rankedTeams = [...postFormUpdateCompetitionResults.chosenTeams];
 
                               rankedTeams?.sort(function(x,y){
-                                    return teamsPoints[rankedTeams.indexOf(x)] > teamsPoints[rankedTeams.indexOf(y)] ? -1 : 1
+                                    return teamsPoints[x] > teamsPoints[y] ? -1 : 1
                               });
 
                               Object.assign(postFormUpdateCompetitionResults, {chosenTeams: rankedTeams})
@@ -482,14 +514,20 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                               throw err
                         }
                        
-                  }
+                  };
 
                   const inputPoints = async function(){
-                        const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
-                        teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
-                        return
+                        if(teamsPoints){
+                              const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
+                              teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
+                              return
+                        }
+                        else{
+                              throw Error('Something went wrong when querying chosen teams or their corresponding points. Please check your internet connection and try again.')
+                        }
+                        
 
-                  }
+                  };
 
                   harmoniseRanking();
                   await inputPoints().catch(function(err:Error){throw err})
