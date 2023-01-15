@@ -317,17 +317,48 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             throw error
         });
 
-      const competitionTeams = await (Competition as any).getTeams().catch(function(error:Error){
+      const competitionTeams = await (Competition as any).getTeams({joinTableAttributes: ['season, ranking, points']}).catch(function(error:Error){
             throw error
-      })
-      
+      });
+
+      const getChosenTeams = function():string[] | undefined{
+            if(competitionTeams && competitionTeams.length > 0){
+                  return (competitionTeams as any[]).map(team => team.getDataValue('name'));
+            }
+      };
+
+      const getSeason = function():string | undefined{
+            if(competitionTeams && competitionTeams.length > 0){
+                  return competitionTeams[0]['TeamsCompetitions'].get('season') ? competitionTeams[0]['TeamsCompetitions'].getDataValue('season') : undefined
+            }
+      };
+
+      const getRankings = function():number[] | undefined{
+            if(competitionTeams && competitionTeams.length > 0){
+                  const rankings = (competitionTeams as any[]).map(team => team['TeamsCompetitions'].getDataValue('ranking'));
+                  return rankings.some(rank => rank === null || rank === undefined) ? undefined : rankings
+            }
+
+      };
+
+      const getPoints = function():number[] | undefined{
+            if(competitionTeams && competitionTeams.length > 0){
+                  const points = (competitionTeams as any[]).map(team => team['TeamsCompetitions'].getDataValue('points'));
+                  return points.some(value => value === null || value === undefined) ? undefined : points;
+            }
+
+      };
+
       const populatePreFormUpdateCompetition = function(){
             if(results){
                   const teamNames = getAllTeamNames(results);
                   if(competitionTeams && competitionTeams.length > 0){
-                        const chosen = (competitionTeams as any[]).map(team => team.getDataValue('name'));
-                        Object.assign(preFormUpdateCompetitionResults, {chosenTeams: chosen});
-                        teamNames.filter(teamName => !chosen.includes(teamName))
+                        const chosen = getChosenTeams();
+                        Object.assign(preFormUpdateCompetitionResults, {chosenTeams: chosen}, {season: getSeason()}, {rankings: getRankings()}, {points: getPoints()});
+                        if(chosen){
+                              teamNames.filter(teamName => !chosen.includes(teamName))
+                        }
+                        
                   }
                   Object.assign(preFormUpdateCompetitionResults,{teams: teamNames}, {seasons: getSeasons()});
             }

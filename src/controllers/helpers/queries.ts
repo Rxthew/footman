@@ -132,7 +132,7 @@ export const  getAllTeams = async function(t:Transaction){
 };
 
 export const getAllTeamNames = function(results: TeamModel[]){
-        const names = results.filter(team => team.getDataValue('name'))
+        const names = results.map(team => team.getDataValue('name'))
         const uniqueNames = Array.from(new Set(names))
         return uniqueNames
  };
