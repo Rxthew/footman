@@ -35,7 +35,10 @@ export const preFormUpdateCompetition = function(res:Response, results: res.preF
 export const seeCompetition = function(res:Response, results: res.seeCompetitionResults){
         res.render('seeCompetition',{
             name: results.name,
-            teams: results.teams
+            teams: results.teams,
+            season: results.season,
+            rankings: results.rankings,
+            points: results.points
         })
 };
 

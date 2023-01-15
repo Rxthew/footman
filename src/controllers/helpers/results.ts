@@ -33,7 +33,10 @@ export interface seeTeamResults {
 
 export interface seeCompetitionResults {
     name: string,
-    teams?: TeamModel[],
+    teams?: string[],
+    season?: string[],
+    rankings?: number[]
+    points?: number[],
     code?: number
 }
 

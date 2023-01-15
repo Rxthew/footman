@@ -50,10 +50,17 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       const results = await seeCompetitionQuery().catch(function(error:Error){
             throw error
       });
-      
+
+      const competitionTeams = results.teams;
+
+      const getChosenTeams = queryHelpers.getAllTeamNames;
+      const getSeason = queryHelpers.getCompetitionSeason;
+      const getPoints = queryHelpers.getPoints;
+      const getRankings = queryHelpers.getRankings;
+
       const populateSeeCompetitionResults = function(){
             if(results.competition && results.teams){ 
-                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: results.teams.get()});   
+                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: getChosenTeams(competitionTeams)}, {season: getSeason(competitionTeams)}, {rankings: getRankings(competitionTeams)}, {points: getPoints(competitionTeams)});   
             }
             else{
                   const err = new Error('Query regarding competition viewing returned invalid data.');
