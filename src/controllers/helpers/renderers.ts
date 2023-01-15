@@ -41,11 +41,25 @@ export const seeCompetition = function(res:Response, results: res.seeCompetition
 
 export const preFormCreatePlayer = function(res: Response, results: res.preFormCreatePlayerResults){
         res.render('createPlayer', {
+            firstName: results.firstName,
+            lastName: results.lastName,
+            team: results.team,
+            nationality: results.nationality,
+            age: results.age,
+            position: results.position,
+            goals: results.goals,
+            assists: results.assists,
+            speed: results.speed,
+            strength: results.strength,
+            attack: results.attack,
+            defense: results.defense,
+            goalkeeping: results.goalkeeping,
+            intelligence: results.intelligence,
+            technique: results.technique,
+            season: results.season,
             teams: results.teams,
             seasons: results.seasons,
-            errors: results.errors,
-            team: results.team,
-            season: results.season
+            errors: results.errors
 
         })
 };
@@ -54,7 +68,7 @@ export const preFormUpdatePlayer = function(res: Response, results: res.preFormU
         res.render('updatePlayer',{
             firstName: results.firstName,
             lastName: results.lastName,
-            teamName: results.teamName,
+            team: results.team,
             nationality: results.nationality,
             age: results.age,
             position: results.position,

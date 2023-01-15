@@ -41,6 +41,20 @@ export interface preFormCreatePlayerResults {
     teams: string[],
     seasons: string[],
     errors?: {[index: string]: string | number},
+    firstName?: string,
+    lastName?: string,
+    nationality?: string,
+    age?: number,
+    position?: string,
+    goals?: number,
+    assists?: number,
+    speed?: number,
+    strength?: number,
+    attack?: number, 
+    defense?: number,
+    goalkeeping?: number,
+    intelligence?: number,
+    technique?: number,
     team?: string,
     season?: string
     
@@ -103,7 +117,14 @@ export interface postFormCreateTeamResults {
     season?: string
 }
 
-export interface preFormUpdatePlayerResults extends seePlayerResults, preFormCreatePlayerResults {};
+export interface preFormUpdatePlayerResults extends preFormCreatePlayerResults {
+    firstName: string,
+    lastName: string,
+    nationality: string,
+    age: number,
+    position: string,
+    code?: number
+};
 export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
 export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
