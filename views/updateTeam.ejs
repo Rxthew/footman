@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Footman: Update Team</title>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1>Update Team</h1>
+    <form action="" method="POST">
+        <div>
+            <% (typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined') ? %> <span><%= errors.name.msg %></span><% : false %>
+            <label for="name">Name:</label>
+            <input id="name" name="name" type="text" value="<%= name %>">
+        </div>
+        <div>
+             <label for="competitions">Competitions:</label>
+             <% if(competitions.length > 0){%>    
+             <div>
+                <% for(let competition of competitions){ %>
+                    <div>
+                        <label for="chosenCompetitions"><%= competition %></label>
+                        <input id="<%= competition %>" name="chosenCompetitions" type="checkbox" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
+                    </div>
+                <%}%>
+             </div><%}
+              else{%>
+                   <span>No competitions available</span>
+             <%}%>   
+        </div>
+        <div>
+            <label for="season">Seasons:</label>
+            <select id="season" name="season">
+                <% for(let single_season of seasons){ %>
+                    <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>
+                <%}%>
+            </select>
+        </div>
+        <footer>
+            <button type="submit">Submit Updated Team</button>
+        </footer>
+    </form>
+  </body>
+</html> 
