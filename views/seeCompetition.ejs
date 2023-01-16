@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Footman: <%= name %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1> <%= name %></h1>
+    <% if( (typeof teams !== 'undefined') && teams.length > 0){
+        if(typeof season !== 'undefined'){ %>
+            <p>For the season <%= season %> the <%= name %> saw the following teams compete:</p>
+        <%} 
+        if((typeof rankings !== 'undefined') && rankings.length > 0){%>
+              <div>
+                <span>Rank</span>
+                <span>Team</span>
+            <%= (typeof points !== undefined) && points.length > 0 ? <span>Points</span> : false %>    
+            <%teams.forEach((team,index)=>{%>
+              <div>
+                  <span><%= rankings[index] %></span>
+                  <span><%= team %></span>
+                <%= (typeof points !== undefined) && points.length > 0 ? <span><%=points[index]%></span> : false %>  
+            <%})%>
+              </div>
+        <%}
+        else{%>
+          <div>
+            <span>Team</span>
+          <%teams.forEach(team =>{%> 
+            <div>
+              <span>
+                <%= team %>
+              </span>
+            </div>
+          <%})%>
+          </div> 
+        <%}   
+    <%}
+    else {%>
+        <div>
+            <span>No teams available at the moment.</span>
+        </div>
+    <%}%> 
+  </body>
+</html>
