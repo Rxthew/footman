@@ -12,6 +12,11 @@ const Team = initdb_1.sequelize.define('team', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    code: {
+        type: sequelize_1.DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    }
 }, {
     tableName: 'teams'
 });

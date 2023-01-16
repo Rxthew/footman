@@ -21,10 +21,12 @@ const Player = initdb_1.sequelize.define('player', {
         allowNull: false
     },
     age: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.INTEGER,
+        allowNull: false
     },
     position: {
-        type: sequelize_1.DataTypes.STRING
+        type: sequelize_1.DataTypes.STRING,
+        allowNull: false
     },
     goals: {
         type: sequelize_1.DataTypes.INTEGER
@@ -53,6 +55,11 @@ const Player = initdb_1.sequelize.define('player', {
     technique: {
         type: sequelize_1.DataTypes.INTEGER
     },
+    code: {
+        type: sequelize_1.DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    }
 }, {
     tableName: 'players'
 });

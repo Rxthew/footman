@@ -30,6 +30,9 @@ const TeamsCompetitions = initdb_1.sequelize.define('TeamsCompetitions', {
     points: {
         type: sequelize_1.DataTypes.INTEGER
     },
+    ranking: {
+        type: sequelize_1.DataTypes.INTEGER
+    },
     season: {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false

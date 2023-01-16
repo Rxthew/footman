@@ -12,6 +12,11 @@ const Competition = initdb_1.sequelize.define('competition', {
         type: sequelize_1.DataTypes.STRING,
         allowNull: false
     },
+    code: {
+        type: sequelize_1.DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false
+    },
 }, {
     tableName: 'competitions'
 });
