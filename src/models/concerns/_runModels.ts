@@ -9,16 +9,16 @@ checkAuthentication(sequelize);
 
 Competition.belongsToMany(Team,{
     through: TeamsCompetitions,
-    as: 'teams'
+    
 });
 Player.belongsTo(Team,{
     foreignKey: 'teamId',
-    as: 'team'
+    
     });
 Team.hasMany(Player);
 Team.belongsToMany(Competition,{
     through: TeamsCompetitions,
-    as: 'competitions'
+    
 });
 
 (async()=>{

@@ -11,16 +11,13 @@ const teamscompetitions_1 = __importDefault(require("../teamscompetitions"));
 (0, initdb_1.checkAuthentication)(initdb_1.sequelize);
 competition_1.default.belongsToMany(team_1.default, {
     through: teamscompetitions_1.default,
-    as: 'teams'
 });
 player_1.default.belongsTo(team_1.default, {
     foreignKey: 'teamId',
-    as: 'team'
 });
 team_1.default.hasMany(player_1.default);
 team_1.default.belongsToMany(competition_1.default, {
     through: teamscompetitions_1.default,
-    as: 'competitions'
 });
 (async () => {
     await initdb_1.sequelize.sync();
