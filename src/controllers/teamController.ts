@@ -49,9 +49,12 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
             const competitionsResults = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']}).catch(function(error:Error){
                   throw error
               })
-            const competitions = competitionsResults && competitionsResults.length > 0 ? getCompetitionNames(competitionsResults) : competitionsResults;
-            const players = playersResults && playersResults.length > 0 ? (playersResults as any[]).map(player  => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
+            let competitions = competitionsResults && competitionsResults.length > 0 ? getCompetitionNames(competitionsResults) : competitionsResults;
+            let players = playersResults && playersResults.length > 0 ? (playersResults as any[]).map(player  => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
 
+            competitions = competitions && competitions.length > 0 ? competitions.sort() : competitions;
+            players = players && players.length > 0 ? players.sort() : players;
+            
             return {
                   team,
                   players,
