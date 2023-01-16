@@ -11,7 +11,9 @@ export const preFormCreateCompetition = function(res:Response, results: res.preF
             teams: results.teams,
             chosenTeams: results.chosenTeams,
             rankings: results.rankings,
-            points: results.points
+            points: results.points,
+            seasons: results.seasons,
+            season: results.season
 
 
         })
@@ -25,7 +27,10 @@ export const preFormUpdateCompetition = function(res:Response, results: res.preF
             teams: results.teams,
             chosenTeams: results.chosenTeams,
             ranking: results.rankings,
-            points: results.points
+            points: results.points,
+            seasons: results.seasons,
+            season: results.season
+
 
 
         })
@@ -116,6 +121,8 @@ export const preFormCreateTeam = function(res: Response, results: res.preFormCre
         res.render('createTeam',{
             name: results.name,
             competitions: results.competitions,
+            seasons: results.seasons,
+            season: results.season,
             errors: results.errors,
             chosenCompetitions: results.chosenCompetitions,
             
@@ -127,6 +134,8 @@ export const preFormUpdateTeam = function(res: Response, results: res.preFormUpd
         res.render('updateTeam',{
             name: results.name,
             competitions: results.competitions,
+            seasons: results.seasons,
+            season: results.season,
             errors: results.errors,
             chosenCompetitions: results.chosenCompetitions,
             

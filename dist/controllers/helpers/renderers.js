@@ -8,7 +8,9 @@ const preFormCreateCompetition = function (res, results) {
         teams: results.teams,
         chosenTeams: results.chosenTeams,
         rankings: results.rankings,
-        points: results.points
+        points: results.points,
+        seasons: results.seasons,
+        season: results.season
     });
 };
 exports.preFormCreateCompetition = preFormCreateCompetition;
@@ -19,7 +21,9 @@ const preFormUpdateCompetition = function (res, results) {
         teams: results.teams,
         chosenTeams: results.chosenTeams,
         ranking: results.rankings,
-        points: results.points
+        points: results.points,
+        seasons: results.seasons,
+        season: results.season
     });
 };
 exports.preFormUpdateCompetition = preFormUpdateCompetition;
@@ -104,6 +108,8 @@ const preFormCreateTeam = function (res, results) {
     res.render('createTeam', {
         name: results.name,
         competitions: results.competitions,
+        seasons: results.seasons,
+        season: results.season,
         errors: results.errors,
         chosenCompetitions: results.chosenCompetitions,
     });
@@ -113,6 +119,8 @@ const preFormUpdateTeam = function (res, results) {
     res.render('updateTeam', {
         name: results.name,
         competitions: results.competitions,
+        seasons: results.seasons,
+        season: results.season,
         errors: results.errors,
         chosenCompetitions: results.chosenCompetitions,
     });
