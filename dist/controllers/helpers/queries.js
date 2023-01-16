@@ -262,13 +262,14 @@ const nextTeamTemplate = async function (t, givenName, season) {
     }
 };
 exports.nextTeamTemplate = nextTeamTemplate;
-const transactionWrapper = async function (callback) {
+const transactionWrapper = async function (callback, next) {
     try {
         const result = await initdb_1.sequelize.transaction(callback).catch(function (error) {
             throw error;
         });
     }
     catch (error) {
+        next(error);
         console.log(error);
     }
 };

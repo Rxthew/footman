@@ -98,8 +98,8 @@ const seeTeamCb = async function (t) {
 };
 const seeTeam = async function (req, res, next) {
     (0, parameters_1.assessTeamParameters)(req, next);
-    await transactionWrapper(seeTeamCb).catch(function (error) {
-        throw error;
+    await transactionWrapper(seeTeamCb, next).catch(function (error) {
+        next(error);
     });
     seeTeamRenderer(res, seeTeamResults);
     (0, parameters_1.teamParameterPlaceholder)().reset();
@@ -133,8 +133,8 @@ const preFormCreateTeamCb = async function (t) {
     return;
 };
 const preFormCreateTeam = async function (req, res, next) {
-    await transactionWrapper(preFormCreateTeamCb).catch(function (error) {
-        throw error;
+    await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
+        next(error);
     });
     preFormCreateTeamRenderer(res, preFormCreateTeamResults);
     preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
@@ -201,19 +201,19 @@ const postFormCreateTeam = async function (req, res, next) {
     createTeamValidator();
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        await transactionWrapper(preFormCreateTeamCb).catch(function (error) {
-            throw error;
+        await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
+            next(error);
         });
         Object.assign(preFormCreateTeamResults, { errors: errors.mapped() }, { chosenCompetitions: req.body.chosenCompetitions });
         preFormCreateTeamRenderer(res, preFormCreateTeamResults);
     }
     else {
         Object.assign(postFormCreateTeamResults, req.body);
-        await transactionWrapper(postFormCreateTeamCb).catch(function (error) {
-            throw error;
+        await transactionWrapper(postFormCreateTeamCb, next).catch(function (error) {
+            next(error);
         });
         await goToTeamPage().catch(function (error) {
-            throw error;
+            next(error);
         });
     }
     preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
@@ -256,8 +256,8 @@ const preFormUpdateTeamCb = async function (t) {
 };
 const preFormUpdateTeam = async function (req, res, next) {
     (0, parameters_1.assessTeamParameters)(req, next);
-    await transactionWrapper(preFormUpdateTeamCb).catch(function (error) {
-        throw error;
+    await transactionWrapper(preFormUpdateTeamCb, next).catch(function (error) {
+        next(error);
     });
     preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
     (0, parameters_1.teamParameterPlaceholder)().reset();
@@ -320,16 +320,16 @@ const postFormUpdateTeam = async function (req, res, next) {
     updateTeamValidator();
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        await transactionWrapper(preFormUpdateTeamCb).catch(function (err) {
-            throw err;
+        await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
+            next(err);
         });
         Object.assign(preFormUpdateTeamResults, req.body, { errors: errors.mapped() });
         preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
     }
     else {
         Object.assign(postFormUpdateTeamResults, req.body);
-        await transactionWrapper(postFormUpdateTeamCb).catch(function (error) {
-            throw error;
+        await transactionWrapper(postFormUpdateTeamCb, next).catch(function (error) {
+            next(error);
         });
         const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
         res.redirect(`/team/${name}_${code}`);

@@ -92,8 +92,8 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
 
       assessTeamParameters(req,next)
       
-      await transactionWrapper(seeTeamCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(seeTeamCb,next).catch(function(error:Error){
+            next(error)
         });
       seeTeamRenderer(res,seeTeamResults);
 
@@ -138,8 +138,8 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
 export const preFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      await transactionWrapper(preFormCreateTeamCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(preFormCreateTeamCb,next).catch(function(error:Error){
+            next(error)
         });
       preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
@@ -230,19 +230,19 @@ export const postFormCreateTeam = async function(req: Request, res: Response, ne
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormCreateTeamCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(preFormCreateTeamCb,next).catch(function(error:Error){
+                  next(error) 
               });
             Object.assign(preFormCreateTeamResults, {errors: errors.mapped()},  {chosenCompetitions: req.body.chosenCompetitions});
             preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       }
       else{
             Object.assign(postFormCreateTeamResults, req.body);
-            await transactionWrapper(postFormCreateTeamCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormCreateTeamCb,next).catch(function(error:Error){
+                  next(error)
               });
             await goToTeamPage().catch(function(error:Error){
-                  throw error
+                  next(error)
               }) 
             
       }
@@ -298,8 +298,8 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 export const preFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
       assessTeamParameters(req,next)
 
-      await transactionWrapper(preFormUpdateTeamCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(preFormUpdateTeamCb,next).catch(function(error:Error){
+            next(error)
         }); 
       preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);
       teamParameterPlaceholder().reset()
@@ -387,8 +387,8 @@ export const postFormUpdateTeam = async function(req: Request, res: Response, ne
 
       if(!errors.isEmpty()){
 
-            await transactionWrapper(preFormUpdateTeamCb).catch(function(err){
-                  throw err
+            await transactionWrapper(preFormUpdateTeamCb,next).catch(function(err){
+                  next(err) 
             });
             Object.assign(preFormUpdateTeamResults, req.body, {errors: errors.mapped()});
             preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);       
@@ -396,8 +396,8 @@ export const postFormUpdateTeam = async function(req: Request, res: Response, ne
       }
       else{
             Object.assign(postFormUpdateTeamResults, req.body);
-            await transactionWrapper(postFormUpdateTeamCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormUpdateTeamCb,next).catch(function(error:Error){
+                  next(error)
               });
             const [name,code] = [postFormUpdateTeamResults.name, req.params.code];
             res.redirect(`/team/${name}_${code}`);

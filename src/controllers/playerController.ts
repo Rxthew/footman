@@ -85,8 +85,8 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
 
       assessPlayerParameters(req,next)
       
-      await transactionWrapper(seePlayerCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(seePlayerCb,next).catch(function(error:Error){
+            next(error)
         });
       seePlayerRenderer(res,seePlayerResults);
 
@@ -135,8 +135,8 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
 export const preFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
       
-      await transactionWrapper(preFormCreatePlayerCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
+            next(error)
         });
       preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
@@ -224,19 +224,19 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormCreatePlayerCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
+                  next(error)
               });
             Object.assign(preFormCreatePlayerResults, {errors: errors.mapped()},  {team: req.body.team}, {season: req.body.season});
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       }
       else{
             Object.assign(postFormCreatePlayerResults, req.body);
-            await transactionWrapper(postFormCreatePlayerCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormCreatePlayerCb,next).catch(function(error:Error){
+                  next(error)
               });
             await goToPlayerPage().catch(function(error:Error){
-                  throw error
+                  next(error)
               }) 
             
       }
@@ -329,8 +329,8 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
       assessPlayerParameters(req,next);
       
       
-      await transactionWrapper(preFormUpdatePlayerCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
+            next(error)
         }); 
       preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
       playerParameterPlaceholder().reset()
@@ -407,8 +407,8 @@ export const postFormUpdatePlayer = async function(req: Request, res: Response, 
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormUpdatePlayerCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
+                  next(error)
               });
             Object.assign(preFormUpdatePlayerResults, req.body, {errors: errors.mapped()});
             preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
@@ -416,8 +416,8 @@ export const postFormUpdatePlayer = async function(req: Request, res: Response, 
       }
       else{
             Object.assign(postFormUpdatePlayerResults,req.body);
-            await transactionWrapper(postFormUpdatePlayerCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormUpdatePlayerCb,next).catch(function(error:Error){
+                  next(error)
               });
             const [firstName,lastName,code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
             res.redirect(`/player/${firstName}_${lastName}_${code}`);

@@ -1,3 +1,4 @@
+import { NextFunction } from 'express';
 import { Transaction } from 'sequelize'
 import Competition, { CompetitionModel } from '../../models/competition';
 import { sequelize } from '../../models/concerns/initdb';
@@ -301,7 +302,7 @@ export const  nextTeamTemplate = async function(t: Transaction,givenName: string
 };
 
 
- export const transactionWrapper = async function(callback: (t:Transaction) => Promise<void>){
+ export const transactionWrapper = async function(callback: (t:Transaction) => Promise<void>, next:NextFunction){
     try {
         const result = await sequelize.transaction(callback).catch(function(error:Error){
             throw error
@@ -309,6 +310,7 @@ export const  nextTeamTemplate = async function(t: Transaction,givenName: string
         
     }
     catch (error){
+        next(error)
         console.log(error)
         
     }

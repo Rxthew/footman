@@ -110,8 +110,8 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
 
       assessCompetitionParameters(req,next);
       
-      await transactionWrapper(seeCompetitionCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(seeCompetitionCb,next).catch(function(error:Error){
+            next(error)
         });
 
       seeCompetitionRenderer(res,seeCompetitionResults);
@@ -157,8 +157,8 @@ const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
 
 export const preFormCreateCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      await transactionWrapper(preFormCreateCompetitionCb).catch(function(error:Error){
-            throw error
+      await transactionWrapper(preFormCreateCompetitionCb,next).catch(function(error:Error){
+            next(error)
         });
       preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
       preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
@@ -269,19 +269,19 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
-            await transactionWrapper(preFormCreateCompetitionCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(preFormCreateCompetitionCb,next).catch(function(error:Error){
+                  next(error) 
               });
             Object.assign(preFormCreateCompetitionResults, {errors: errors.mapped()},  {chosenTeams: req.body.chosenCompetitions});
             preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
       }
       else{
             Object.assign(postFormCreateCompetitionResults, req.body);
-            await transactionWrapper(postFormCreateCompetitionCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormCreateCompetitionCb,next).catch(function(error:Error){
+                  next(error)
               });
             await goToCompetitionPage().catch(function(error:Error){
-                  throw error
+                  next(error) 
               }) 
             
       }
@@ -344,7 +344,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 export const preFormUpdateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
       assessCompetitionParameters(req,next);
 
-      await transactionWrapper(preFormUpdateCompetitionCb).catch(function(error:Error){throw error});
+      await transactionWrapper(preFormUpdateCompetitionCb,next).catch(function(error:Error){next(error)});
       preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
 
       competitionParameterPlaceholder().reset();
@@ -448,8 +448,8 @@ export const postFormUpdateCompetition = async function(req:Request,res:Response
 
       if(!errors.isEmpty()){
 
-            await transactionWrapper(preFormUpdateCompetitionCb).catch(function(err){
-                  throw err
+            await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function(err){
+                  next(err)
             });
             Object.assign(preFormUpdateCompetitionResults, req.body, {errors: errors.mapped()});
             preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);       
@@ -457,8 +457,9 @@ export const postFormUpdateCompetition = async function(req:Request,res:Response
       }
       else{
             Object.assign(postFormUpdateCompetitionResults, req.body);
-            await transactionWrapper(postFormUpdateCompetitionCb).catch(function(error:Error){
-                  throw error
+            await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function(error:Error){
+                  next(error)
+                  
               });
             const [name,code] = [postFormUpdateCompetitionResults.name, req.params.code];
             res.redirect(`/team/${name}_${code}`);
