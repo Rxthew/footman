@@ -6,7 +6,7 @@ import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import Competition, { CompetitionModel } from '../models/competition';
+import Competition from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -26,6 +26,27 @@ let seeCompetitionResults = resultsGenerator.seeCompetition();
 const transactionWrapper = queryHelpers.transactionWrapper;
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
+
+      const sortCompetitionData = function(teams:string[],rankings: number[] | undefined,points: number[] | undefined){
+            if(rankings && rankings.length > 0){
+                  teams.sort(function(x,y){
+                        return rankings[teams.indexOf(x)] > rankings[teams.indexOf(y)] ? 1 : -1
+                  });
+                  rankings.sort(function(x,y){
+                        return x > y ? 1 : -1
+                  });
+                  if(points && points.length > 0){
+                        points.sort(function(x,y){
+                              return rankings[points.indexOf(x)] > rankings[points.indexOf(y)] ? 1 : -1
+                        });
+
+                  }
+            }
+            else{
+                  teams.sort();
+            }
+
+      }
       
       const seeCompetitionQuery = async function(){
             const parameters = competitionParameterPlaceholder().parameters; 
@@ -58,9 +79,14 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       const getPoints = queryHelpers.getPoints;
       const getRankings = queryHelpers.getRankings;
 
+      let chosenTeams = getChosenTeams(competitionTeams);
+      let teamRankings = getRankings(competitionTeams);
+      let teamPoints = getPoints(competitionTeams);
+      sortCompetitionData(chosenTeams, teamRankings, teamPoints);
+
       const populateSeeCompetitionResults = function(){
             if(results.competition && results.teams){ 
-                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: getChosenTeams(competitionTeams)}, {season: getSeason(competitionTeams)}, {rankings: getRankings(competitionTeams)}, {points: getPoints(competitionTeams)});   
+                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: chosenTeams}, {season: getSeason(competitionTeams)}, {rankings: teamRankings}, {points: teamPoints});   
             }
             else{
                   const err = new Error('Query regarding competition viewing returned invalid data.');
