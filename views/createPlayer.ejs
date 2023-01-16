@@ -3,30 +3,31 @@
   <head>
     <title>Footman: Create Player</title>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
     <h1>Create Player</h1>
-    <form action="" method="POST">
+    <form action="/player" method="POST">
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined') ? %> <span><%= errors.firstName.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 
             <label for="firstName">First Name:</label>
             <input id="firstName" name="firstName" type="text" <% if(typeof firstName !== 'undefined'){%> value="<%= firstName %>" <%}%>>
         </div>
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined') ? %> <span><%= errors.lastName.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> <span><%= errors.lastName.msg %></span> <%}%> 
             <label for="lastName">Last Name:</label>
             <input id="lastName" name="lastName" type="text" <% if(typeof lastName !== 'undefined'){%> value="<%= lastName %>" <%}%>>
         </div>
         <div>
-            <%- include{'partials/nationalities', {nationality: nationality}}%>
+            <%- include('partials/nationalities', {nationality: nationality})%> 
         </div>
         <div>
             <label for="age">Age:</label>
             <input id="age" name="age" type="number" min="15" max="45" <% if(typeof age !== 'undefined'){%> value="<%= age %>" <%}%>>
         </div>
         <div>
+            <label for="position">Position:</label>
             <select id="position" name="position">
                  <option value="Goalkeeper" <% if((typeof position !== 'undefined') && position === 'Goalkeeper'){%>selected='true'<%}%>>Goalkeeper</option> 
                  <option value="Defender" <% if((typeof position !== 'undefined') && position === 'Defender'){%>selected='true'<%}%>>Defender</option>
@@ -72,7 +73,7 @@
         </div>
         <div>
              <label for="teams">Teams:</label>
-             <% (typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined') ? %> <span><%= errors.team.msg %></span><% : false %>
+             <% if((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){%> <span><%= errors.team.msg %></span> <%}%> 
              <% if(teams.length > 0){%>    
              <div>
                 <% for(let single_team of teams){ %>
@@ -86,15 +87,17 @@
                    <span>No teams available</span>
              <%}%>   
         </div>
+        <%if(seasons.length > 0){%>
         <div>
             <label for="season">Seasons:</label>
-            <% (typeof errors !== 'undefined') && ( typeof errors.season !== 'undefined') ? %> <span><%= errors.season.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.season !== 'undefined')){%> <span><%= errors.season.msg %></span> <%}%> 
             <select id="season" name="season">
                 <% for(let single_season of seasons){ %>
                     <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>
                 <%}%>
             </select>
         </div>
+        <%}%>
         <footer>
             <button type="submit">Submit New Player</button>
         </footer>

@@ -243,14 +243,16 @@ UEFA : [
 
 }
  %>
-
-<select id="nationality" name="nationality">
-    <% for(let group of Object.keys(nationalTeams){ %>
-        <optgroup label="<%= group %>">
-            <% for(let team of nationalTeams[group]){ %>
-            <option value="<%= team %>" <% if(typeof nationality !== 'undefined' && nationality === team){%> selected='true' <%}%> <%= team %></option>
-            <%}%>
-        </optgroup>
-    <%}%> 
-</select>
+<div>
+    <label for="nationality">Nationality:</label>
+    <select id="nationality" name="nationality">
+        <% for(let group of Object.keys(nationalTeams)){ %>
+            <optgroup label="<%= group %>">
+                <% for(let team of nationalTeams[group]){ %>
+                <option value="<%= team %>" <% if(typeof nationality !== 'undefined' && nationality === team){%> selected='true' <%}%>> <%= team %></option>
+                <%}%>
+            </optgroup>
+        <%}%> 
+    </select>
+</div>
 

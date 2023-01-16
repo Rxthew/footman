@@ -3,19 +3,19 @@
   <head>
     <title>Footman: Update Player</title>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width" initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
     <h1>Update Player</h1>
     <form action="" method="POST">
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined') ? %> <span><%= errors.firstName.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 
             <label for="firstName">First Name:</label>
             <input id="firstName" name="firstName" type="text" value=<%="firstName"%>>
         </div>
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined') ? %> <span><%= errors.lastName.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> <span><%= errors.lastName.msg %></span> <%}%> 
             <label for="lastName">Last Name:</label>
             <input id="lastName" name="lastName" type="text" value=<%="lastName"%>>
         </div>

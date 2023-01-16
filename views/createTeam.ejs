@@ -3,14 +3,14 @@
   <head>
     <title>Footman: Create Team</title>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <meta name="viewport" content="width=device-width" initial-scale="1.0"> 
+    <link rel='stylesheet' href='/stylesheets/style.css'>
   </head>
   <body>
     <h1>Create Team</h1>
-    <form action="" method="POST">
+    <form action="/team" method="POST"> 
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined') ? %> <span><%= errors.name.msg %></span><% : false %>
+        <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>
             <input id="name" name="name" type="text" <% if(typeof name !== 'undefined'){%> value="<%= name %>" <%}%>>
         </div>
@@ -28,16 +28,16 @@
               else{%>
                    <span>No competitions available</span>
              <%}%>   
-        </div>
+        </div> 
         <div>
             <label for="season">Seasons:</label>
-            <% (typeof errors !== 'undefined') && ( typeof errors.season !== 'undefined') ? %> <span><%= errors.season.msg %></span><% : false %>
+           <% if((typeof errors !== 'undefined') && ( typeof errors.season !== 'undefined')){%> <span><%= errors.season.msg %></span><%}%>  
             <select id="season" name="season">
                 <% for(let single_season of seasons){ %>
                     <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>
                 <%}%>
-            </select>
-        </div>
+            </select> 
+        </div> 
         <footer>
             <button type="submit">Submit New Team</button>
         </footer>

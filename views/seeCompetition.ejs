@@ -2,6 +2,8 @@
 <html>
   <head>
     <title>Footman: <%= name %></title>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
@@ -14,13 +16,13 @@
               <div>
                 <span>Rank</span>
                 <span>Team</span>
-            <%= (typeof points !== undefined) && points.length > 0 ? <span>Points</span> : false %>    
+            <% if((typeof points !== undefined) && points.length > 0){%> <span>Points</span> <%}   
             <%teams.forEach((team,index)=>{%>
               <div>
                   <span><%= rankings[index] %></span>
                   <span><%= team %></span>
-                <%= (typeof points !== undefined) && points.length > 0 ? <span><%=points[index]%></span> : false %>  
-            <%})%>
+                <% if((typeof points !== undefined) && points.length > 0){%> <span><%=points[index]%></span> <%}
+            })%>
               </div>
         <%}
         else{%>

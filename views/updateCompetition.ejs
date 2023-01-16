@@ -3,7 +3,7 @@
   <head>
     <title>Footman: Update Competition</title>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="/javascripts/competition.js" defer="true" crossorigin="anonymous"></script>
   </head>
@@ -11,7 +11,7 @@
     <h1>Update Competition</h1>
     <form action="" method="POST">
         <div>
-            <% (typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined') ? %> <span><%= errors.name.msg %></span><% : false %>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>
             <input id="name" name="name" type="text" value="<%= name %>">
         </div>
