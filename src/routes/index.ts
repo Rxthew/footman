@@ -10,22 +10,22 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
 });
 
 router.get('/competitions/new', preFormCreateCompetition);
-router.get('/competitions/:name_:code/edit', preFormUpdateCompetition);
-router.get('/competitions/:name_:code', seeCompetition);
+router.get('/competitions/:name.:code/edit', preFormUpdateCompetition);
+router.get('/competitions/:name.:code', seeCompetition);
 router.post('/competitions', postFormCreateCompetition);
-router.put('/competitions/:name_:code', postFormUpdateCompetition);
+router.put('/competitions/:name.:code', postFormUpdateCompetition);
 
 router.get('/player/new', preFormCreatePlayer);
-router.get('/player/:firstName_:lastName_:code/edit', preFormUpdatePlayer);
-router.get('/player/:firstName_:lastName_:code', seePlayer);
+router.get('/player/:firstName.:lastName.:code/edit', preFormUpdatePlayer);
+router.get('/player/:firstName.:lastName.:code', seePlayer);
 router.post('/player', postFormCreatePlayer);
-router.put('/player/:firstName_:lastName_:code', postFormUpdatePlayer);
+router.put('/player/:firstName.:lastName.:code', postFormUpdatePlayer);
 
 router.get('/team/new', preFormCreateTeam);
-router.get('/team/:name_:code/edit', preFormUpdateTeam);
-router.get('/team/:name_:code', seeTeam);
+router.get('/team/:name.:code/edit', preFormUpdateTeam);
+router.get('/team/:name.:code', seeTeam);
 router.post('/team', postFormCreateTeam);
-router.put('/team/:name_:code', postFormUpdateTeam);
+router.put('/team/:name.:code', postFormUpdateTeam);
 
 
 
