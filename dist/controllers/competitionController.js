@@ -213,44 +213,42 @@ const postFormCreateCompetitionCb = async function (t) {
         throw err;
     });
 };
-const postFormCreateCompetition = async function (req, res, next) {
-    const goToCompetitionPage = async function () {
-        try {
-            const latestCode = await competition_1.default.max('code').catch(function (error) {
-                throw error;
-            });
-            const competitionName = postFormCreateCompetitionResults.name;
-            res.redirect(`/competition/${competitionName}_${latestCode}`);
-        }
-        catch (err) {
-            if (err) {
-                console.log(err);
-                return next(err);
+exports.postFormCreateCompetition = [...createCompetitionValidator(), async function (req, res, next) {
+        const goToCompetitionPage = async function () {
+            try {
+                const latestCode = await competition_1.default.max('code').catch(function (error) {
+                    throw error;
+                });
+                const competitionName = postFormCreateCompetitionResults.name;
+                res.redirect(`/competitions/${competitionName}_${latestCode}`);
             }
+            catch (err) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+            }
+        };
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
+                next(error);
+            });
+            Object.assign(preFormCreateCompetitionResults, { errors: errors.mapped() }, { chosenTeams: req.body.chosenCompetitions });
+            preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
         }
-    };
-    createCompetitionValidator();
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
-            next(error);
-        });
-        Object.assign(preFormCreateCompetitionResults, { errors: errors.mapped() }, { chosenTeams: req.body.chosenCompetitions });
-        preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
-    }
-    else {
-        Object.assign(postFormCreateCompetitionResults, req.body);
-        await transactionWrapper(postFormCreateCompetitionCb, next).catch(function (error) {
-            next(error);
-        });
-        await goToCompetitionPage().catch(function (error) {
-            next(error);
-        });
-    }
-    preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
-    postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
-};
-exports.postFormCreateCompetition = postFormCreateCompetition;
+        else {
+            Object.assign(postFormCreateCompetitionResults, req.body);
+            await transactionWrapper(postFormCreateCompetitionCb, next).catch(function (error) {
+                next(error);
+            });
+            await goToCompetitionPage().catch(function (error) {
+                next(error);
+            });
+        }
+        preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
+        postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
+    }];
 const preFormUpdateCompetitionCb = async function (t) {
     const getAllTeams = queryHelpers.getAllTeams;
     const getAllTeamNames = queryHelpers.getAllTeamNames;
@@ -361,26 +359,24 @@ const postFormUpdateCompetitionCb = async function (t) {
         throw err;
     }) : false;
 };
-const postFormUpdateCompetition = async function (req, res, next) {
-    postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, { code: req.params.code }) : false;
-    updateCompetitionValidator();
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {
-            next(err);
-        });
-        Object.assign(preFormUpdateCompetitionResults, req.body, { errors: errors.mapped() });
-        preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
-    }
-    else {
-        Object.assign(postFormUpdateCompetitionResults, req.body);
-        await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function (error) {
-            next(error);
-        });
-        const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
-        res.redirect(`/team/${name}_${code}`);
-    }
-    preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
-    postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
-};
-exports.postFormUpdateCompetition = postFormUpdateCompetition;
+exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async function (req, res, next) {
+        postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, { code: req.params.code }) : false;
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {
+                next(err);
+            });
+            Object.assign(preFormUpdateCompetitionResults, req.body, { errors: errors.mapped() });
+            preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
+        }
+        else {
+            Object.assign(postFormUpdateCompetitionResults, req.body);
+            await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function (error) {
+                next(error);
+            });
+            const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
+            res.redirect(`/team/${name}_${code}`);
+        }
+        preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
+        postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+    }];

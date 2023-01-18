@@ -200,7 +200,7 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 }
 
 
-export const postFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction){
+export const postFormCreatePlayer = [...submitPlayerValidator(), async function(req: Request, res: Response, next: NextFunction){
       
       const goToPlayerPage = async function(){
             try{
@@ -220,7 +220,6 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
             }
       };
 
-      (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -244,7 +243,7 @@ export const postFormCreatePlayer = async function(req: Request, res: Response, 
       preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
       postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
 
-}
+}]
 
 const preFormUpdatePlayerCb = async function(t: Transaction){
 
@@ -399,10 +398,9 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
 
 
-export const postFormUpdatePlayer = async function(req: Request, res: Response, next:NextFunction): Promise<void>{
+export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(req: Request, res: Response, next:NextFunction): Promise<void>{
 
       Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
-      (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
 
       const errors = validationResult(req);
 
@@ -426,7 +424,7 @@ export const postFormUpdatePlayer = async function(req: Request, res: Response, 
       preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
       postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
 
-}
+}]
 
   
   

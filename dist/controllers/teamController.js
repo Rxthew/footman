@@ -182,44 +182,42 @@ const postFormCreateTeamCb = async function (t) {
         throw err;
     });
 };
-const postFormCreateTeam = async function (req, res, next) {
-    const goToTeamPage = async function () {
-        try {
-            const latestCode = await team_1.default.max('code').catch(function (error) {
-                throw error;
-            });
-            const teamName = postFormCreateTeamResults.name;
-            res.redirect(`/team/${teamName}_${latestCode}`);
-        }
-        catch (err) {
-            if (err) {
-                console.log(err);
-                return next(err);
+exports.postFormCreateTeam = [...createTeamValidator(), async function (req, res, next) {
+        const goToTeamPage = async function () {
+            try {
+                const latestCode = await team_1.default.max('code').catch(function (error) {
+                    throw error;
+                });
+                const teamName = postFormCreateTeamResults.name;
+                res.redirect(`/team/${teamName}_${latestCode}`);
             }
+            catch (err) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+            }
+        };
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
+                next(error);
+            });
+            Object.assign(preFormCreateTeamResults, { errors: errors.mapped() }, { chosenCompetitions: req.body.chosenCompetitions });
+            preFormCreateTeamRenderer(res, preFormCreateTeamResults);
         }
-    };
-    createTeamValidator();
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
-            next(error);
-        });
-        Object.assign(preFormCreateTeamResults, { errors: errors.mapped() }, { chosenCompetitions: req.body.chosenCompetitions });
-        preFormCreateTeamRenderer(res, preFormCreateTeamResults);
-    }
-    else {
-        Object.assign(postFormCreateTeamResults, req.body);
-        await transactionWrapper(postFormCreateTeamCb, next).catch(function (error) {
-            next(error);
-        });
-        await goToTeamPage().catch(function (error) {
-            next(error);
-        });
-    }
-    preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
-    postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
-};
-exports.postFormCreateTeam = postFormCreateTeam;
+        else {
+            Object.assign(postFormCreateTeamResults, req.body);
+            await transactionWrapper(postFormCreateTeamCb, next).catch(function (error) {
+                next(error);
+            });
+            await goToTeamPage().catch(function (error) {
+                next(error);
+            });
+        }
+        preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+        postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
+    }];
 const preFormUpdateTeamCb = async function (t) {
     const getAllCompetitions = queryHelpers.getAllCompetitions;
     const getAllCompetitionNames = queryHelpers.getAllCompetitionNames;
@@ -315,26 +313,24 @@ const postFormUpdateTeamCb = async function (t) {
         throw err;
     });
 };
-const postFormUpdateTeam = async function (req, res, next) {
-    postFormUpdateTeamResults.season ? Object.assign(postFormUpdateTeamResults, { code: req.params.code }) : false;
-    updateTeamValidator();
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
-            next(err);
-        });
-        Object.assign(preFormUpdateTeamResults, req.body, { errors: errors.mapped() });
-        preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
-    }
-    else {
-        Object.assign(postFormUpdateTeamResults, req.body);
-        await transactionWrapper(postFormUpdateTeamCb, next).catch(function (error) {
-            next(error);
-        });
-        const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
-        res.redirect(`/team/${name}_${code}`);
-    }
-    preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
-    postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
-};
-exports.postFormUpdateTeam = postFormUpdateTeam;
+exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res, next) {
+        postFormUpdateTeamResults.season ? Object.assign(postFormUpdateTeamResults, { code: req.params.code }) : false;
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
+                next(err);
+            });
+            Object.assign(preFormUpdateTeamResults, req.body, { errors: errors.mapped() });
+            preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
+        }
+        else {
+            Object.assign(postFormUpdateTeamResults, req.body);
+            await transactionWrapper(postFormUpdateTeamCb, next).catch(function (error) {
+                next(error);
+            });
+            const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
+            res.redirect(`/team/${name}_${code}`);
+        }
+        preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
+        postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
+    }];

@@ -246,7 +246,7 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
 
 };
 
-export const postFormCreateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
+export const postFormCreateCompetition = [...createCompetitionValidator(), async function(req:Request, res:Response, next:NextFunction):Promise<void>{
 
       const goToCompetitionPage = async function(){
             try{
@@ -255,7 +255,7 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
               });
             const competitionName = postFormCreateCompetitionResults.name;
             
-            res.redirect(`/competition/${competitionName}_${latestCode}`)
+            res.redirect(`/competitions/${competitionName}_${latestCode}`)
             }
             catch(err){
                   if(err){
@@ -265,7 +265,6 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
             }
       }
                 
-      createCompetitionValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -289,7 +288,7 @@ export const postFormCreateCompetition = async function(req:Request, res:Respons
       preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
       postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
 
-};
+}]
 
 const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
@@ -440,10 +439,9 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
 };
 
-export const postFormUpdateCompetition = async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+export const postFormUpdateCompetition = [...updateCompetitionValidator(), async function(req:Request,res:Response,next:NextFunction):Promise<void>{
 
       postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, {code: req.params.code}) : false;
-      updateCompetitionValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -469,7 +467,7 @@ export const postFormUpdateCompetition = async function(req:Request,res:Response
       preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
       postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 
-}
+}]
 
 
 

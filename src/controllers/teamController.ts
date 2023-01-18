@@ -207,7 +207,7 @@ const postFormCreateTeamCb = async function(t:Transaction){
 
 }
 
-export const postFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+export const postFormCreateTeam =[...createTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
       
       const goToTeamPage = async function(){
             try{
@@ -225,8 +225,6 @@ export const postFormCreateTeam = async function(req: Request, res: Response, ne
                   }
             }
       }
-
-      createTeamValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -250,7 +248,7 @@ export const postFormCreateTeam = async function(req: Request, res: Response, ne
       preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
       postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
 
-}
+}]
 
 const preFormUpdateTeamCb = async function(t: Transaction){
 
@@ -379,10 +377,9 @@ const postFormUpdateTeamCb = async function(t:Transaction){
      
 }
 
-export const postFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+export const postFormUpdateTeam = [...updateTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
       postFormUpdateTeamResults.season ? Object.assign(postFormUpdateTeamResults, {code: req.params.code}) : false;
-      updateTeamValidator();
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -406,7 +403,7 @@ export const postFormUpdateTeam = async function(req: Request, res: Response, ne
 
       preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
       postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
-}
+}]
 
 
 

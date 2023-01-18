@@ -181,45 +181,43 @@ const postFormCreatePlayerCb = async function (t) {
         throw err;
     });
 };
-const postFormCreatePlayer = async function (req, res, next) {
-    const goToPlayerPage = async function () {
-        try {
-            const latestCode = await player_1.default.max('code').catch(function (error) {
-                throw error;
-            });
-            const firstName = postFormCreatePlayerResults.firstName;
-            const lastName = postFormCreatePlayerResults.lastName;
-            res.redirect(`/player/${firstName}_${lastName}_${latestCode}`);
-        }
-        catch (err) {
-            if (err) {
-                console.log(err);
-                return next(err);
+exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
+        const goToPlayerPage = async function () {
+            try {
+                const latestCode = await player_1.default.max('code').catch(function (error) {
+                    throw error;
+                });
+                const firstName = postFormCreatePlayerResults.firstName;
+                const lastName = postFormCreatePlayerResults.lastName;
+                res.redirect(`/player/${firstName}_${lastName}_${latestCode}`);
             }
+            catch (err) {
+                if (err) {
+                    console.log(err);
+                    return next(err);
+                }
+            }
+        };
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
+                next(error);
+            });
+            Object.assign(preFormCreatePlayerResults, { errors: errors.mapped() }, { team: req.body.team }, { season: req.body.season });
+            preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
         }
-    };
-    (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
-            next(error);
-        });
-        Object.assign(preFormCreatePlayerResults, { errors: errors.mapped() }, { team: req.body.team }, { season: req.body.season });
-        preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
-    }
-    else {
-        Object.assign(postFormCreatePlayerResults, req.body);
-        await transactionWrapper(postFormCreatePlayerCb, next).catch(function (error) {
-            next(error);
-        });
-        await goToPlayerPage().catch(function (error) {
-            next(error);
-        });
-    }
-    preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
-    postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
-};
-exports.postFormCreatePlayer = postFormCreatePlayer;
+        else {
+            Object.assign(postFormCreatePlayerResults, req.body);
+            await transactionWrapper(postFormCreatePlayerCb, next).catch(function (error) {
+                next(error);
+            });
+            await goToPlayerPage().catch(function (error) {
+                next(error);
+            });
+        }
+        preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
+        postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
+    }];
 const preFormUpdatePlayerCb = async function (t) {
     const getAllTeams = queryHelpers.getAllTeams;
     const getAllTeamsWithCompetitions = queryHelpers.getAllTeamsWithCompetitions;
@@ -342,26 +340,24 @@ const postFormUpdatePlayerCb = async function (t) {
         throw err;
     });
 };
-const postFormUpdatePlayer = async function (req, res, next) {
-    Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
-    (req.body.season && req.body.team) ? submitPlayerValidator(true) : submitPlayerValidator(false);
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-        await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
-            next(error);
-        });
-        Object.assign(preFormUpdatePlayerResults, req.body, { errors: errors.mapped() });
-        preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
-    }
-    else {
-        Object.assign(postFormUpdatePlayerResults, req.body);
-        await transactionWrapper(postFormUpdatePlayerCb, next).catch(function (error) {
-            next(error);
-        });
-        const [firstName, lastName, code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
-        res.redirect(`/player/${firstName}_${lastName}_${code}`);
-    }
-    preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
-    postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
-};
-exports.postFormUpdatePlayer = postFormUpdatePlayer;
+exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
+        Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
+                next(error);
+            });
+            Object.assign(preFormUpdatePlayerResults, req.body, { errors: errors.mapped() });
+            preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
+        }
+        else {
+            Object.assign(postFormUpdatePlayerResults, req.body);
+            await transactionWrapper(postFormUpdatePlayerCb, next).catch(function (error) {
+                next(error);
+            });
+            const [firstName, lastName, code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
+            res.redirect(`/player/${firstName}_${lastName}_${code}`);
+        }
+        preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
+        postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
+    }];
