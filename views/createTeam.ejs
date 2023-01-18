@@ -31,7 +31,6 @@
         </div> 
         <div>
             <label for="season">Seasons:</label>
-           <% if((typeof errors !== 'undefined') && ( typeof errors.season !== 'undefined')){%> <span><%= errors.season.msg %></span><%}%>  
             <select id="season" name="season">
                 <% for(let single_season of seasons){ %>
                     <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>

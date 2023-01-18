@@ -17,7 +17,7 @@
                 <span>Rank</span>
                 <span>Team</span>
             <% if((typeof points !== undefined) && points.length > 0){%> <span>Points</span> <%}   
-            <%teams.forEach((team,index)=>{%>
+            teams.forEach((team,index)=>{%>
               <div>
                   <span><%= rankings[index] %></span>
                   <span><%= team %></span>
@@ -37,7 +37,7 @@
           <%})%>
           </div> 
         <%}   
-    <%}
+     }
     else {%>
         <div>
             <span>No teams available at the moment.</span>
