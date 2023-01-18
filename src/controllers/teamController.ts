@@ -231,7 +231,7 @@ export const postFormCreateTeam =[...createTeamValidator(), async function(req: 
             await transactionWrapper(preFormCreateTeamCb,next).catch(function(error:Error){
                   next(error) 
               });
-            Object.assign(preFormCreateTeamResults, {errors: errors.mapped()},  {chosenCompetitions: req.body.chosenCompetitions});
+            Object.assign(preFormCreateTeamResults, {errors: errors.mapped()},  req.body);
             preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       }
       else{

@@ -226,7 +226,7 @@ export const postFormCreatePlayer = [...submitPlayerValidator(), async function(
             await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
                   next(error)
               });
-            Object.assign(preFormCreatePlayerResults, {errors: errors.mapped()},  {team: req.body.team}, {season: req.body.season});
+            Object.assign(preFormCreatePlayerResults, {errors: errors.mapped()}, req.body);
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       }
       else{

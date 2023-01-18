@@ -271,7 +271,7 @@ export const postFormCreateCompetition = [...createCompetitionValidator(), async
             await transactionWrapper(preFormCreateCompetitionCb,next).catch(function(error:Error){
                   next(error) 
               });
-            Object.assign(preFormCreateCompetitionResults, {errors: errors.mapped()},  {chosenTeams: req.body.chosenCompetitions});
+            Object.assign(preFormCreateCompetitionResults, {errors: errors.mapped()}, req.body);
             preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
       }
       else{
