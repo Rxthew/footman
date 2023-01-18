@@ -182,6 +182,12 @@ const _sanitiseString = function (stringsArray, person = false) {
 const _cleanEmptyInputs = function (value) {
     return value === '' ? undefined : value;
 };
+const _validateAge = function (age) {
+    return (0, express_validator_1.body)(age, 'Age must not be empty')
+        .trim()
+        .isNumeric()
+        .withMessage('Age must be a number');
+};
 const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
@@ -196,6 +202,7 @@ exports.submitPlayerValidator = submitPlayerValidator;
 const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
+        _validateAge('age'),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
     ];

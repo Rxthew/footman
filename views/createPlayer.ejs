@@ -23,6 +23,7 @@
             <%- include('partials/nationalities', {nationality: nationality})%> 
         </div>
         <div>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.age !== 'undefined')){%> <span><%= errors.age.msg %></span> <%}%> 
             <label for="age">Age:</label>
             <input id="age" name="age" type="number" min="15" max="45" <% if(typeof age !== 'undefined'){%> value="<%= age %>" <%}%>>
         </div>
