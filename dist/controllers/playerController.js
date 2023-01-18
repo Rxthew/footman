@@ -87,6 +87,8 @@ const seePlayerCb = async function (t) {
     }
     catch (err) {
         console.log(err);
+        const newErr = new Error('Query regarding player viewing returned invalid data.');
+        throw newErr;
     }
     return;
 };
@@ -123,6 +125,8 @@ const preFormCreatePlayerCb = async function (t) {
     }
     catch (err) {
         console.log(err);
+        const newErr = new Error('Query regarding player creation returned invalid data.');
+        throw newErr;
     }
     return;
 };
@@ -272,6 +276,8 @@ const preFormUpdatePlayerCb = async function (t) {
     }
     catch (err) {
         console.log(err);
+        const newErr = new Error('Query regarding player update returned invalid data.');
+        throw newErr;
     }
     return;
 };

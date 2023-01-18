@@ -101,7 +101,10 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
            populateSeeCompetitionResults()
       }
       catch(err){
-            console.log(err)
+            console.log(err);
+            const newErr = new Error('Query regarding competition viewing returned invalid data.');
+            throw newErr
+            
       }
  
       return  
@@ -149,7 +152,9 @@ const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
             populatePreFormCreateCompetition()
        }
        catch(err){
-             console.log(err)
+             console.log(err);
+             const newErr = new Error('Query regarding competition creation returned invalid data.');
+             throw newErr
        }
   
        return 
@@ -331,7 +336,9 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             populatePreFormUpdateCompetition()
        }
        catch(err){
-             console.log(err)
+             console.log(err);
+             const newErr = new Error('Query regarding competition update returned invalid data.');
+             throw newErr
        }
   
        return 

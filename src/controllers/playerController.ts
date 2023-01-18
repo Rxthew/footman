@@ -77,7 +77,9 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
            populateSeePlayerResults()
       }
       catch(err){
-            console.log(err)
+            console.log(err);
+            const newErr = new Error('Query regarding player viewing returned invalid data.');
+            throw newErr
       }
  
       return  
@@ -126,7 +128,9 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
            populatePreFormCreatePlayer()
       }
       catch(err){
-            console.log(err)
+            console.log(err);
+            const newErr = new Error('Query regarding player creation returned invalid data.');
+            throw newErr
       }
  
       return  
@@ -313,7 +317,9 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
             populatePreFormUpdatePlayer()
        }
        catch(err){
-             console.log(err)
+             console.log(err);
+             const newErr = new Error('Query regarding player update returned invalid data.');
+            throw newErr
        }
   
        return  

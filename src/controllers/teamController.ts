@@ -81,8 +81,11 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
       try {
            populateSeeTeamResults()
       }
-      catch(err){
-            console.log(err)
+      catch(err){ 
+            console.log(err);
+            const newErr = new Error('Query regarding team viewing returned invalid data.');
+            throw newErr
+            
       }
  
       return  
@@ -130,6 +133,8 @@ const preFormCreateTeamCb = async function(t: Transaction){
        }
        catch(err){
              console.log(err)
+             const newErr = new Error('Query regarding team creation returned invalid data.');
+            throw newErr
        }
   
        return  
@@ -285,7 +290,9 @@ const preFormUpdateTeamCb = async function(t: Transaction){
             populatePreFormUpdateTeam()
        }
        catch(err){
-             console.log(err)
+             console.log(err);
+             const newErr = new Error('Query regarding team update returned invalid data.');
+            throw newErr
        }
   
        return 
