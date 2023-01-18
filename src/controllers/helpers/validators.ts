@@ -1,3 +1,4 @@
+import { Request } from 'express';
 import { body } from 'express-validator';
 import { Op } from 'sequelize';
 import  Competition  from '../../models/competition';
@@ -5,8 +6,9 @@ import  Team  from '../../models/team';
 
 
 const _finderFunctions = {
-    duplicateCreateCompetition: async function(valuesArray:string[]){
-        const [chosenName, chosenSeason] = valuesArray;
+    duplicateCreateCompetition: async function(reference:string, req:Request, keysArray: string[]){
+        const chosenName = reference;
+        const [chosenSeason] = keysArray.map(key => req.body[key]);
         if(chosenSeason){
             const duplicate = await Competition.findOne({
                 where: {
@@ -27,8 +29,9 @@ const _finderFunctions = {
         }
 
     },
-    duplicateUpdateCompetition: async function(valuesArray: string[]){
-        const [chosenName,code,chosenSeason] = valuesArray;
+    duplicateUpdateCompetition: async function(reference:string, req:Request, keysArray: string[]){
+        const chosenName = reference;
+        const [code,chosenSeason] =  keysArray.map(key => req.body[key]);
         if(code && chosenSeason){
             const duplicate = await Competition.findOne({
                 where: {
@@ -53,8 +56,9 @@ const _finderFunctions = {
          
     },
 
-    duplicateCreateTeam: async function(valuesArray: string[]){
-        const [chosenName, chosenSeason] = valuesArray;
+    duplicateCreateTeam: async function(reference:string, req:Request, keysArray: string[]){
+        const chosenName = reference;
+        const [chosenSeason] =  keysArray.map(key => req.body[key]);
         if(chosenSeason){
             const duplicate = await Team.findOne({
                 where: {
@@ -76,8 +80,9 @@ const _finderFunctions = {
         
     },
 
-    duplicateUpdateTeam: async function(valuesArray: string[]){
-        const [chosenName,code,chosenSeason] = valuesArray;
+    duplicateUpdateTeam: async function(reference:string, req:Request, keysArray: string[]){
+        const chosenName = reference;
+        const [code,chosenSeason] = keysArray.map(key => req.body[key])
         if(code && chosenSeason){
             const duplicate = await Team.findOne({
                 where: {
@@ -104,15 +109,18 @@ const _finderFunctions = {
 };
 
 
-const _checkDuplicate = async function(finderFunction:(valuesArray:string[])=>Promise<void>, valuesArray:string[]){
-    body(valuesArray).custom(
-        finderFunction
+const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:string[])=>Promise<void>, reference:string, keysArray:string[]){
+    return body(reference).custom( async function(reference, {req}){ 
+        return await finderFunction(reference, req as Request, keysArray).catch(function(err:Error){throw err}) 
+        }
     )
 
 };
 
-const _teamSeasonCheck = async function(valuesArray: string[]){
-    const [givenName, chosenSeason] = valuesArray;
+
+const _teamSeasonCheck = async function(reference:string,req:Request,keysArray: string[]){
+    const givenName = reference;
+    const [chosenSeason] = keysArray.map(key => req.body[key]);
     const team = await Team.findOne({
         where: {
             name: givenName
@@ -132,19 +140,20 @@ const _teamSeasonCheck = async function(valuesArray: string[]){
 
 };
 
-const _uniqueRankings = function(valuesArray: string[]){ 
-    body(valuesArray).custom(function(){
+const _uniqueRankings = function(valuesArray: string[] | undefined){ 
+    if(valuesArray){
         const rankings = valuesArray.map(value => parseInt(value));
         const unique = Array.from(new Set(rankings));
         if(rankings.length !== unique.length){
             throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.')
         }
         return true
-    })
+    }
+
 };
 
-const _sequentialRankings = function(valuesArray: string[]){
-    body(valuesArray).customSanitizer(function(){
+const _sequentialRankings = function(valuesArray: string[] | undefined){
+    if(valuesArray){
         const rankings = valuesArray.map(value => parseInt(value));
         if(rankings.some(value => value > rankings.length)){
 
@@ -172,46 +181,76 @@ const _sequentialRankings = function(valuesArray: string[]){
             return produceNewRankings(oldToNewValuesMap);
             
         }
-        
-    })
+
+    }
+    
+    
 };
     
 
-const _sanitiseString = function(stringsArray: string[]){
-    stringsArray.forEach(val => 
+const _sanitiseString = function(stringsArray: string[], person:boolean=false){
+    let sanitisers = stringsArray.map(val => person ? 
         body(val, `${val} must not be empty.`)
         .trim()
+        .isAlpha(undefined, {ignore: ' -'})
+        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
         .isLength({min: 2})
+        .withMessage(`${val} must be at least two characters long`)
+        .escape()
+        : body(val, `${val} must not be empty.`)
+        .trim()
+        .isAlphanumeric(undefined, {ignore: ' -'})
+        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
+        .isLength({min: 2})
+        .withMessage(`${val} must be at least two characters long`)
         .escape()
     )
+    return sanitisers
 };
 
+
 export const postFormPlayer = (teamSeason: boolean) => {
-    const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position'];
-    _sanitiseString(requiredValues);
-    teamSeason ? body(['team','season']).custom(_teamSeasonCheck) : teamSeason;
+    const requiredValues = ['firstName', 'lastName'];
+    return [
+    ..._sanitiseString(requiredValues, true),
+    teamSeason ? body('team').custom(async function(reference, {req}){
+       return await _teamSeasonCheck(reference, req as Request, ['season']).catch(function(err){throw err})}) : teamSeason
+    ]
 };
 
 export const postFormCreateTeam = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateCreateTeam,['name','season']);
+    return [
+    ..._sanitiseString(['name']),
+    _checkDuplicate(_finderFunctions.duplicateCreateTeam,'name',['season'])
+    ]
 };
 
 export const postFormUpdateTeam = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateUpdateTeam,['name','season']);
+    return [
+    ..._sanitiseString(['name']),
+    _checkDuplicate(_finderFunctions.duplicateUpdateTeam,'name',['code','season']),
+    ]
 };
+
 
 export const postFormCreateCompetition = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateCreateCompetition,['name','season']);
-    _uniqueRankings(['rankings']);
-    _sequentialRankings(['rankings']);
+    return [
+    ..._sanitiseString(['name']),
+    _checkDuplicate(_finderFunctions.duplicateCreateCompetition,'name',['season']),
+    body('rankings').custom(_uniqueRankings),
+    body('rankings').customSanitizer(_sequentialRankings),
+    ]
 };
 
+
+
+
 export const postFormUpdateCompetition = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,['name','code','season']);
-    _uniqueRankings(['rankings']);
-    _sequentialRankings(['rankings']);
+    return [
+    ..._sanitiseString(['name']),
+    _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,'name',['code','season']),
+    body('rankings').custom(_uniqueRankings),
+    body('rankings').customSanitizer(_sequentialRankings),
+    ]
 }
+

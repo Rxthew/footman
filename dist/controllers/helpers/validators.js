@@ -9,8 +9,9 @@ const sequelize_1 = require("sequelize");
 const competition_1 = __importDefault(require("../../models/competition"));
 const team_1 = __importDefault(require("../../models/team"));
 const _finderFunctions = {
-    duplicateCreateCompetition: async function (valuesArray) {
-        const [chosenName, chosenSeason] = valuesArray;
+    duplicateCreateCompetition: async function (reference, req, keysArray) {
+        const chosenName = reference;
+        const [chosenSeason] = keysArray.map(key => req.body[key]);
         if (chosenSeason) {
             const duplicate = await competition_1.default.findOne({
                 where: {
@@ -29,8 +30,9 @@ const _finderFunctions = {
             return Promise.resolve();
         }
     },
-    duplicateUpdateCompetition: async function (valuesArray) {
-        const [chosenName, code, chosenSeason] = valuesArray;
+    duplicateUpdateCompetition: async function (reference, req, keysArray) {
+        const chosenName = reference;
+        const [code, chosenSeason] = keysArray.map(key => req.body[key]);
         if (code && chosenSeason) {
             const duplicate = await competition_1.default.findOne({
                 where: {
@@ -52,8 +54,9 @@ const _finderFunctions = {
             return Promise.resolve();
         }
     },
-    duplicateCreateTeam: async function (valuesArray) {
-        const [chosenName, chosenSeason] = valuesArray;
+    duplicateCreateTeam: async function (reference, req, keysArray) {
+        const chosenName = reference;
+        const [chosenSeason] = keysArray.map(key => req.body[key]);
         if (chosenSeason) {
             const duplicate = await team_1.default.findOne({
                 where: {
@@ -72,8 +75,9 @@ const _finderFunctions = {
             return Promise.resolve();
         }
     },
-    duplicateUpdateTeam: async function (valuesArray) {
-        const [chosenName, code, chosenSeason] = valuesArray;
+    duplicateUpdateTeam: async function (reference, req, keysArray) {
+        const chosenName = reference;
+        const [code, chosenSeason] = keysArray.map(key => req.body[key]);
         if (code && chosenSeason) {
             const duplicate = await team_1.default.findOne({
                 where: {
@@ -96,11 +100,14 @@ const _finderFunctions = {
         }
     }
 };
-const _checkDuplicate = async function (finderFunction, valuesArray) {
-    (0, express_validator_1.body)(valuesArray).custom(finderFunction);
+const _checkDuplicate = function (finderFunction, reference, keysArray) {
+    return (0, express_validator_1.body)(reference).custom(async function (reference, { req }) {
+        return await finderFunction(reference, req, keysArray).catch(function (err) { throw err; });
+    });
 };
-const _teamSeasonCheck = async function (valuesArray) {
-    const [givenName, chosenSeason] = valuesArray;
+const _teamSeasonCheck = async function (reference, req, keysArray) {
+    const givenName = reference;
+    const [chosenSeason] = keysArray.map(key => req.body[key]);
     const team = await team_1.default.findOne({
         where: {
             name: givenName
@@ -118,17 +125,17 @@ const _teamSeasonCheck = async function (valuesArray) {
         ' You can either create the team for that season and come back or choose a different team for this player.');
 };
 const _uniqueRankings = function (valuesArray) {
-    (0, express_validator_1.body)(valuesArray).custom(function () {
+    if (valuesArray) {
         const rankings = valuesArray.map(value => parseInt(value));
         const unique = Array.from(new Set(rankings));
         if (rankings.length !== unique.length) {
             throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.');
         }
         return true;
-    });
+    }
 };
 const _sequentialRankings = function (valuesArray) {
-    (0, express_validator_1.body)(valuesArray).customSanitizer(function () {
+    if (valuesArray) {
         const rankings = valuesArray.map(value => parseInt(value));
         if (rankings.some(value => value > rankings.length)) {
             const mapOldToNewValues = function () {
@@ -152,41 +159,65 @@ const _sequentialRankings = function (valuesArray) {
             const oldToNewValuesMap = mapOldToNewValues();
             return produceNewRankings(oldToNewValuesMap);
         }
-    });
+    }
 };
-const _sanitiseString = function (stringsArray) {
-    stringsArray.forEach(val => (0, express_validator_1.body)(val, `${val} must not be empty.`)
-        .trim()
-        .isLength({ min: 2 })
-        .escape());
+const _sanitiseString = function (stringsArray, person = false) {
+    let sanitisers = stringsArray.map(val => person ?
+        (0, express_validator_1.body)(val, `${val} must not be empty.`)
+            .trim()
+            .isAlpha(undefined, { ignore: ' -' })
+            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
+            .isLength({ min: 2 })
+            .withMessage(`${val} must be at least two characters long`)
+            .escape()
+        : (0, express_validator_1.body)(val, `${val} must not be empty.`)
+            .trim()
+            .isAlphanumeric(undefined, { ignore: ' -' })
+            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
+            .isLength({ min: 2 })
+            .withMessage(`${val} must be at least two characters long`)
+            .escape());
+    return sanitisers;
 };
 const postFormPlayer = (teamSeason) => {
-    const requiredValues = ['firstName', 'lastName', 'age', 'nationality', 'position'];
-    _sanitiseString(requiredValues);
-    teamSeason ? (0, express_validator_1.body)(['team', 'season']).custom(_teamSeasonCheck) : teamSeason;
+    const requiredValues = ['firstName', 'lastName'];
+    return [
+        ..._sanitiseString(requiredValues, true),
+        teamSeason ? (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
+            return await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; });
+        }) : teamSeason
+    ];
 };
 exports.postFormPlayer = postFormPlayer;
 const postFormCreateTeam = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateCreateTeam, ['name', 'season']);
+    return [
+        ..._sanitiseString(['name']),
+        _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
+    ];
 };
 exports.postFormCreateTeam = postFormCreateTeam;
 const postFormUpdateTeam = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateUpdateTeam, ['name', 'season']);
+    return [
+        ..._sanitiseString(['name']),
+        _checkDuplicate(_finderFunctions.duplicateUpdateTeam, 'name', ['code', 'season']),
+    ];
 };
 exports.postFormUpdateTeam = postFormUpdateTeam;
 const postFormCreateCompetition = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateCreateCompetition, ['name', 'season']);
-    _uniqueRankings(['rankings']);
-    _sequentialRankings(['rankings']);
+    return [
+        ..._sanitiseString(['name']),
+        _checkDuplicate(_finderFunctions.duplicateCreateCompetition, 'name', ['season']),
+        (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
+        (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
+    ];
 };
 exports.postFormCreateCompetition = postFormCreateCompetition;
 const postFormUpdateCompetition = () => {
-    _sanitiseString(['name']);
-    _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, ['name', 'code', 'season']);
-    _uniqueRankings(['rankings']);
-    _sequentialRankings(['rankings']);
+    return [
+        ..._sanitiseString(['name']),
+        _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, 'name', ['code', 'season']),
+        (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
+        (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
+    ];
 };
 exports.postFormUpdateCompetition = postFormUpdateCompetition;
