@@ -209,12 +209,12 @@ const _sanitiseString = function(stringsArray: string[], person:boolean=false){
 };
 
 
-export const postFormPlayer = (teamSeason: boolean) => {
+export const postFormPlayer = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
     ..._sanitiseString(requiredValues, true),
-    teamSeason ? body('team').custom(async function(reference, {req}){
-       return await _teamSeasonCheck(reference, req as Request, ['season']).catch(function(err){throw err})}) : teamSeason
+    body('team').custom(async function(reference, {req}){
+       return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req as Request, ['season']).catch(function(err){throw err}) : await Promise.resolve()}) 
     ]
 };
 

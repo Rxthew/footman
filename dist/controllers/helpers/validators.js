@@ -179,13 +179,13 @@ const _sanitiseString = function (stringsArray, person = false) {
             .escape());
     return sanitisers;
 };
-const postFormPlayer = (teamSeason) => {
+const postFormPlayer = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
         ..._sanitiseString(requiredValues, true),
-        teamSeason ? (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
-            return await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; });
-        }) : teamSeason
+        (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
+            return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; }) : await Promise.resolve();
+        })
     ];
 };
 exports.postFormPlayer = postFormPlayer;
