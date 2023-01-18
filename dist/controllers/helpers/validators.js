@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postFormUpdateCompetition = exports.postFormCreateCompetition = exports.postFormUpdateTeam = exports.postFormCreateTeam = exports.postFormPlayer = void 0;
+exports.updateCompetitionValidator = exports.createCompetitionValidator = exports.updateTeamValidator = exports.createTeamValidator = exports.submitPlayerValidator = void 0;
 const express_validator_1 = require("express-validator");
 const sequelize_1 = require("sequelize");
 const competition_1 = __importDefault(require("../../models/competition"));
@@ -179,7 +179,7 @@ const _sanitiseString = function (stringsArray, person = false) {
             .escape());
     return sanitisers;
 };
-const postFormPlayer = () => {
+const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
         ..._sanitiseString(requiredValues, true),
@@ -188,22 +188,22 @@ const postFormPlayer = () => {
         })
     ];
 };
-exports.postFormPlayer = postFormPlayer;
-const postFormCreateTeam = () => {
+exports.submitPlayerValidator = submitPlayerValidator;
+const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
     ];
 };
-exports.postFormCreateTeam = postFormCreateTeam;
-const postFormUpdateTeam = () => {
+exports.createTeamValidator = createTeamValidator;
+const updateTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateUpdateTeam, 'name', ['code', 'season']),
     ];
 };
-exports.postFormUpdateTeam = postFormUpdateTeam;
-const postFormCreateCompetition = () => {
+exports.updateTeamValidator = updateTeamValidator;
+const createCompetitionValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateCreateCompetition, 'name', ['season']),
@@ -211,8 +211,8 @@ const postFormCreateCompetition = () => {
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
 };
-exports.postFormCreateCompetition = postFormCreateCompetition;
-const postFormUpdateCompetition = () => {
+exports.createCompetitionValidator = createCompetitionValidator;
+const updateCompetitionValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, 'name', ['code', 'season']),
@@ -220,4 +220,4 @@ const postFormUpdateCompetition = () => {
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
 };
-exports.postFormUpdateCompetition = postFormUpdateCompetition;
+exports.updateCompetitionValidator = updateCompetitionValidator;

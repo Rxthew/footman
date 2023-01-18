@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seeTeam = exports.preFormUpdateTeam = exports.preFormCreateTeam = exports.seePlayer = exports.preFormUpdatePlayer = exports.preFormCreatePlayer = exports.seeCompetition = exports.preFormUpdateCompetition = exports.preFormCreateCompetition = void 0;
-const preFormCreateCompetition = function (res, results) {
+exports.seeTeamRenderer = exports.preFormUpdateTeamRenderer = exports.preFormCreateTeamRenderer = exports.seePlayerRenderer = exports.preFormUpdatePlayerRenderer = exports.preFormCreatePlayerRenderer = exports.seeCompetitionRenderer = exports.preFormUpdateCompetitionRenderer = exports.preFormCreateCompetitionRenderer = void 0;
+const preFormCreateCompetitionRenderer = function (res, results) {
     res.render('createCompetition', {
         name: results.name,
         errors: results.errors,
@@ -13,8 +13,8 @@ const preFormCreateCompetition = function (res, results) {
         season: results.season
     });
 };
-exports.preFormCreateCompetition = preFormCreateCompetition;
-const preFormUpdateCompetition = function (res, results) {
+exports.preFormCreateCompetitionRenderer = preFormCreateCompetitionRenderer;
+const preFormUpdateCompetitionRenderer = function (res, results) {
     res.render('updateCompetition', {
         name: results.name,
         errors: results.errors,
@@ -26,8 +26,8 @@ const preFormUpdateCompetition = function (res, results) {
         season: results.season
     });
 };
-exports.preFormUpdateCompetition = preFormUpdateCompetition;
-const seeCompetition = function (res, results) {
+exports.preFormUpdateCompetitionRenderer = preFormUpdateCompetitionRenderer;
+const seeCompetitionRenderer = function (res, results) {
     res.render('seeCompetition', {
         name: results.name,
         teams: results.teams,
@@ -36,8 +36,8 @@ const seeCompetition = function (res, results) {
         points: results.points
     });
 };
-exports.seeCompetition = seeCompetition;
-const preFormCreatePlayer = function (res, results) {
+exports.seeCompetitionRenderer = seeCompetitionRenderer;
+const preFormCreatePlayerRenderer = function (res, results) {
     res.render('createPlayer', {
         firstName: results.firstName,
         lastName: results.lastName,
@@ -60,8 +60,8 @@ const preFormCreatePlayer = function (res, results) {
         errors: results.errors
     });
 };
-exports.preFormCreatePlayer = preFormCreatePlayer;
-const preFormUpdatePlayer = function (res, results) {
+exports.preFormCreatePlayerRenderer = preFormCreatePlayerRenderer;
+const preFormUpdatePlayerRenderer = function (res, results) {
     res.render('updatePlayer', {
         firstName: results.firstName,
         lastName: results.lastName,
@@ -84,8 +84,8 @@ const preFormUpdatePlayer = function (res, results) {
         errors: results.errors
     });
 };
-exports.preFormUpdatePlayer = preFormUpdatePlayer;
-const seePlayer = function (res, results) {
+exports.preFormUpdatePlayerRenderer = preFormUpdatePlayerRenderer;
+const seePlayerRenderer = function (res, results) {
     res.render('seePlayer', {
         name: results.firstName + ' ' + results.lastName,
         team: results.team,
@@ -103,8 +103,8 @@ const seePlayer = function (res, results) {
         technique: results.technique
     });
 };
-exports.seePlayer = seePlayer;
-const preFormCreateTeam = function (res, results) {
+exports.seePlayerRenderer = seePlayerRenderer;
+const preFormCreateTeamRenderer = function (res, results) {
     res.render('createTeam', {
         name: results.name,
         competitions: results.competitions,
@@ -114,8 +114,8 @@ const preFormCreateTeam = function (res, results) {
         chosenCompetitions: results.chosenCompetitions,
     });
 };
-exports.preFormCreateTeam = preFormCreateTeam;
-const preFormUpdateTeam = function (res, results) {
+exports.preFormCreateTeamRenderer = preFormCreateTeamRenderer;
+const preFormUpdateTeamRenderer = function (res, results) {
     res.render('updateTeam', {
         name: results.name,
         competitions: results.competitions,
@@ -125,12 +125,12 @@ const preFormUpdateTeam = function (res, results) {
         chosenCompetitions: results.chosenCompetitions,
     });
 };
-exports.preFormUpdateTeam = preFormUpdateTeam;
-const seeTeam = function (res, results) {
+exports.preFormUpdateTeamRenderer = preFormUpdateTeamRenderer;
+const seeTeamRenderer = function (res, results) {
     res.render('seeTeam', {
         name: results.name,
         players: results.players,
         competitions: results.competitions
     });
 };
-exports.seeTeam = seeTeam;
+exports.seeTeamRenderer = seeTeamRenderer;

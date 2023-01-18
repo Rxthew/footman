@@ -209,7 +209,7 @@ const _sanitiseString = function(stringsArray: string[], person:boolean=false){
 };
 
 
-export const postFormPlayer = () => {
+export const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
     ..._sanitiseString(requiredValues, true),
@@ -218,14 +218,14 @@ export const postFormPlayer = () => {
     ]
 };
 
-export const postFormCreateTeam = () => {
+export const createTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateCreateTeam,'name',['season'])
     ]
 };
 
-export const postFormUpdateTeam = () => {
+export const updateTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateUpdateTeam,'name',['code','season']),
@@ -233,7 +233,7 @@ export const postFormUpdateTeam = () => {
 };
 
 
-export const postFormCreateCompetition = () => {
+export const createCompetitionValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateCreateCompetition,'name',['season']),
@@ -245,7 +245,7 @@ export const postFormCreateCompetition = () => {
 
 
 
-export const postFormUpdateCompetition = () => {
+export const updateCompetitionValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,'name',['code','season']),

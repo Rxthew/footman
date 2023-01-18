@@ -37,10 +37,8 @@ const player_1 = __importDefault(require("../models/player"));
 const team_1 = __importDefault(require("../models/team"));
 require("../models/concerns/_runModels");
 const competition_1 = __importDefault(require("../models/competition"));
-const seePlayerRenderer = renderers.seePlayer;
-const preFormCreatePlayerRenderer = renderers.preFormCreatePlayer;
-const preFormUpdatePlayerRenderer = renderers.preFormUpdatePlayer;
-const submitPlayerValidator = validators.postFormPlayer;
+const { preFormCreatePlayerRenderer, preFormUpdatePlayerRenderer, seePlayerRenderer } = renderers;
+const { submitPlayerValidator } = validators;
 let seePlayerResults = resultsGenerator.seePlayer();
 let preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
 let postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
@@ -104,10 +102,7 @@ const seePlayer = async function (req, res, next) {
 };
 exports.seePlayer = seePlayer;
 const preFormCreatePlayerCb = async function (t) {
-    const getAllTeams = queryHelpers.getAllTeams;
-    const getAllTeamsWithCompetitions = queryHelpers.getAllTeamsWithCompetitions;
-    const getAllTeamNames = queryHelpers.getAllTeamNames;
-    const getAllSeasons = queryHelpers.getAllSeasons;
+    const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons } = queryHelpers;
     const results = await getAllTeams(t).catch(function (error) {
         throw error;
     });
@@ -219,10 +214,7 @@ exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req,
         postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
     }];
 const preFormUpdatePlayerCb = async function (t) {
-    const getAllTeams = queryHelpers.getAllTeams;
-    const getAllTeamsWithCompetitions = queryHelpers.getAllTeamsWithCompetitions;
-    const getAllTeamNames = queryHelpers.getAllTeamNames;
-    const getAllSeasons = queryHelpers.getAllSeasons;
+    const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons } = queryHelpers;
     const allTeams = await getAllTeams(t).catch(function (error) {
         throw error;
     });

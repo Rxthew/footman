@@ -11,12 +11,14 @@ import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
 
-const preFormCreateCompetitionRenderer = renderers.preFormCreateCompetition;
-const preFormUpdateCompetitionRenderer = renderers.preFormUpdateCompetition;
-const seeCompetitionRenderer = renderers.seeCompetition;
+const { 
+      preFormCreateCompetitionRenderer,
+      preFormUpdateCompetitionRenderer, 
+      seeCompetitionRenderer
 
-const createCompetitionValidator = validators.postFormCreateCompetition;
-const updateCompetitionValidator = validators.postFormUpdateCompetition;
+} = renderers;
+
+const { createCompetitionValidator, updateCompetitionValidator } = validators;
 
 let preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
 let postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
@@ -76,8 +78,8 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
       const getChosenTeams = queryHelpers.getAllTeamNames;
       const getSeason = queryHelpers.getCompetitionSeason;
-      const getPoints = queryHelpers.getPoints;
-      const getRankings = queryHelpers.getRankings;
+
+      const {getPoints, getRankings} = queryHelpers;
 
       let chosenTeams = getChosenTeams(competitionTeams);
       let teamRankings = getRankings(competitionTeams);
@@ -124,9 +126,7 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
 
 const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
 
-      const getAllTeams = queryHelpers.getAllTeams;
-      const getAllTeamNames = queryHelpers.getAllTeamNames;
-      const getSeasons = queryHelpers.getSeasons;
+      const {getAllTeams,getSeasons, getAllTeamNames} = queryHelpers;
 
       const results = await getAllTeams(t).catch(function(error:Error){
             throw error
@@ -167,8 +167,8 @@ export const preFormCreateCompetition = async function(req: Request, res: Respon
 const postFormCreateCompetitionCb = async function(t:Transaction){
 
       
-      const applyPoints = queryHelpers.applyPoints;
-      const applyRanking = queryHelpers.applyRanking;
+      const {applyPoints, applyRanking} = queryHelpers;
+        
       const nextTeamTemplate = async function(givenName:string, season:string){
             return queryHelpers.nextTeamTemplate(t,givenName, season)
       }
@@ -292,9 +292,8 @@ export const postFormCreateCompetition = [...createCompetitionValidator(), async
 
 const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
-      const getAllTeams = queryHelpers.getAllTeams;
-      const getAllTeamNames = queryHelpers.getAllTeamNames;
-      const getSeasons = queryHelpers.getSeasons;
+      const {getAllTeams, getAllTeamNames, getSeasons} = queryHelpers;
+       
 
       const results = await getAllTeams(t).catch(function(error:Error){
             throw error
@@ -306,8 +305,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       const getChosenTeams = queryHelpers.getAllTeamNames;
       const getSeason = queryHelpers.getCompetitionSeason;
-      const getPoints = queryHelpers.getPoints;
-      const getRankings = queryHelpers.getRankings;
+      const {getPoints, getRankings} = queryHelpers;
 
       const populatePreFormUpdateCompetition = function(){
             if(results){
