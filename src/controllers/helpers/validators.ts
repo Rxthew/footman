@@ -208,11 +208,17 @@ const _sanitiseString = function(stringsArray: string[], person:boolean=false){
     return sanitisers
 };
 
+const _cleanEmptyInputs = function(value: string ){
+    return value === '' ? undefined : value 
+};
+   
+
 
 export const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
     ..._sanitiseString(requiredValues, true),
+    body(['goals','assists','speed','strength','attack','defense','goalkeeping','intelligence','technique','team','season','code']).customSanitizer(_cleanEmptyInputs),
     body('team').custom(async function(reference, {req}){
        return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req as Request, ['season']).catch(function(err){throw err}) : await Promise.resolve()}) 
     ]
@@ -221,6 +227,7 @@ export const submitPlayerValidator = () => {
 export const createTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
+    body(['chosenCompetitions','season']).customSanitizer(_cleanEmptyInputs),
     _checkDuplicate(_finderFunctions.duplicateCreateTeam,'name',['season'])
     ]
 };
@@ -228,6 +235,7 @@ export const createTeamValidator = () => {
 export const updateTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
+    body(['chosenCompetitions','season']).customSanitizer(_cleanEmptyInputs),
     _checkDuplicate(_finderFunctions.duplicateUpdateTeam,'name',['code','season']),
     ]
 };
@@ -237,6 +245,7 @@ export const createCompetitionValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateCreateCompetition,'name',['season']),
+    body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]
@@ -249,6 +258,7 @@ export const updateCompetitionValidator = () => {
     return [
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,'name',['code','season']),
+    body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]

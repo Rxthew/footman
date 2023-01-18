@@ -179,10 +179,14 @@ const _sanitiseString = function (stringsArray, person = false) {
             .escape());
     return sanitisers;
 };
+const _cleanEmptyInputs = function (value) {
+    return value === '' ? undefined : value;
+};
 const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
         ..._sanitiseString(requiredValues, true),
+        (0, express_validator_1.body)(['goals', 'assists', 'speed', 'strength', 'attack', 'defense', 'goalkeeping', 'intelligence', 'technique', 'team', 'season', 'code']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
             return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; }) : await Promise.resolve();
         })
@@ -192,6 +196,7 @@ exports.submitPlayerValidator = submitPlayerValidator;
 const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
+        (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
     ];
 };
@@ -199,6 +204,7 @@ exports.createTeamValidator = createTeamValidator;
 const updateTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
+        (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         _checkDuplicate(_finderFunctions.duplicateUpdateTeam, 'name', ['code', 'season']),
     ];
 };
@@ -207,6 +213,7 @@ const createCompetitionValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateCreateCompetition, 'name', ['season']),
+        (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
@@ -216,6 +223,7 @@ const updateCompetitionValidator = () => {
     return [
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, 'name', ['code', 'season']),
+        (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
