@@ -216,7 +216,7 @@ export const postFormCreateTeam =[...createTeamValidator(), async function(req: 
               });
             const teamName = postFormCreateTeamResults.name;
             
-            res.redirect(`/team/${teamName}_${latestCode}`)
+            res.redirect(`/team/${teamName}.${latestCode}`)
             }
             catch(err){
                   if(err){
@@ -397,7 +397,7 @@ export const postFormUpdateTeam = [...updateTeamValidator(), async function(req:
                   next(error)
               });
             const [name,code] = [postFormUpdateTeamResults.name, req.params.code];
-            res.redirect(`/team/${name}_${code}`);
+            res.redirect(`/team/${name}.${code}`);
 
       }
 

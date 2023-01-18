@@ -220,7 +220,7 @@ exports.postFormCreateCompetition = [...createCompetitionValidator(), async func
                     throw error;
                 });
                 const competitionName = postFormCreateCompetitionResults.name;
-                res.redirect(`/competitions/${competitionName}_${latestCode}`);
+                res.redirect(`/competitions/${competitionName}.${latestCode}`);
             }
             catch (err) {
                 if (err) {
@@ -375,7 +375,7 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async func
                 next(error);
             });
             const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
-            res.redirect(`/team/${name}_${code}`);
+            res.redirect(`/team/${name}.${code}`);
         }
         preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
         postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();

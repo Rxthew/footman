@@ -189,7 +189,7 @@ exports.postFormCreateTeam = [...createTeamValidator(), async function (req, res
                     throw error;
                 });
                 const teamName = postFormCreateTeamResults.name;
-                res.redirect(`/team/${teamName}_${latestCode}`);
+                res.redirect(`/team/${teamName}.${latestCode}`);
             }
             catch (err) {
                 if (err) {
@@ -329,7 +329,7 @@ exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res
                 next(error);
             });
             const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
-            res.redirect(`/team/${name}_${code}`);
+            res.redirect(`/team/${name}.${code}`);
         }
         preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
         postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();

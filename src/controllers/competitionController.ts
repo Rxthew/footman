@@ -255,7 +255,7 @@ export const postFormCreateCompetition = [...createCompetitionValidator(), async
               });
             const competitionName = postFormCreateCompetitionResults.name;
             
-            res.redirect(`/competitions/${competitionName}_${latestCode}`)
+            res.redirect(`/competitions/${competitionName}.${latestCode}`)
             }
             catch(err){
                   if(err){
@@ -460,7 +460,7 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(), async
                   
               });
             const [name,code] = [postFormUpdateCompetitionResults.name, req.params.code];
-            res.redirect(`/team/${name}_${code}`);
+            res.redirect(`/team/${name}.${code}`);
 
       }
 

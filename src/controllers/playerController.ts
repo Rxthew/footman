@@ -210,7 +210,7 @@ export const postFormCreatePlayer = [...submitPlayerValidator(), async function(
             const firstName = postFormCreatePlayerResults.firstName;
             const lastName = postFormCreatePlayerResults.lastName;
             
-            res.redirect(`/player/${firstName}_${lastName}_${latestCode}`)
+            res.redirect(`/player/${firstName}.${lastName}.${latestCode}`)
             }
             catch(err){
                   if(err){
@@ -418,7 +418,7 @@ export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(
                   next(error)
               });
             const [firstName,lastName,code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
-            res.redirect(`/player/${firstName}_${lastName}_${code}`);
+            res.redirect(`/player/${firstName}.${lastName}.${code}`);
       }
       
       preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
