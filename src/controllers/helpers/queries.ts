@@ -72,16 +72,20 @@ export const applyRanking = async function(latestCompetition: CompetitionModel, 
       }
 
          const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-         teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null))
+          teams.length > 0 ? teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams
     }
 
 };
 
 
 export const getAllCompetitionNames = function(results: CompetitionModel[]){
-    const names = results.filter(competition => competition.getDataValue('name'))
-    const uniqueNames = Array.from(new Set(names))
-    return uniqueNames
+    if(results && results.length > 0){
+        const names =  results.map(competition => competition.getDataValue('name')) 
+        const uniqueNames =  Array.from(new Set(names))
+        return uniqueNames
+    }
+    return []
+    
 
 };
 
@@ -115,16 +119,16 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
     }
     
     const getThroughTeams = function(res: TeamModel[]){
-        const competitions = res.map(team => team.competitions).flat(); 
-        const seasons = (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')); 
-        const uniqueSeasons = Array.from(new Set(seasons));
+        const competitions =  res && res.length > 0 ? res.map(team => team.competitions).flat() : res; 
+        const seasons = competitions && competitions.length > 0 ? (competitions as any[]).map(competition => competition['TeamsCompetitions'].get('season')) : competitions; 
+        const uniqueSeasons = seasons ? Array.from(new Set(seasons)) : [];
         return orderSeasons(uniqueSeasons)
     }
 
     const getThroughCompetitions = function(res: CompetitionModel[]){
-        const teams = res.map(comp => comp.teams).flat(); 
-        const seasons = (teams as any[]).map(team => team['TeamsCompetitions'].get('season')); 
-        const uniqueSeasons = Array.from(new Set(seasons));
+        const teams = res && res.length > 0 ? res.map(comp => comp.teams).flat() : res; 
+        const seasons = teams && teams.length > 0 ? (teams as any[]).map(team => team['TeamsCompetitions'].get('season')): teams; 
+        const uniqueSeasons = seasons ? Array.from(new Set(seasons)) : [];
         return orderSeasons(uniqueSeasons)
     }
 
@@ -136,9 +140,13 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
 };
 
  export const getAllTeamNames = function(results: TeamModel[]){
-    const names = results.map(team => team.getDataValue('name'))
-    const uniqueNames = Array.from(new Set(names))
-    return uniqueNames
+    if(results && results.length > 0){
+        const names = results.map(team => team.getDataValue('name'));
+        const uniqueNames = Array.from(new Set(names));
+        return uniqueNames
+    }
+    return []
+    
 };
 
  export const  getAllTeams = async function(t:Transaction){
@@ -157,8 +165,12 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
 };
 
  export const getAllTeamsWithCompetitions = function(results: TeamModel[]){
-    const teams = results.filter(team =>  (team as any).countCompetitions() > 0);
-    return teams
+    if(results && results.length > 0){
+        const teams = results.filter(team =>  (team as any).countCompetitions() > 0);
+        return teams
+    }
+    return []
+    
 };
 
  export const getCompetitionBySeason = async function(t: Transaction, givenName:string, chosenSeason:string){
