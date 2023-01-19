@@ -19,8 +19,10 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: team_1.default,
-                        where: {
-                            season: chosenSeason
+                        through: {
+                            where: {
+                                season: chosenSeason
+                            }
                         }
                     }]
             }).catch(function (err) { throw err; });
@@ -43,8 +45,10 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: team_1.default,
-                        where: {
-                            season: chosenSeason
+                        through: {
+                            where: {
+                                season: chosenSeason
+                            }
                         }
                     }]
             }).catch(function (err) { throw err; });
@@ -64,8 +68,10 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: competition_1.default,
-                        where: {
-                            season: chosenSeason
+                        through: {
+                            where: {
+                                season: chosenSeason
+                            }
                         }
                     }]
             }).catch(function (err) { throw err; });
@@ -88,8 +94,10 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: competition_1.default,
-                        where: {
-                            season: chosenSeason
+                        through: {
+                            where: {
+                                season: chosenSeason
+                            }
                         }
                     }]
             }).catch(function (err) { throw err; });
@@ -114,8 +122,10 @@ const _teamSeasonCheck = async function (reference, req, keysArray) {
         },
         include: [{
                 model: competition_1.default,
-                where: {
-                    season: chosenSeason
+                through: {
+                    where: {
+                        season: chosenSeason
+                    }
                 }
             }],
     }).catch(function (error) {
@@ -192,6 +202,7 @@ const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
         ..._sanitiseString(requiredValues, true),
+        _validateAge('age'),
         (0, express_validator_1.body)(['goals', 'assists', 'speed', 'strength', 'attack', 'defense', 'goalkeeping', 'intelligence', 'technique', 'team', 'season', 'code']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
             return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; }) : await Promise.resolve();
@@ -202,7 +213,6 @@ exports.submitPlayerValidator = submitPlayerValidator;
 const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
-        _validateAge('age'),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
     ];

@@ -180,9 +180,12 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
         },
         include: [{
             model: Team,
-            where: {
-                season: chosenSeason
+            through: {
+                where: {
+                    season: chosenSeason
+                }
             }
+            
         }],
         transaction: t
     }).catch(function(error:Error){
@@ -264,8 +267,11 @@ export const getTeamBySeason = async function(t:Transaction, givenName: string, 
             },
             include: [{
                 model: Competition,
-                where: {
-                    season: chosenSeason
+                through: {
+                    where: {
+                        season: chosenSeason
+                }
+                
                 }
             }],
             transaction: t
