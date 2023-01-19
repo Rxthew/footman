@@ -61,7 +61,6 @@ const preFormUpdatePlayer = function () {
     return {
         firstName: '',
         lastName: '',
-        code: undefined,
         nationality: '',
         position: '',
         age: 15,
@@ -84,7 +83,6 @@ const seePlayer = function () {
     return {
         firstName: '',
         lastName: '',
-        code: undefined,
         nationality: '',
         position: '',
         age: 15

@@ -127,12 +127,14 @@ export interface preFormUpdatePlayerResults extends preFormCreatePlayerResults {
 export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
 export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
+    code?: number
 };
 export interface postFormUpdateTeamResults extends postFormCreateTeamResults {
     code?: number
 };
 export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
     name: string,
+    code?: number
 };
 export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
     code?: number
@@ -199,7 +201,6 @@ export const preFormUpdatePlayer = function():preFormUpdatePlayerResults{
     return {
         firstName: '',
         lastName: '',
-        code: undefined,
         nationality: '',
         position: '',
         age: 15,
@@ -224,7 +225,6 @@ export const seePlayer = function():seePlayerResults{
     return {
         firstName: '',
         lastName: '',
-        code: undefined,
         nationality: '',
         position: '',
         age: 15
