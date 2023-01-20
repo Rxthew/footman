@@ -403,7 +403,9 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
 export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(req: Request, res: Response, next:NextFunction): Promise<void>{
 
+      assessPlayerParameters(req,next)
       Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
+
 
       const errors = validationResult(req);
 
@@ -420,10 +422,11 @@ export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(
             await transactionWrapper(postFormUpdatePlayerCb,next).catch(function(error:Error){
                   next(error)
               });
-            const [firstName,lastName,code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
+            const {firstName,lastName,code} = postFormUpdatePlayerResults;
             res.redirect(`/player/${firstName}.${lastName}.${code}`);
       }
       
+      playerParameterPlaceholder().reset()
       preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
       postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
 

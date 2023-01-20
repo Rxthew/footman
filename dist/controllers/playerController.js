@@ -339,6 +339,7 @@ const postFormUpdatePlayerCb = async function (t) {
     });
 };
 exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
+        (0, parameters_1.assessPlayerParameters)(req, next);
         Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
@@ -353,9 +354,10 @@ exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req,
             await transactionWrapper(postFormUpdatePlayerCb, next).catch(function (error) {
                 next(error);
             });
-            const [firstName, lastName, code] = [postFormUpdatePlayerResults.firstName, postFormUpdatePlayerResults.lastName, postFormUpdatePlayerResults.code];
+            const { firstName, lastName, code } = postFormUpdatePlayerResults;
             res.redirect(`/player/${firstName}.${lastName}.${code}`);
         }
+        (0, parameters_1.playerParameterPlaceholder)().reset();
         preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
         postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
     }];

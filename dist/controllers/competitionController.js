@@ -315,6 +315,7 @@ const postFormUpdateCompetitionCb = async function (t) {
         return teamPromises;
     };
     const updateCompetition = async function () {
+        const previousParameters = (0, parameters_1.competitionParameterPlaceholder)().parameters;
         const competitionParameters = { ...postFormUpdateCompetitionResults };
         Object.assign(competitionParameters, { chosenCompetitions: undefined });
         const chosenSeason = postFormUpdateCompetitionResults.season;
@@ -324,8 +325,8 @@ const postFormUpdateCompetitionCb = async function (t) {
         const relevantTeams = teamPromises.length > 0 ? await Promise.all(teamPromises).catch(function (err) { throw err; }) : teamPromises;
         const updatedCompetition = await competition_1.default.findOne({
             where: {
-                name: competitionParameters.name,
-                code: competitionParameters.code
+                name: previousParameters.name,
+                code: previousParameters.code
             },
             include: [{
                     model: team_1.default
@@ -356,7 +357,7 @@ const postFormUpdateCompetitionCb = async function (t) {
     }) : false;
 };
 exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async function (req, res, next) {
-        postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, { code: req.params.code }) : false;
+        (0, parameters_1.assessCompetitionParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {
@@ -373,6 +374,7 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async func
             const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
             res.redirect(`/team/${name}.${code}`);
         }
+        (0, parameters_1.competitionParameterPlaceholder)().reset();
         preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
         postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
     }];

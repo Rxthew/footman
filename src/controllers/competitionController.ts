@@ -390,6 +390,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       const updateCompetition = async function(){
 
+            const previousParameters = competitionParameterPlaceholder().parameters;
             const competitionParameters = {...postFormUpdateCompetitionResults};
             Object.assign(competitionParameters, {chosenCompetitions: undefined});
 
@@ -403,8 +404,8 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
             const updatedCompetition = await Competition.findOne({
                   where: {
-                        name: competitionParameters.name,
-                        code: competitionParameters.code
+                        name: previousParameters.name,
+                        code: previousParameters.code
                   },
                   include: [{
                         model: Team
@@ -446,7 +447,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
 export const postFormUpdateCompetition = [...updateCompetitionValidator(), async function(req:Request,res:Response,next:NextFunction):Promise<void>{
 
-      postFormUpdateCompetitionResults.season ? Object.assign(postFormUpdateCompetitionResults, {code: req.params.code}) : false;
+      assessCompetitionParameters(req,next);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -469,6 +470,7 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(), async
 
       }
 
+      competitionParameterPlaceholder().reset()
       preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
       postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 

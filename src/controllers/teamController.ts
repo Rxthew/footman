@@ -277,7 +277,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
                         Object.assign(preFormUpdateTeamResults, {chosenCompetitions: chosen})
                         competitions.filter(comp => !chosen.includes(comp))
                   }
-                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: parameters.name}, {seasons: getSeasons()});
+                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: parameters.name}, {seasons: getSeasons()}); 
             }
             else{
                   const err = new Error('Query regarding team update returned invalid data.')
@@ -341,6 +341,7 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
       const updateTeam = async function(){
 
+            const previousParameters = teamParameterPlaceholder().parameters;
             const teamParameters = {...postFormUpdateTeamResults};
             Object.assign(teamParameters, {chosenCompetitions: undefined});
             const chosenSeason = postFormUpdateTeamResults.season;
@@ -353,8 +354,8 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
             const updatedTeam = await Team.findOne({
                   where: {
-                        name: teamParameters.name,
-                        code: teamParameters.code
+                        name: previousParameters.name,
+                        code: previousParameters.code
                   },
                   include: [{
                         model: Competition,
@@ -385,7 +386,7 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
 export const postFormUpdateTeam = [...updateTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      postFormUpdateTeamResults.season ? Object.assign(postFormUpdateTeamResults, {code: req.params.code}) : false;
+      assessTeamParameters(req,next);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
@@ -407,6 +408,7 @@ export const postFormUpdateTeam = [...updateTeamValidator(), async function(req:
 
       }
 
+      teamParameterPlaceholder().reset()
       preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
       postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
 }]

@@ -285,6 +285,7 @@ const postFormUpdateTeamCb = async function (t) {
         return competitionPromises;
     };
     const updateTeam = async function () {
+        const previousParameters = (0, parameters_1.teamParameterPlaceholder)().parameters;
         const teamParameters = { ...postFormUpdateTeamResults };
         Object.assign(teamParameters, { chosenCompetitions: undefined });
         const chosenSeason = postFormUpdateTeamResults.season;
@@ -294,8 +295,8 @@ const postFormUpdateTeamCb = async function (t) {
         const relevantCompetitions = competitionPromises.length > 0 ? await Promise.all(competitionPromises).catch(function (err) { throw err; }) : competitionPromises;
         const updatedTeam = await team_1.default.findOne({
             where: {
-                name: teamParameters.name,
-                code: teamParameters.code
+                name: previousParameters.name,
+                code: previousParameters.code
             },
             include: [{
                     model: competition_1.default,
@@ -315,7 +316,7 @@ const postFormUpdateTeamCb = async function (t) {
     });
 };
 exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res, next) {
-        postFormUpdateTeamResults.season ? Object.assign(postFormUpdateTeamResults, { code: req.params.code }) : false;
+        (0, parameters_1.assessTeamParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
@@ -332,6 +333,7 @@ exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res
             const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
             res.redirect(`/team/${name}.${code}`);
         }
+        (0, parameters_1.teamParameterPlaceholder)().reset();
         preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
         postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
     }];
