@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
+exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getTeamSeason = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
 const competition_1 = __importDefault(require("../../models/competition"));
 const initdb_1 = require("../../models/concerns/initdb");
 const team_1 = __importDefault(require("../../models/team"));
@@ -247,6 +247,12 @@ const getSeasons = function () {
     return ['2021/22'];
 };
 exports.getSeasons = getSeasons;
+const getTeamSeason = function (teamsCompetitions) {
+    if (teamsCompetitions && teamsCompetitions.length > 0) {
+        return teamsCompetitions[0]['TeamsCompetitions'].get('season') ? teamsCompetitions[0]['TeamsCompetitions'].getDataValue('season') : undefined;
+    }
+};
+exports.getTeamSeason = getTeamSeason;
 const nextCompetitionTemplate = async function (t, givenName, season) {
     const nextCompetition = await (0, exports.getCompetitionBySeason)(t, givenName, season).catch(function (err) { throw err; });
     if (nextCompetition) {

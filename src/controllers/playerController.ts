@@ -251,7 +251,7 @@ export const postFormCreatePlayer = [...submitPlayerValidator(), async function(
 
 const preFormUpdatePlayerCb = async function(t: Transaction){
 
-      const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons} = queryHelpers;
+      const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons, getTeamSeason} = queryHelpers;
 
       const allTeams = await getAllTeams(t).catch(function(error:Error){
             throw error
@@ -283,7 +283,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
               })
             const teams = getAllTeamNames(allAssociatedTeams);
             const seasons = getAllSeasons(allTeams, 'team');
-            const season = team.competitions[0]['TeamsCompetitions'].get('season');
+            const season = getTeamSeason(team.competitions)
             return {
                   player,
                   team,

@@ -218,7 +218,7 @@ exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req,
         postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
     }];
 const preFormUpdatePlayerCb = async function (t) {
-    const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons } = queryHelpers;
+    const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons, getTeamSeason } = queryHelpers;
     const allTeams = await getAllTeams(t).catch(function (error) {
         throw error;
     });
@@ -247,7 +247,7 @@ const preFormUpdatePlayerCb = async function (t) {
         });
         const teams = getAllTeamNames(allAssociatedTeams);
         const seasons = getAllSeasons(allTeams, 'team');
-        const season = team.competitions[0]['TeamsCompetitions'].get('season');
+        const season = getTeamSeason(team.competitions);
         return {
             player,
             team,

@@ -289,6 +289,13 @@ export const getSeasons = function(){
         return ['2021/22']
 };
 
+export const getTeamSeason = function(teamsCompetitions:CompetitionModel[]):string | undefined{
+    if(teamsCompetitions && teamsCompetitions.length > 0){
+          return (teamsCompetitions as any)[0]['TeamsCompetitions'].get('season') ? (teamsCompetitions as any)[0]['TeamsCompetitions'].getDataValue('season') : undefined
+    }
+};
+
+
 export const nextCompetitionTemplate = async function(t:Transaction, givenName:string, season:string){
         const nextCompetition = await getCompetitionBySeason(t,givenName,season).catch(function(err:Error){throw err});
         if(nextCompetition){
