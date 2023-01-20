@@ -154,10 +154,7 @@ export const preFormCreateTeam = async function(req: Request, res: Response, nex
 const postFormCreateTeamCb = async function(t:Transaction){
 
 
-     const nextCompetitionTemplate = async function(givenName:string, season:string){
-            return queryHelpers.nextCompetitionTemplate(t,givenName,season)
-
-     };
+     const { nextCompetitionTemplate } = queryHelpers
 
       const getRelevantCompetitions = async function(){
            
@@ -167,7 +164,7 @@ const postFormCreateTeamCb = async function(t:Transaction){
             if(competitionNames && competitionNames.length > 0 && chosenSeason){
                   for(let compName of competitionNames){
                         const nextPromise = async function(){
-                              return await nextCompetitionTemplate(compName,chosenSeason).catch(function(err:Error){
+                              return await nextCompetitionTemplate(t,compName,chosenSeason).catch(function(err:Error){
                                     throw err;
                               })      
                         }
@@ -257,27 +254,57 @@ export const postFormCreateTeam =[...createTeamValidator(), async function(req: 
 
 const preFormUpdateTeamCb = async function(t: Transaction){
 
-      const {getAllCompetitions,getAllCompetitionNames} = queryHelpers;
+      const {getAllCompetitions,getAllCompetitionNames, getTeamSeason} = queryHelpers;
       const getSeasons = queryHelpers.getSeasons;
-      const results = await getAllCompetitions(t).catch(function(error:Error){
+
+      const updateTeamQuery = async function(){
+
+
+            const parameters = teamParameterPlaceholder().parameters;
+
+            const competitions = await getAllCompetitions(t).catch(function(error:Error){
+                  throw error
+              });
+
+            let competitionNames =  getAllCompetitionNames(competitions);
+            
+            const team = await Team.findOne({
+                  where: {
+                        name: parameters.name,
+                        code: parameters.code
+                  },
+                  transaction: t
+                  }).catch(function(error:Error){
+                        throw error
+            });
+
+            const teamCompetitions = team ? await (team as any).getCompetitions()
+            .catch(function(error:Error){
+                  throw error
+            }) : []
+
+            const chosenCompetitions = getAllCompetitionNames(teamCompetitions);
+            competitionNames = chosenCompetitions ? competitionNames.filter(name => !chosenCompetitions.includes(name)) : competitionNames;
+            const season = getTeamSeason(teamCompetitions);
+            
+            return {
+                  chosenCompetitions,
+                  competitionNames,
+                  season,
+                  team,
+            }       
+      }
+
+
+      const results = await updateTeamQuery().catch(function(error:Error){
             throw error
         });
       
-      const teamCompetitions = await (Team as any).getCompetitions().catch(function(error:Error){
-            throw error
-      })
-      ;
 
       const populatePreFormUpdateTeam = function(){
-            if(results){
-                  const parameters = teamParameterPlaceholder().parameters;
-                  const competitions = getAllCompetitionNames(results);
-                  if(teamCompetitions && teamCompetitions.length > 0){
-                        const chosen = (teamCompetitions as any[]).map(comp => comp.getDataValue('name'))
-                        Object.assign(preFormUpdateTeamResults, {chosenCompetitions: chosen})
-                        competitions.filter(comp => !chosen.includes(comp))
-                  }
-                  Object.assign(preFormUpdateTeamResults,{competitions: competitions}, {name: parameters.name}, {seasons: getSeasons()}); 
+            if(results.team){
+                  Object.assign(preFormUpdateTeamResults, results.team.get(), {competitions: results.competitionNames}, {chosenCompetitions: results.chosenCompetitions}, 
+                  {season: results.season}, {seasons: getSeasons()}); 
             }
             else{
                   const err = new Error('Query regarding team update returned invalid data.')
@@ -314,10 +341,7 @@ export const preFormUpdateTeam = async function(req: Request, res: Response, nex
 
 const postFormUpdateTeamCb = async function(t:Transaction){
       
-      const nextCompetitionTemplate = async function(givenName:string, season:string){
-            return queryHelpers.nextCompetitionTemplate(t,givenName,season)
-
-     };
+      const {nextCompetitionTemplate} = queryHelpers;
 
       const getRelevantCompetitions = async function(){
            
@@ -327,7 +351,7 @@ const postFormUpdateTeamCb = async function(t:Transaction){
             if(competitionNames && competitionNames.length > 0 && chosenSeason){
                   for(let compName of competitionNames){
                         const nextPromise = async function(){
-                              return await nextCompetitionTemplate(compName,chosenSeason).catch(function(err:Error){
+                              return await nextCompetitionTemplate(t, compName,chosenSeason).catch(function(err:Error){
                                     throw err;
                               })      
                         }
