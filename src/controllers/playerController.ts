@@ -283,7 +283,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
               })
             const teams = getAllTeamNames(allAssociatedTeams);
             const seasons = getAllSeasons(allTeams, 'team');
-            const season = getTeamSeason(team.competitions)
+            const season = team && team.competitions ? getTeamSeason(team.competitions) : undefined;
             return {
                   player,
                   team,

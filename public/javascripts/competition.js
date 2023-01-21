@@ -1,5 +1,5 @@
 const checkCorrespondingChosenTeam = function(element, disableStatus){
-    const reference = element.classList[0];
+    const reference = element.dataset.team;
     const chosenTeams = document.querySelectorAll('input[name=chosenTeams]')
     const referencedInput = Array.from(chosenTeams).filter(team => team.id === reference)[0];
     if(referencedInput.checked){
@@ -15,7 +15,7 @@ const toggleCorrespondingSelectInputs = function(event){
     if(event.target.hasAttribute('name') && event.target.getAttribute('name') === 'chosenTeams'){
         const reference = event.target.id;
         const selects = Array.from(document.querySelectorAll('select'));
-        const targets = selects.length > 0 ? selects.filter(select => select.classList.contains(reference)) : selects;
+        const targets = selects.length > 0 ? selects.filter(select => select.dataset.team === reference) : selects;
         if(event.target.checked){
             targets.length > 0 ? targets.forEach(target => target.disabled = false) : targets;
         }
