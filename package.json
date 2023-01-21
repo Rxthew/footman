@@ -23,6 +23,7 @@
     "@types/http-errors": "^2.0.0",
     "@types/morgan": "^1.9.3",
     "@types/node": "^18.11.7",
+    "ejs-lint": "^2.0.0",
     "nodemon": "^2.0.20",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
