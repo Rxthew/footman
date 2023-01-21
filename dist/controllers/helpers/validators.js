@@ -141,8 +141,8 @@ const _uniqueRankings = function (valuesArray) {
         if (rankings.length !== unique.length) {
             throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.');
         }
-        return true;
     }
+    return true;
 };
 const _sequentialRankings = function (valuesArray) {
     if (valuesArray) {

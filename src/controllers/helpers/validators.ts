@@ -161,8 +161,9 @@ const _uniqueRankings = function(valuesArray: string[] | undefined){
         if(rankings.length !== unique.length){
             throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.')
         }
-        return true
     }
+    return true
+
 
 };
 
