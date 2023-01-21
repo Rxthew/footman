@@ -80,7 +80,7 @@
                 <% for(let single_team of teams){ %>
                     <div>
                         <label for="team"><%= single_team %></label>
-                        <input id="<%= single_team %>" name="team" type="checkbox" <% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
+                        <input id="<%= single_team %>" name="team" type="checkbox" value="<%= single_team %>"<% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
                     </div>
                 <%}%>
              </div><%}

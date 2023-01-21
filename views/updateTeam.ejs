@@ -21,7 +21,7 @@
                 <% for(let competition of competitions){ %>
                     <div>
                         <label for="chosenCompetitions"><%= competition %></label>
-                        <input id="<%= competition %>" name="chosenCompetitions" type="checkbox" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
+                        <input id="<%= competition %>" name="chosenCompetitions" type="checkbox" value="<%= competition %>" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
                     </div>
                 <%}%>
              </div><%}
