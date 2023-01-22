@@ -1,3 +1,29 @@
+const checkCorrespondingPermission = function(element){
+
+    const checkApplyPoints = function(){
+        const applyPointsInput = document.querySelector('#apply_points');
+        return applyPointsInput.checked
+        
+    };
+
+    const checkApplyRankings = function(){
+        const applyRankingsInput = document.querySelector('#apply_ranking');
+        return applyRankingsInput.checked
+
+    };
+
+    const nameAttribute = element.getAttribute('name');
+    
+    
+    switch(nameAttribute){
+        case 'points':  return checkApplyPoints()
+        case 'rankings': return checkApplyRankings()
+    } 
+    
+
+}
+
+
 const checkCorrespondingChosenTeam = function(element, disableStatus){
     const reference = element.dataset.team;
     const chosenTeams = document.querySelectorAll('input[name=chosenTeams]')
@@ -11,13 +37,12 @@ const checkCorrespondingChosenTeam = function(element, disableStatus){
     
 }
 
-const toggleCorrespondingSelectInputs = function(event){
+const toggleCorrespondingInputs = function(event){
     if(event.target.hasAttribute('name') && event.target.getAttribute('name') === 'chosenTeams'){
         const reference = event.target.id;
-        const selects = Array.from(document.querySelectorAll('select'));
-        const targets = selects.length > 0 ? selects.filter(select => select.dataset.team === reference) : selects;
+        const targets = document.querySelectorAll(`[data-team="${reference}"]`)
         if(event.target.checked){
-            targets.length > 0 ? targets.forEach(target => target.disabled = false) : targets;
+            targets.length > 0 ? targets.forEach(target => checkCorrespondingPermission(target) ? target.disabled = false : target) : targets;
         }
         else{
             targets.length > 0 ? targets.forEach(target =>  target.disabled = true) : targets;
@@ -65,4 +90,4 @@ const toggleRanking = function(event){
 const form = document.querySelector('form');
 form.addEventListener('click',toggleRanking);
 form.addEventListener('click',togglePoints);
-form.addEventListener('click',toggleCorrespondingSelectInputs);
+form.addEventListener('click',toggleCorrespondingInputs);
