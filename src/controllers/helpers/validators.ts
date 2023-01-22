@@ -5,6 +5,22 @@ import  Competition  from '../../models/competition';
 import  Team  from '../../models/team';
 
 
+const _arrayCheck = function(value: string | string[]){
+    return value && Array.isArray(value) ? value : [value]
+}
+
+const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:string[])=>Promise<void>, reference:string, keysArray:string[]){
+    return body(reference).custom( async function(reference, {req}){ 
+        return await finderFunction(reference, req as Request, keysArray).catch(function(err:Error){throw err}) 
+        }
+    )
+
+};
+
+const _cleanEmptyInputs = function(value: string ){
+    return value === '' ? undefined : value 
+};
+
 const _finderFunctions = {
     duplicateCreateCompetition: async function(reference:string, req:Request, keysArray: string[]){
         const chosenName = reference;
@@ -122,53 +138,24 @@ const _finderFunctions = {
     }
 };
 
-
-const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:string[])=>Promise<void>, reference:string, keysArray:string[]){
-    return body(reference).custom( async function(reference, {req}){ 
-        return await finderFunction(reference, req as Request, keysArray).catch(function(err:Error){throw err}) 
-        }
+const _sanitiseString = function(stringsArray: string[], person:boolean=false){
+    let sanitisers = stringsArray.map(val => person ? 
+        body(val, `${val} must not be empty.`)
+        .trim()
+        .isAlpha(undefined, {ignore: ' -'})
+        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
+        .isLength({min: 2})
+        .withMessage(`${val} must be at least two characters long`)
+        .escape()
+        : body(val, `${val} must not be empty.`)
+        .trim()
+        .isAlphanumeric(undefined, {ignore: ' -'})
+        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
+        .isLength({min: 2})
+        .withMessage(`${val} must be at least two characters long`)
+        .escape()
     )
-
-};
-
-
-const _teamSeasonCheck = async function(reference:string,req:Request,keysArray: string[]){
-    const givenName = reference;
-    const [chosenSeason] = keysArray.map(key => req.body[key]);
-    const team = await Team.findOne({
-        where: {
-            name: givenName
-        },
-        include: [{
-            model: Competition,
-            required: true,
-            through: {
-                where: {
-                    season: chosenSeason
-                }
-            }
-            
-        }],
-    }).catch(function(error:Error){
-        throw error
-    })
-    
-    return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.'+
-     ' You can either create the team for that season and come back or choose a different team for this player.')
-
-};
-
-const _uniqueRankings = function(valuesArray: string[] | undefined){ 
-    if(valuesArray){
-        const rankings = valuesArray.map(value => parseInt(value));
-        const unique = Array.from(new Set(rankings));
-        if(rankings.length !== unique.length){
-            throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.')
-        }
-    }
-    return true
-
-
+    return sanitisers
 };
 
 const _sequentialRankings = function(valuesArray: string[] | undefined){
@@ -205,31 +192,49 @@ const _sequentialRankings = function(valuesArray: string[] | undefined){
     
     
 };
+
+
+const _teamSeasonCheck = async function(reference:string,req:Request,keysArray: string[]){
+    const givenName = reference;
+    const [chosenSeason] = keysArray.map(key => req.body[key]);
+    const team = await Team.findOne({
+        where: {
+            name: givenName
+        },
+        include: [{
+            model: Competition,
+            required: true,
+            through: {
+                where: {
+                    season: chosenSeason
+                }
+            }
+            
+        }],
+    }).catch(function(error:Error){
+        throw error
+    })
     
+    return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.'+
+     ' You can either create the team for that season and come back or choose a different team for this player.')
 
-const _sanitiseString = function(stringsArray: string[], person:boolean=false){
-    let sanitisers = stringsArray.map(val => person ? 
-        body(val, `${val} must not be empty.`)
-        .trim()
-        .isAlpha(undefined, {ignore: ' -'})
-        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
-        .isLength({min: 2})
-        .withMessage(`${val} must be at least two characters long`)
-        .escape()
-        : body(val, `${val} must not be empty.`)
-        .trim()
-        .isAlphanumeric(undefined, {ignore: ' -'})
-        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
-        .isLength({min: 2})
-        .withMessage(`${val} must be at least two characters long`)
-        .escape()
-    )
-    return sanitisers
 };
 
-const _cleanEmptyInputs = function(value: string ){
-    return value === '' ? undefined : value 
+
+const _uniqueRankings = function(valuesArray: string[] | undefined){ 
+    if(valuesArray){
+        const rankings = valuesArray.map(value => parseInt(value));
+        const unique = Array.from(new Set(rankings));
+        if(rankings.length !== unique.length){
+            throw new Error('There appear to be duplicate rankings. Please choose unique rankings only.')
+        }
+    }
+    return true
+
+
 };
+
+
 
 const _validateAge = function(age:string){
      return body(age,'Age must not be empty')
@@ -254,6 +259,7 @@ export const createTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
     body(['chosenCompetitions','season']).customSanitizer(_cleanEmptyInputs),
+    body(['chosenCompetitions']).customSanitizer(_arrayCheck),
     _checkDuplicate(_finderFunctions.duplicateCreateTeam,'name',['season'])
     ]
 };
@@ -262,6 +268,7 @@ export const updateTeamValidator = () => {
     return [
     ..._sanitiseString(['name']),
     body(['chosenCompetitions','season']).customSanitizer(_cleanEmptyInputs),
+    body(['chosenCompetitions']).customSanitizer(_arrayCheck),
     _checkDuplicate(_finderFunctions.duplicateUpdateTeam,'name',['code','season']),
     ]
 };
@@ -272,6 +279,7 @@ export const createCompetitionValidator = () => {
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateCreateCompetition,'name',['season']),
     body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
+    body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]
@@ -285,6 +293,7 @@ export const updateCompetitionValidator = () => {
     ..._sanitiseString(['name']),
     _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,'name',['code','season']),
     body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
+    body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]

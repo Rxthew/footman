@@ -8,6 +8,17 @@ const express_validator_1 = require("express-validator");
 const sequelize_1 = require("sequelize");
 const competition_1 = __importDefault(require("../../models/competition"));
 const team_1 = __importDefault(require("../../models/team"));
+const _arrayCheck = function (value) {
+    return value && Array.isArray(value) ? value : [value];
+};
+const _checkDuplicate = function (finderFunction, reference, keysArray) {
+    return (0, express_validator_1.body)(reference).custom(async function (reference, { req }) {
+        return await finderFunction(reference, req, keysArray).catch(function (err) { throw err; });
+    });
+};
+const _cleanEmptyInputs = function (value) {
+    return value === '' ? undefined : value;
+};
 const _finderFunctions = {
     duplicateCreateCompetition: async function (reference, req, keysArray) {
         const chosenName = reference;
@@ -111,10 +122,50 @@ const _finderFunctions = {
         }
     }
 };
-const _checkDuplicate = function (finderFunction, reference, keysArray) {
-    return (0, express_validator_1.body)(reference).custom(async function (reference, { req }) {
-        return await finderFunction(reference, req, keysArray).catch(function (err) { throw err; });
-    });
+const _sanitiseString = function (stringsArray, person = false) {
+    let sanitisers = stringsArray.map(val => person ?
+        (0, express_validator_1.body)(val, `${val} must not be empty.`)
+            .trim()
+            .isAlpha(undefined, { ignore: ' -' })
+            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
+            .isLength({ min: 2 })
+            .withMessage(`${val} must be at least two characters long`)
+            .escape()
+        : (0, express_validator_1.body)(val, `${val} must not be empty.`)
+            .trim()
+            .isAlphanumeric(undefined, { ignore: ' -' })
+            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
+            .isLength({ min: 2 })
+            .withMessage(`${val} must be at least two characters long`)
+            .escape());
+    return sanitisers;
+};
+const _sequentialRankings = function (valuesArray) {
+    if (valuesArray) {
+        const rankings = valuesArray.map(value => parseInt(value));
+        if (rankings.some(value => value > rankings.length)) {
+            const mapOldToNewValues = function () {
+                const rankChange = new Map();
+                const orderedRankings = [...rankings].sort(function (x, y) {
+                    return x > y ? 1 : -1;
+                });
+                for (let largest = rankings.length; largest > 0; largest--) {
+                    rankChange.set(orderedRankings.pop(), largest);
+                }
+                return rankChange;
+            };
+            const produceNewRankings = function (valuesMap) {
+                let newRankings = [];
+                for (let index = 0; index < rankings.length; index++) {
+                    newRankings = [...newRankings, valuesMap.get(rankings[index])];
+                }
+                const newStringRanks = newRankings.map(ranking => ranking?.toString());
+                return newStringRanks;
+            };
+            const oldToNewValuesMap = mapOldToNewValues();
+            return produceNewRankings(oldToNewValuesMap);
+        }
+    }
 };
 const _teamSeasonCheck = async function (reference, req, keysArray) {
     const givenName = reference;
@@ -148,54 +199,6 @@ const _uniqueRankings = function (valuesArray) {
     }
     return true;
 };
-const _sequentialRankings = function (valuesArray) {
-    if (valuesArray) {
-        const rankings = valuesArray.map(value => parseInt(value));
-        if (rankings.some(value => value > rankings.length)) {
-            const mapOldToNewValues = function () {
-                const rankChange = new Map();
-                const orderedRankings = [...rankings].sort(function (x, y) {
-                    return x > y ? 1 : -1;
-                });
-                for (let largest = rankings.length; largest > 0; largest--) {
-                    rankChange.set(orderedRankings.pop(), largest);
-                }
-                return rankChange;
-            };
-            const produceNewRankings = function (valuesMap) {
-                let newRankings = [];
-                for (let index = 0; index < rankings.length; index++) {
-                    newRankings = [...newRankings, valuesMap.get(rankings[index])];
-                }
-                const newStringRanks = newRankings.map(ranking => ranking?.toString());
-                return newStringRanks;
-            };
-            const oldToNewValuesMap = mapOldToNewValues();
-            return produceNewRankings(oldToNewValuesMap);
-        }
-    }
-};
-const _sanitiseString = function (stringsArray, person = false) {
-    let sanitisers = stringsArray.map(val => person ?
-        (0, express_validator_1.body)(val, `${val} must not be empty.`)
-            .trim()
-            .isAlpha(undefined, { ignore: ' -' })
-            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
-            .isLength({ min: 2 })
-            .withMessage(`${val} must be at least two characters long`)
-            .escape()
-        : (0, express_validator_1.body)(val, `${val} must not be empty.`)
-            .trim()
-            .isAlphanumeric(undefined, { ignore: ' -' })
-            .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen) or otherwise a number.`)
-            .isLength({ min: 2 })
-            .withMessage(`${val} must be at least two characters long`)
-            .escape());
-    return sanitisers;
-};
-const _cleanEmptyInputs = function (value) {
-    return value === '' ? undefined : value;
-};
 const _validateAge = function (age) {
     return (0, express_validator_1.body)(age, 'Age must not be empty')
         .trim()
@@ -218,6 +221,7 @@ const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)(['chosenCompetitions']).customSanitizer(_arrayCheck),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
     ];
 };
@@ -226,6 +230,7 @@ const updateTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)(['chosenCompetitions']).customSanitizer(_arrayCheck),
         _checkDuplicate(_finderFunctions.duplicateUpdateTeam, 'name', ['code', 'season']),
     ];
 };
@@ -235,6 +240,7 @@ const createCompetitionValidator = () => {
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateCreateCompetition, 'name', ['season']),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
@@ -245,6 +251,7 @@ const updateCompetitionValidator = () => {
         ..._sanitiseString(['name']),
         _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, 'name', ['code', 'season']),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
