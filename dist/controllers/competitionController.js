@@ -188,7 +188,7 @@ const postFormCreateCompetitionCb = async function (t) {
         if (teamPromises.length === 0) {
             return await createDissociatedCompetition();
         }
-        const relevantTeams = await Promise.all(teamPromises).catch(function (err) { throw err; });
+        const relevantTeams = await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function (err) { throw err; });
         const newCompetition = await competition_1.default.create({ ...competitionParameters }, { transaction: t }).catch(function (err) {
             throw err;
         });
@@ -336,7 +336,7 @@ const postFormUpdateCompetitionCb = async function (t) {
         const teamPromises = await getRelevantTeams().catch(function (err) {
             throw err;
         });
-        const relevantTeams = teamPromises.length > 0 ? await Promise.all(teamPromises).catch(function (err) { throw err; }) : teamPromises;
+        const relevantTeams = teamPromises.length > 0 ? await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function (err) { throw err; }) : teamPromises;
         const updatedCompetition = await competition_1.default.findOne({
             where: {
                 name: previousParameters.name,

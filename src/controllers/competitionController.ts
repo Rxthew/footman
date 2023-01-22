@@ -215,7 +215,7 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
                   return await createDissociatedCompetition()
             }
              
-            const relevantTeams = await Promise.all(teamPromises).catch(function(err:Error){throw err});
+            const relevantTeams = await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function(err:Error){throw err});
 
             
             const newCompetition = await Competition.create(
@@ -416,7 +416,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                   throw err;
             });
 
-            const relevantTeams = teamPromises.length > 0 ?  await Promise.all(teamPromises).catch(function(err:Error){throw err}) : teamPromises;
+            const relevantTeams = teamPromises.length > 0 ?  await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function(err:Error){throw err}) : teamPromises;
 
             const updatedCompetition = await Competition.findOne({
                   where: {
