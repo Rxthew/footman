@@ -160,6 +160,7 @@ const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
                   },
                   include: {
                         model: Competition,
+                        required: true,
                         through: {
                               where: {
                                     season: postFormCreatePlayerResults.season
@@ -352,6 +353,7 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
                   },
                   include: {
                         model: Competition,
+                        required: true,
                         through: {
                               where: {
                                     season: postFormCreatePlayerResults.season

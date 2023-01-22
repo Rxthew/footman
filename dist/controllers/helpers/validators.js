@@ -19,6 +19,7 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: team_1.default,
+                        required: true,
                         through: {
                             where: {
                                 season: chosenSeason
@@ -68,6 +69,7 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: competition_1.default,
+                        required: true,
                         through: {
                             where: {
                                 season: chosenSeason
@@ -94,6 +96,7 @@ const _finderFunctions = {
                 },
                 include: [{
                         model: competition_1.default,
+                        required: true,
                         through: {
                             where: {
                                 season: chosenSeason
@@ -122,6 +125,7 @@ const _teamSeasonCheck = async function (reference, req, keysArray) {
         },
         include: [{
                 model: competition_1.default,
+                required: true,
                 through: {
                     where: {
                         season: chosenSeason

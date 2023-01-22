@@ -154,6 +154,7 @@ const getCompetitionBySeason = async function (t, givenName, chosenSeason) {
         },
         include: [{
                 model: team_1.default,
+                required: true,
                 through: {
                     where: {
                         season: chosenSeason
@@ -230,6 +231,7 @@ const getTeamBySeason = async function (t, givenName, chosenSeason) {
         },
         include: [{
                 model: competition_1.default,
+                required: true,
                 through: {
                     where: {
                         season: chosenSeason

@@ -147,6 +147,7 @@ const postFormCreatePlayerCb = async function (t) {
             },
             include: {
                 model: competition_1.default,
+                required: true,
                 through: {
                     where: {
                         season: postFormCreatePlayerResults.season
@@ -300,6 +301,7 @@ const postFormUpdatePlayerCb = async function (t) {
             },
             include: {
                 model: competition_1.default,
+                required: true,
                 through: {
                     where: {
                         season: postFormCreatePlayerResults.season
