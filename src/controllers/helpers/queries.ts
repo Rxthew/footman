@@ -43,7 +43,7 @@ export const applyPoints = async function(latestCompetition: CompetitionModel, r
           const inputPoints = async function(){
                 if(teamsPoints){
                       const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['points']},{transaction: t}).catch(function(err:Error){throw err});
-                      teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
+                      teams.forEach(async (team) => await team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]))
                       return
                 }
                 else{
@@ -72,7 +72,7 @@ export const applyRanking = async function(latestCompetition: CompetitionModel, 
       }
 
          const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-          teams.length > 0 ? teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams
+          teams.length > 0 ? teams.forEach(async (team) => await team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams
     }
 
 };
@@ -166,7 +166,7 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
 
  export const getAllTeamsWithCompetitions = function(results: TeamModel[]){
     if(results && results.length > 0){
-        const teams = results.filter(team =>  (team as any).countCompetitions() > 0);
+        const teams = results.filter( async (team) =>  await (team as any).countCompetitions() > 0);
         return teams
     }
     return []
@@ -204,7 +204,7 @@ export const getCompetitionSeason = function(competitionTeams:TeamModel[]):strin
 
 
 export const getDissociatedCompetition = async function(t:Transaction,givenName:string){
-        const competitions = Competition.findAll({
+        const competitions = await Competition.findAll({
             where: {
                 name: givenName
             },
@@ -217,7 +217,7 @@ export const getDissociatedCompetition = async function(t:Transaction,givenName:
             transaction: t
         }).catch(function(error:Error){throw error})
 
-        const dissociated = (await competitions).filter(competition => (competition as any).countTeams() === 0)
+        const dissociated =  competitions.filter(async (competition) => await (competition as any).countTeams() === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
 };
@@ -238,7 +238,7 @@ export const getDissociatedTeam = async function(t:Transaction, givenName: strin
             throw error
         })
 
-        const dissociated = teams.filter(team => (team as any).countCompetitions() === 0)
+        const dissociated = teams.filter(async (team) => await (team as any).countCompetitions() === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
 };

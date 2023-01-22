@@ -37,7 +37,7 @@ const applyPoints = async function (latestCompetition, results, t) {
         const inputPoints = async function () {
             if (teamsPoints) {
                 const teams = await latestCompetition.getTeams({ joinTableAttributes: ['points'] }, { transaction: t }).catch(function (err) { throw err; });
-                teams.forEach(team => team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]));
+                teams.forEach(async (team) => await team['TeamsCompetitions'].set('points', teamsPoints[team.getDataValue('name')]));
                 return;
             }
             else {
@@ -61,7 +61,7 @@ const applyRanking = async function (latestCompetition, results, t) {
             Object.assign(results, { chosenTeams: rankedTeams });
         }
         const teams = await latestCompetition.getTeams({ joinTableAttributes: ['ranking'] }, { transaction: t }).catch(function (err) { throw err; });
-        teams.length > 0 ? teams.forEach(team => team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams;
+        teams.length > 0 ? teams.forEach(async (team) => await team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams;
     }
 };
 exports.applyRanking = applyRanking;
@@ -141,7 +141,7 @@ const getAllTeams = async function (t) {
 exports.getAllTeams = getAllTeams;
 const getAllTeamsWithCompetitions = function (results) {
     if (results && results.length > 0) {
-        const teams = results.filter(team => team.countCompetitions() > 0);
+        const teams = results.filter(async (team) => await team.countCompetitions() > 0);
         return teams;
     }
     return [];
@@ -174,7 +174,7 @@ const getCompetitionSeason = function (competitionTeams) {
 };
 exports.getCompetitionSeason = getCompetitionSeason;
 const getDissociatedCompetition = async function (t, givenName) {
-    const competitions = competition_1.default.findAll({
+    const competitions = await competition_1.default.findAll({
         where: {
             name: givenName
         },
@@ -186,7 +186,7 @@ const getDissociatedCompetition = async function (t, givenName) {
             }],
         transaction: t
     }).catch(function (error) { throw error; });
-    const dissociated = (await competitions).filter(competition => competition.countTeams() === 0);
+    const dissociated = competitions.filter(async (competition) => await competition.countTeams() === 0);
     return dissociated.length > 0 ? dissociated[0] : null;
 };
 exports.getDissociatedCompetition = getDissociatedCompetition;
@@ -205,7 +205,7 @@ const getDissociatedTeam = async function (t, givenName) {
     }).catch(function (error) {
         throw error;
     });
-    const dissociated = teams.filter(team => team.countCompetitions() === 0);
+    const dissociated = teams.filter(async (team) => await team.countCompetitions() === 0);
     return dissociated.length > 0 ? dissociated[0] : null;
 };
 exports.getDissociatedTeam = getDissociatedTeam;
