@@ -8,7 +8,7 @@
   </head>
   <body>
     <h1>Update Player</h1>
-    <form action="" method="POST">
+    <form action="?_method=PUT" method="POST">
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 
             <label for="firstName">First Name:</label>

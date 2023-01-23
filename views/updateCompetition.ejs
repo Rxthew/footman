@@ -9,7 +9,7 @@
   </head>
   <body>
     <h1>Update Competition</h1>
-    <form action="" method="POST">
+    <form action="?_method=PUT" method="POST">
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>

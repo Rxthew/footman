@@ -6,7 +6,7 @@ import  Team  from '../../models/team';
 
 
 const _arrayCheck = function(value: string | string[]){
-    return value && Array.isArray(value) ? value : [value]
+    return !value || Array.isArray(value) ? value : [value]
 }
 
 const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:string[])=>Promise<void>, reference:string, keysArray:string[]){

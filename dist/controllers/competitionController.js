@@ -262,7 +262,7 @@ const preFormUpdateCompetitionCb = async function (t) {
         }).catch(function (error) {
             throw error;
         });
-        const competitionTeams = competition ? await competition.getTeams({ joinTableAttributes: ['season, ranking, points'] })
+        const competitionTeams = competition ? await competition.getTeams({ joinTableAttributes: ['season', 'ranking', 'points'] })
             .catch(function (error) {
             throw error;
         }) : [];
@@ -386,7 +386,7 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async func
                 next(error);
             });
             const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
-            res.redirect(`/team/${name}.${code}`);
+            res.redirect(`/competitions/${name}.${code}`);
         }
         (0, parameters_1.competitionParameterPlaceholder)().reset();
         preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();

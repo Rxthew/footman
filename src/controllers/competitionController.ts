@@ -315,7 +315,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                         throw error
                     });
             
-            const competitionTeams = competition ? await (competition as any).getTeams({joinTableAttributes: ['season, ranking, points']})
+            const competitionTeams = competition ? await (competition as any).getTeams({joinTableAttributes: ['season', 'ranking', 'points']})
                                     .catch(function(error:Error){
                                           throw error
                                     }) : []
@@ -482,7 +482,7 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(), async
                   
               });
             const [name,code] = [postFormUpdateCompetitionResults.name, req.params.code];
-            res.redirect(`/team/${name}.${code}`);
+            res.redirect(`/competitions/${name}.${code}`);
 
       }
 

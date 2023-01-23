@@ -15,15 +15,15 @@ router.get('/competitions/new', competitionController_1.preFormCreateCompetition
 router.get('/competitions/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
 router.get('/competitions/:name.:code', competitionController_1.seeCompetition);
 router.post('/competitions', competitionController_1.postFormCreateCompetition);
-router.put('/competitions/:name.:code', competitionController_1.postFormUpdateCompetition);
+router.put('/competitions/:name.:code/edit', competitionController_1.postFormUpdateCompetition);
 router.get('/player/new', playerController_1.preFormCreatePlayer);
 router.get('/player/:firstName.:lastName.:code/edit', playerController_1.preFormUpdatePlayer);
 router.get('/player/:firstName.:lastName.:code', playerController_1.seePlayer);
 router.post('/player', playerController_1.postFormCreatePlayer);
-router.put('/player/:firstName.:lastName.:code', playerController_1.postFormUpdatePlayer);
+router.put('/player/:firstName.:lastName.:code/edit', playerController_1.postFormUpdatePlayer);
 router.get('/team/new', teamController_1.preFormCreateTeam);
 router.get('/team/:name.:code/edit', teamController_1.preFormUpdateTeam);
 router.get('/team/:name.:code', teamController_1.seeTeam);
 router.post('/team', teamController_1.postFormCreateTeam);
-router.put('/team/:name.:code', teamController_1.postFormUpdateTeam);
+router.put('/team/:name.:code/edit', teamController_1.postFormUpdateTeam);
 exports.default = router;

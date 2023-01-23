@@ -9,7 +9,7 @@ const sequelize_1 = require("sequelize");
 const competition_1 = __importDefault(require("../../models/competition"));
 const team_1 = __importDefault(require("../../models/team"));
 const _arrayCheck = function (value) {
-    return value && Array.isArray(value) ? value : [value];
+    return !value || Array.isArray(value) ? value : [value];
 };
 const _checkDuplicate = function (finderFunction, reference, keysArray) {
     return (0, express_validator_1.body)(reference).custom(async function (reference, { req }) {
