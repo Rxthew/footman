@@ -349,14 +349,14 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
       const getTeam = async function(){
             const team = await Team.findOne({
                   where: {
-                        name: postFormCreatePlayerResults.team,
+                        name: postFormUpdatePlayerResults.team,
                   },
                   include: {
                         model: Competition,
                         required: true,
                         through: {
                               where: {
-                                    season: postFormCreatePlayerResults.season
+                                    season: postFormUpdatePlayerResults.season
                               }
                         }
                   },

@@ -12,12 +12,12 @@
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 
             <label for="firstName">First Name:</label>
-            <input id="firstName" name="firstName" type="text" value=<%="firstName"%>>
+            <input id="firstName" name="firstName" type="text" value="<%=firstName%>">
         </div>
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> <span><%= errors.lastName.msg %></span> <%}%> 
             <label for="lastName">Last Name:</label>
-            <input id="lastName" name="lastName" type="text" value=<%="lastName"%>>
+            <input id="lastName" name="lastName" type="text" value="<%=lastName%>">
         </div>
         <div>
             <%- include('partials/nationalities', {nationality: nationality})%>
@@ -25,7 +25,7 @@
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.age !== 'undefined')){%> <span><%= errors.age.msg %></span> <%}%> 
             <label for="age">Age:</label>
-            <input id="age" name="age" type="number" min="15" max="45" value=<%="age"%>>
+            <input id="age" name="age" type="number" min="15" max="45" value="<%=age%>">
         </div>
         <div>
             <select id="position" name="position">
@@ -71,6 +71,7 @@
             <label for="technique">Technique:</label>
             <input id="technique" name="technique" type="number" min="1" max="20" <% if(typeof technique !== 'undefined'){%> value="<%= technique %>" <%}%>>
         </div>
+        <% if (seasons && seasons.length > 0){%>
         <div>
              <label for="teams">Teams:</label>
              <% if ((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){ %> <span><%= errors.team.msg %></span>
@@ -79,7 +80,7 @@
                 <% for(let single_team of teams){ %>
                     <div>
                         <label for="team"><%= single_team %></label>
-                        <input id="<%= single_team %>" name="team" type="checkbox" value="<%= single_team %>" <% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
+                        <input id="<%= single_team %>" name="team" type="radio" value="<%= single_team %>" <% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
                     </div>
                 <%}%>
              </div><%}
@@ -95,6 +96,7 @@
                 <%}%>
             </select>
         </div>
+        <%}%>
         <footer>
             <button type="submit">Submit Updated Player</button>
         </footer>

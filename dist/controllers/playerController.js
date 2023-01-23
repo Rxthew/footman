@@ -297,14 +297,14 @@ const postFormUpdatePlayerCb = async function (t) {
     const getTeam = async function () {
         const team = await team_1.default.findOne({
             where: {
-                name: postFormCreatePlayerResults.team,
+                name: postFormUpdatePlayerResults.team,
             },
             include: {
                 model: competition_1.default,
                 required: true,
                 through: {
                     where: {
-                        season: postFormCreatePlayerResults.season
+                        season: postFormUpdatePlayerResults.season
                     }
                 }
             },
