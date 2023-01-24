@@ -336,7 +336,7 @@ const postFormUpdatePlayerCb = async function (t) {
         }, { where: { code: postFormUpdatePlayerResults.code }, transaction: t }).catch(function (error) {
             throw error;
         });
-        const updatedPlayer = getPlayer();
+        const updatedPlayer = await getPlayer().catch(function (error) { throw error; });
         if (postFormUpdatePlayerResults.team && postFormUpdatePlayerResults.season) {
             const team = await getTeam().catch(function (error) {
                 throw error;

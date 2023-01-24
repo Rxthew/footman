@@ -239,7 +239,6 @@ const preFormUpdateTeamCb = async function (t) {
             throw error;
         }) : [];
         const chosenCompetitions = getAllCompetitionNames(teamCompetitions);
-        competitionNames = chosenCompetitions ? competitionNames.filter(name => !chosenCompetitions.includes(name)) : competitionNames;
         const season = getTeamSeason(teamCompetitions);
         return {
             chosenCompetitions,

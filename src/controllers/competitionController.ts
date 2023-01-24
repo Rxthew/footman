@@ -321,7 +321,6 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                                     }) : []
 
             const chosenTeams = getAllTeamNames(competitionTeams);
-            teamNames = chosenTeams ? teamNames.filter(name => !chosenTeams.includes(name)) : teamNames
 
             
             const givenSeason = competitionTeams.length > 0 ? getSeason(competitionTeams) : undefined;
