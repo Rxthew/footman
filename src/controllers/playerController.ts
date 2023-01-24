@@ -368,15 +368,32 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
             return team
       }
 
+      const getPlayer = async function(){
+            const {firstName,lastName,code} = postFormUpdatePlayerResults;
+            const player = await Player.findOne({
+                  where: {
+                        firstName: firstName,
+                        lastName: lastName,
+                        code: code
+                  },
+                  transaction: t
+            }).catch(function(error:Error){
+                  throw error
+              })
+            
+              return player
+      }
+
       
       const updatePlayer = async function(){
             const playerParameters = {...postFormUpdatePlayerResults};
             Object.assign(playerParameters, {team: undefined}, {season: undefined});
-            const updatedPlayer = await Player.update({
+            const update = await Player.update({
                   ...playerParameters
                    },{where: {code: postFormUpdatePlayerResults.code}, transaction: t}).catch(function(error:Error){
                         throw error
                     }); 
+            const updatedPlayer = getPlayer()
 
             if(postFormUpdatePlayerResults.team && postFormUpdatePlayerResults.season){
                   const team = await getTeam().catch(function(error:Error){

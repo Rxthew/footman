@@ -314,14 +314,29 @@ const postFormUpdatePlayerCb = async function (t) {
         });
         return team;
     };
+    const getPlayer = async function () {
+        const { firstName, lastName, code } = postFormUpdatePlayerResults;
+        const player = await player_1.default.findOne({
+            where: {
+                firstName: firstName,
+                lastName: lastName,
+                code: code
+            },
+            transaction: t
+        }).catch(function (error) {
+            throw error;
+        });
+        return player;
+    };
     const updatePlayer = async function () {
         const playerParameters = { ...postFormUpdatePlayerResults };
         Object.assign(playerParameters, { team: undefined }, { season: undefined });
-        const updatedPlayer = await player_1.default.update({
+        const update = await player_1.default.update({
             ...playerParameters
         }, { where: { code: postFormUpdatePlayerResults.code }, transaction: t }).catch(function (error) {
             throw error;
         });
+        const updatedPlayer = getPlayer();
         if (postFormUpdatePlayerResults.team && postFormUpdatePlayerResults.season) {
             const team = await getTeam().catch(function (error) {
                 throw error;
