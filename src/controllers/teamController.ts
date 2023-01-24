@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { assessTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
+import { getTeamParameters, teamParameterPlaceholder } from './helpers/parameters';
 import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
@@ -94,7 +94,7 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
 
 export const seeTeam = async function(req: Request, res: Response, next: NextFunction){
 
-      assessTeamParameters(req,next)
+      getTeamParameters(req,next)
       
       await transactionWrapper(seeTeamCb,next).catch(function(error:Error){
             next(error)
@@ -327,7 +327,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 }
 
 export const preFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-      assessTeamParameters(req,next)
+      getTeamParameters(req,next)
 
       await transactionWrapper(preFormUpdateTeamCb,next).catch(function(error:Error){
             next(error)
@@ -410,7 +410,7 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
 export const postFormUpdateTeam = [...updateTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      assessTeamParameters(req,next);
+      getTeamParameters(req,next);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){

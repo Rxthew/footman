@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.assessTeamParameters = exports.assessPlayerParameters = exports.assessCompetitionParameters = exports.teamParameterPlaceholder = exports.playerParameterPlaceholder = exports.competitionParameterPlaceholder = void 0;
+exports.getTeamParameters = exports.getPlayerParameters = exports.getCompetitionParameters = exports.teamParameterPlaceholder = exports.playerParameterPlaceholder = exports.competitionParameterPlaceholder = void 0;
 ;
 ;
 ;
@@ -72,6 +72,6 @@ const teamParameterPlaceholder = function () {
     };
 };
 exports.teamParameterPlaceholder = teamParameterPlaceholder;
-exports.assessCompetitionParameters = _syncParameters(competitionParameters);
-exports.assessPlayerParameters = _syncParameters(playerParameters);
-exports.assessTeamParameters = _syncParameters(teamParameters);
+exports.getCompetitionParameters = _syncParameters(competitionParameters);
+exports.getPlayerParameters = _syncParameters(playerParameters);
+exports.getTeamParameters = _syncParameters(teamParameters);

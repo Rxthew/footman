@@ -93,7 +93,7 @@ const seePlayerCb = async function (t) {
     return;
 };
 const seePlayer = async function (req, res, next) {
-    (0, parameters_1.assessPlayerParameters)(req, next);
+    (0, parameters_1.getPlayerParameters)(req, next);
     await transactionWrapper(seePlayerCb, next).catch(function (error) {
         next(error);
     });
@@ -283,7 +283,7 @@ const preFormUpdatePlayerCb = async function (t) {
     return;
 };
 const preFormUpdatePlayer = async function (req, res, next) {
-    (0, parameters_1.assessPlayerParameters)(req, next);
+    (0, parameters_1.getPlayerParameters)(req, next);
     await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
         next(error);
     });
@@ -356,7 +356,7 @@ const postFormUpdatePlayerCb = async function (t) {
     });
 };
 exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
-        (0, parameters_1.assessPlayerParameters)(req, next);
+        (0, parameters_1.getPlayerParameters)(req, next);
         Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {

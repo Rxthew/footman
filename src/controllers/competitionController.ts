@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { assessCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
+import { getCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
 import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
@@ -113,7 +113,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
 export const seeCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      assessCompetitionParameters(req,next);
+      getCompetitionParameters(req,next);
       
       await transactionWrapper(seeCompetitionCb,next).catch(function(error:Error){
             next(error)
@@ -368,7 +368,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 };
 
 export const preFormUpdateCompetition = async function(req:Request, res:Response, next:NextFunction):Promise<void>{
-      assessCompetitionParameters(req,next);
+      getCompetitionParameters(req,next);
 
       await transactionWrapper(preFormUpdateCompetitionCb,next).catch(function(error:Error){next(error)});
       preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
@@ -463,7 +463,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
 export const postFormUpdateCompetition = [...updateCompetitionValidator(), async function(req:Request,res:Response,next:NextFunction):Promise<void>{
 
-      assessCompetitionParameters(req,next);
+      getCompetitionParameters(req,next);
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){

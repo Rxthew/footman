@@ -113,7 +113,7 @@ const seeCompetitionCb = async function (t) {
     return;
 };
 const seeCompetition = async function (req, res, next) {
-    (0, parameters_1.assessCompetitionParameters)(req, next);
+    (0, parameters_1.getCompetitionParameters)(req, next);
     await transactionWrapper(seeCompetitionCb, next).catch(function (error) {
         next(error);
     });
@@ -303,7 +303,7 @@ const preFormUpdateCompetitionCb = async function (t) {
     return;
 };
 const preFormUpdateCompetition = async function (req, res, next) {
-    (0, parameters_1.assessCompetitionParameters)(req, next);
+    (0, parameters_1.getCompetitionParameters)(req, next);
     await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
     preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
     (0, parameters_1.competitionParameterPlaceholder)().reset();
@@ -371,7 +371,7 @@ const postFormUpdateCompetitionCb = async function (t) {
     }) : false;
 };
 exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async function (req, res, next) {
-        (0, parameters_1.assessCompetitionParameters)(req, next);
+        (0, parameters_1.getCompetitionParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {

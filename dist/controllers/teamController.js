@@ -96,7 +96,7 @@ const seeTeamCb = async function (t) {
     return;
 };
 const seeTeam = async function (req, res, next) {
-    (0, parameters_1.assessTeamParameters)(req, next);
+    (0, parameters_1.getTeamParameters)(req, next);
     await transactionWrapper(seeTeamCb, next).catch(function (error) {
         next(error);
     });
@@ -271,7 +271,7 @@ const preFormUpdateTeamCb = async function (t) {
     return;
 };
 const preFormUpdateTeam = async function (req, res, next) {
-    (0, parameters_1.assessTeamParameters)(req, next);
+    (0, parameters_1.getTeamParameters)(req, next);
     await transactionWrapper(preFormUpdateTeamCb, next).catch(function (error) {
         next(error);
     });
@@ -331,7 +331,7 @@ const postFormUpdateTeamCb = async function (t) {
     });
 };
 exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res, next) {
-        (0, parameters_1.assessTeamParameters)(req, next);
+        (0, parameters_1.getTeamParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {

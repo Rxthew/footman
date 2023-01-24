@@ -107,6 +107,6 @@ export const teamParameterPlaceholder = function(){
 }
 
 
-export const assessCompetitionParameters = _syncParameters(competitionParameters);
-export const assessPlayerParameters = _syncParameters(playerParameters);
-export const assessTeamParameters = _syncParameters(teamParameters);
+export const getCompetitionParameters = _syncParameters(competitionParameters);
+export const getPlayerParameters = _syncParameters(playerParameters);
+export const getTeamParameters = _syncParameters(teamParameters);

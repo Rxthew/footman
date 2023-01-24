@@ -1,7 +1,7 @@
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
-import { assessPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
+import { getPlayerParameters,playerParameterPlaceholder } from './helpers/parameters';
 import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as validators from './helpers/validators';
@@ -88,7 +88,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
 
 export const seePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      assessPlayerParameters(req,next)
+      getPlayerParameters(req,next)
       
       await transactionWrapper(seePlayerCb,next).catch(function(error:Error){
             next(error)
@@ -329,7 +329,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
 
 export const preFormUpdatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      assessPlayerParameters(req,next);
+      getPlayerParameters(req,next);
       
       
       await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
@@ -422,7 +422,7 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
 export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(req: Request, res: Response, next:NextFunction): Promise<void>{
 
-      assessPlayerParameters(req,next)
+      getPlayerParameters(req,next)
       Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
 
 
