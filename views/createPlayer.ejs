@@ -78,6 +78,10 @@
              <% if((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){%> <span><%= errors.team.msg %></span> <%}%> 
              <% if(teams.length > 0){%>    
              <div>
+                <div>
+                    <label for="team">None</label>
+                    <input name="team" type="radio" value="None" <% if((typeof team !== 'undefined') && team === 'None'){%> checked=true <%}%>>
+                </div>
                 <% for(let single_team of teams){ %>
                     <div>
                         <label for="team"><%= single_team %></label>

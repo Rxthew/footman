@@ -19,6 +19,12 @@ const _checkDuplicate = function (finderFunction, reference, keysArray) {
 const _cleanEmptyInputs = function (value) {
     return value === '' ? undefined : value;
 };
+const _cleanNullTeamChoice = function (teamValue, req) {
+    if (teamValue === 'None') {
+        req.body.season ? req.body.season = undefined : false;
+        return undefined;
+    }
+};
 const _finderFunctions = {
     duplicateCreateCompetition: async function (reference, req, keysArray) {
         const chosenName = reference;
@@ -205,12 +211,21 @@ const _validateAge = function (age) {
         .isNumeric()
         .withMessage('Age must be a number');
 };
+const _validateNoneTeamName = function (name) {
+    if (name === 'None') {
+        throw new Error('None is a reserved name for players with no team. Please choose another.');
+    }
+    return true;
+};
 const submitPlayerValidator = () => {
     const requiredValues = ['firstName', 'lastName'];
     return [
         ..._sanitiseString(requiredValues, true),
         _validateAge('age'),
         (0, express_validator_1.body)(['goals', 'assists', 'speed', 'strength', 'attack', 'defense', 'goalkeeping', 'intelligence', 'technique', 'team', 'season', 'code']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)('team').customSanitizer(function (value, { req }) {
+            return (req.body.team ? _cleanNullTeamChoice(value, req) : false);
+        }),
         (0, express_validator_1.body)('team').custom(async function (reference, { req }) {
             return (req.body.team && req.body.season) ? await _teamSeasonCheck(reference, req, ['season']).catch(function (err) { throw err; }) : await Promise.resolve();
         })
@@ -220,6 +235,7 @@ exports.submitPlayerValidator = submitPlayerValidator;
 const createTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
+        (0, express_validator_1.body)('name').custom(_validateNoneTeamName),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)(['chosenCompetitions']).customSanitizer(_arrayCheck),
         _checkDuplicate(_finderFunctions.duplicateCreateTeam, 'name', ['season'])
@@ -229,6 +245,7 @@ exports.createTeamValidator = createTeamValidator;
 const updateTeamValidator = () => {
     return [
         ..._sanitiseString(['name']),
+        (0, express_validator_1.body)('name').custom(_validateNoneTeamName),
         (0, express_validator_1.body)(['chosenCompetitions', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)(['chosenCompetitions']).customSanitizer(_arrayCheck),
         _checkDuplicate(_finderFunctions.duplicateUpdateTeam, 'name', ['code', 'season']),
