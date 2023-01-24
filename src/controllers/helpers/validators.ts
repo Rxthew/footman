@@ -26,6 +26,7 @@ const _cleanNullTeamChoice = function(teamValue:string, req: Request){
         req.body.season ? req.body.season = undefined : false;
         return undefined
     }
+    return teamValue
 
 };
 
@@ -196,6 +197,8 @@ const _sequentialRankings = function(valuesArray: string[] | undefined){
             
         }
 
+        return rankings
+
     }
     
     
@@ -224,7 +227,7 @@ const _teamSeasonCheck = async function(reference:string,req:Request,keysArray: 
     })
     
     return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.'+
-     ' You can either create the team for that season and come back or choose a different team for this player.')
+     ' You can either create the team for that season by assigning it to a competition and come back, or choose a different team for this player.')
 
 };
 

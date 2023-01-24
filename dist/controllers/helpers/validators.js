@@ -24,6 +24,7 @@ const _cleanNullTeamChoice = function (teamValue, req) {
         req.body.season ? req.body.season = undefined : false;
         return undefined;
     }
+    return teamValue;
 };
 const _finderFunctions = {
     duplicateCreateCompetition: async function (reference, req, keysArray) {
@@ -171,6 +172,7 @@ const _sequentialRankings = function (valuesArray) {
             const oldToNewValuesMap = mapOldToNewValues();
             return produceNewRankings(oldToNewValuesMap);
         }
+        return rankings;
     }
 };
 const _teamSeasonCheck = async function (reference, req, keysArray) {
@@ -193,7 +195,7 @@ const _teamSeasonCheck = async function (reference, req, keysArray) {
         throw error;
     });
     return team ? Promise.resolve() : Promise.reject('Sorry, there is no team registered with that name for the season you chose.' +
-        ' You can either create the team for that season and come back or choose a different team for this player.');
+        ' You can either create the team for that season by assigning it to a competition and come back, or choose a different team for this player.');
 };
 const _uniqueRankings = function (valuesArray) {
     if (valuesArray) {
