@@ -29,16 +29,18 @@
              <div>
                 <% if ((typeof errors !== 'undefined') && ( typeof errors.rankings !== 'undefined')){  %> <span><%= errors.rankings.msg %></span><% }
                 for(let team of teams){ %>
-                    <label for="chosenTeams"><%= team %></label>
-                    <input id="<%= team %>" name="chosenTeams" type="checkbox" value="<%= team %>"<% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
-                    <label for="rankings">Ranking:</label>
-                    <select data-team="<%= team %>" name="rankings" <% if(typeof rankings === 'undefined'){%> disabled="true" <%}%>>
-                        <% teams.forEach((team,index)=>{%>
-                            <option value="<%= index + 1 %>"  <% if( (typeof rankings !== 'undefined') && chosenTeams.includes(team) && (rankings[chosenTeams.indexOf(team)] === index + 1)){%> selected='true' <%}%>><%= index + 1 %></option>
-                        <%})%>
-                    </select>
-                    <label for="points">Points:</label>
-                    <input data-team="<%= team %>" type="number" name="points"  <% if((typeof points !== 'undefined') && chosenTeams.includes(team)){%> value='<%= points[chosenTeams.indexOf(team)] %>'<%}else{%> disabled="true"<%}%>>
+                    <div>
+                        <label for="chosenTeams"><%= team %></label>
+                        <input id="<%= team %>" name="chosenTeams" type="checkbox" value="<%= team %>"<% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
+                        <label for="rankings">Ranking:</label>
+                        <select data-team="<%= team %>" name="rankings" <% if(typeof rankings === 'undefined'){%> disabled="true" <%}%>>
+                            <% teams.forEach((team,index)=>{%>
+                                <option value="<%= index + 1 %>"  <% if( (typeof rankings !== 'undefined') && chosenTeams.includes(team) && (rankings[chosenTeams.indexOf(team)] === index + 1)){%> selected='true' <%}%>><%= index + 1 %></option>
+                            <%})%>
+                        </select>
+                        <label for="points">Points:</label>
+                        <input data-team="<%= team %>" type="number" name="points"  <% if((typeof points !== 'undefined') && chosenTeams.includes(team)){%> value='<%= points[chosenTeams.indexOf(team)] %>'<%}else{%> disabled="true"<%}%>>
+                    </div>
                 <%}%>
              </div><%}
               else{%>
