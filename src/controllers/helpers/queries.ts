@@ -60,20 +60,55 @@ export const applyPoints = async function(latestCompetition: CompetitionModel, r
 };
 
 export const applyRanking = async function(latestCompetition: CompetitionModel, results: postFormCreateCompetitionResults | postFormUpdateCompetitionResults, t: Transaction){
-    if(results.rankings){
-         const chosenTeams = results.chosenTeams
-         if(!results.points && chosenTeams){
-          const rankings = results.rankings;
-          let rankedTeams:string[] = [...chosenTeams];
-          rankedTeams.sort(function(x,y){
-                return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
-          })
-          Object.assign(results, {chosenTeams: rankedTeams})
-      }
 
-         const teams:any[] = await (latestCompetition as any).getTeams({joinTableAttributes: ['ranking']},{transaction: t}).catch(function(err:Error){throw err})
-          teams.length > 0 ? teams.forEach(async (team) => await team['TeamsCompetitions'].set('ranking', chosenTeams?.indexOf(team.getDataValue('name')) ? chosenTeams.indexOf(team.getDataValue('name')) + 1 : null)) : teams
+    const updateTeamsCompetitions = async function(team: any, chosenArray:string[] | undefined){
+
+        const _rankSetter = function(teamName: string){
+
+            const _validIndex = function(index:number){
+                return index > -1 ? index + 1 : null
+    
+            }
+            if(chosenArray && Array.isArray(chosenArray) && results.rankings){
+                const index = chosenArray.indexOf(teamName);
+                const rank = _validIndex(index);
+                return rank
+            }
+            return null
+        }
+
+
+        const teamsCompetitions = team.getDataValue('TeamsCompetitions');
+        const teamName = team.getDataValue('name');
+        teamsCompetitions.set('ranking',_rankSetter(teamName))
+
+        await teamsCompetitions.save({transaction: t}).catch(function(err:Error){throw err})
+
     }
+
+    const updateRankings = async function(){ 
+        if(!results.points){
+            let chosenTeams = results.chosenTeams
+            if(results.rankings && chosenTeams){
+                const rankings = results.rankings;
+                let rankedTeams:string[] = [...chosenTeams];
+                rankedTeams.sort(function(x,y){
+                        return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
+                });
+                Object.assign(results, {chosenTeams: rankedTeams});
+                chosenTeams = results.chosenTeams;
+            }
+            const teams:any[] = await (latestCompetition as any).getTeams({transaction: t}).catch(function(err:Error){throw err})
+            let updatePromises:any[] = []
+            teams.length > 0 ? teams.forEach((team) => updatePromises = [...updatePromises, async () => await updateTeamsCompetitions(team,chosenTeams).catch(function(err:Error){throw err})]) : teams
+            updatePromises.length > 0 ? await Promise.all(updatePromises.map(updateTeam => updateTeam())).catch(function(err:Error){throw err}) : updatePromises
+
+        }
+         
+    }
+
+    await updateRankings().catch(function(err:Error){throw err})
+
 
 };
 
