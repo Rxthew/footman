@@ -18,6 +18,9 @@ const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:
 };
 
 const _cleanEmptyInputs = function(value: string ){
+    if(Array.isArray(value) && value.some(element => element === '')){
+        return undefined
+    }
     return value === '' ? undefined : value 
 };
 

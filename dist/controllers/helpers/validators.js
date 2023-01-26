@@ -17,6 +17,9 @@ const _checkDuplicate = function (finderFunction, reference, keysArray) {
     });
 };
 const _cleanEmptyInputs = function (value) {
+    if (Array.isArray(value) && value.some(element => element === '')) {
+        return undefined;
+    }
     return value === '' ? undefined : value;
 };
 const _cleanNullTeamChoice = function (teamValue, req) {
