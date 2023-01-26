@@ -438,7 +438,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                   });      
             }
 
-            await updatedCompetition?.save().catch(function(err:Error){
+            await updatedCompetition?.save({transaction: t}).catch(function(err:Error){
                   throw err
             });
 

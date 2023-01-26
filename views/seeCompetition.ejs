@@ -16,12 +16,12 @@
               <div>
                 <span>Rank</span>
                 <span>Team</span>
-            <% if((typeof points !== undefined) && points.length > 0){%> <span>Points</span> <%}   
+            <% if((typeof points !== 'undefined') && points.length > 0){%> <span>Points</span> <%}   
             teams.forEach((team,index)=>{%>
               <div>
                   <span><%= rankings[index] %></span>
                   <span><%= team %></span>
-                <% if((typeof points !== undefined) && points.length > 0){%> <span><%=points[index]%></span> <%}
+                <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}
             })%>
               </div>
         <%}
