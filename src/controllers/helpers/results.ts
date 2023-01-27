@@ -66,7 +66,7 @@ export interface preFormCreateCompetitionResults {
     errors?: {[index: string]: string | number},
     chosenTeams?: string[],
     rankings?: number[],
-    points?: {[index: string]: number},
+    points?: number[],
     season?: string
 }
 
@@ -105,7 +105,7 @@ export interface postFormCreateCompetitionResults {
     name: string,
     chosenTeams?: string[],
     rankings?: number[],
-    points?: {[index: string]: number},
+    points?: number[],
     season?: string,
     
 }
