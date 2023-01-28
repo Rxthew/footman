@@ -304,11 +304,6 @@ const preFormUpdateCompetitionCb = async function (t) {
 const preFormUpdateCompetition = async function (req, res, next) {
     (0, parameters_1.getCompetitionParameters)(req, next);
     await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
-    console.log('______________________________________________________________');
-    console.log('response');
-    console.log('______________________________________________________________');
-    console.log(req);
-    console.log('______________________________________________________________');
     preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
     (0, parameters_1.competitionParameterPlaceholder)().reset();
     preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();

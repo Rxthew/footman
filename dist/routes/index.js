@@ -11,11 +11,11 @@ const router = express_1.default.Router();
 router.get('/', function (req, res, next) {
     res.render('index', { title: 'Express' });
 });
-router.get('/competitions/new', competitionController_1.preFormCreateCompetition);
-router.get('/competitions/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
-router.get('/competitions/:name.:code', competitionController_1.seeCompetition);
-router.post('/competitions', competitionController_1.postFormCreateCompetition);
-router.put('/competitions/:name.:code/edit', competitionController_1.postFormUpdateCompetition);
+router.get('/competition/new', competitionController_1.preFormCreateCompetition);
+router.get('/competition/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
+router.get('/competition/:name.:code', competitionController_1.seeCompetition);
+router.post('/competition', competitionController_1.postFormCreateCompetition);
+router.put('/competition/:name.:code/edit', competitionController_1.postFormUpdateCompetition);
 router.get('/player/new', playerController_1.preFormCreatePlayer);
 router.get('/player/:firstName.:lastName.:code/edit', playerController_1.preFormUpdatePlayer);
 router.get('/player/:firstName.:lastName.:code', playerController_1.seePlayer);

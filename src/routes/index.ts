@@ -9,11 +9,11 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/competitions/new', preFormCreateCompetition);
-router.get('/competitions/:name.:code/edit', preFormUpdateCompetition);
-router.get('/competitions/:name.:code', seeCompetition);
-router.post('/competitions', postFormCreateCompetition);
-router.put('/competitions/:name.:code/edit', postFormUpdateCompetition);
+router.get('/competition/new', preFormCreateCompetition);
+router.get('/competition/:name.:code/edit', preFormUpdateCompetition);
+router.get('/competition/:name.:code', seeCompetition);
+router.post('/competition', postFormCreateCompetition);
+router.put('/competition/:name.:code/edit', postFormUpdateCompetition);
 
 router.get('/player/new', preFormCreatePlayer);
 router.get('/player/:firstName.:lastName.:code/edit', preFormUpdatePlayer);
