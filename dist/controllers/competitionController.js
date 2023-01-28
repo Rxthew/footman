@@ -55,7 +55,7 @@ const seeCompetitionCb = async function (t) {
             });
             if (points && points.length > 0) {
                 points.sort(function (x, y) {
-                    return rankings[points.indexOf(x)] > rankings[points.indexOf(y)] ? 1 : -1;
+                    return x < y ? 1 : -1;
                 });
             }
         }
@@ -304,6 +304,11 @@ const preFormUpdateCompetitionCb = async function (t) {
 const preFormUpdateCompetition = async function (req, res, next) {
     (0, parameters_1.getCompetitionParameters)(req, next);
     await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
+    console.log('______________________________________________________________');
+    console.log('response');
+    console.log('______________________________________________________________');
+    console.log(req);
+    console.log('______________________________________________________________');
     preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
     (0, parameters_1.competitionParameterPlaceholder)().reset();
     preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();

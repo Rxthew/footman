@@ -39,7 +39,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
                   });
                   if(points && points.length > 0){
                         points.sort(function(x,y){
-                              return rankings[points.indexOf(x)] > rankings[points.indexOf(y)] ? 1 : -1
+                              return x < y ? 1 : -1
                         });
 
                   }
@@ -371,6 +371,7 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
 
       await transactionWrapper(preFormUpdateCompetitionCb,next).catch(function(error:Error){next(error)});
       preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
+   
 
       competitionParameterPlaceholder().reset();
       preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
