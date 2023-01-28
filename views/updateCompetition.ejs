@@ -34,7 +34,7 @@
                         <input id="<%= team %>" name="chosenTeams" type="checkbox" value="<%= team %>"<% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
                         <label for="rankings">Ranking:</label>
                         <select data-team="<%= team %>" name="rankings" <% if(typeof rankings === 'undefined'){%> disabled="true" <%}%>>
-                            <% teams.forEach((team,index)=>{%>
+                            <% teams.forEach((teamName,index)=>{%>
                                 <option value="<%= index + 1 %>"  <% if( (typeof rankings !== 'undefined') && chosenTeams.includes(team) && (rankings[chosenTeams.indexOf(team)] === index + 1)){%> selected='true' <%}%>><%= index + 1 %></option>
                             <%})%>
                         </select>

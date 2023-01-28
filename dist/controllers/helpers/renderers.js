@@ -20,7 +20,7 @@ const preFormUpdateCompetitionRenderer = function (res, results) {
         errors: results.errors,
         teams: results.teams,
         chosenTeams: results.chosenTeams,
-        ranking: results.rankings,
+        rankings: results.rankings,
         points: results.points,
         seasons: results.seasons,
         season: results.season
