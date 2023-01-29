@@ -14,7 +14,7 @@ router.get('/', function (req, res, next) {
 router.get('/competition/new', competitionController_1.preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
 router.get('/competition/:name.:code', competitionController_1.seeCompetition);
-router.post('/competition', competitionController_1.postFormCreateCompetition);
+router.post('/competition/new', competitionController_1.postFormCreateCompetition);
 router.put('/competition/:name.:code/edit', competitionController_1.postFormUpdateCompetition);
 router.get('/player/new', playerController_1.preFormCreatePlayer);
 router.get('/player/:firstName.:lastName.:code/edit', playerController_1.preFormUpdatePlayer);
@@ -24,6 +24,6 @@ router.put('/player/:firstName.:lastName.:code/edit', playerController_1.postFor
 router.get('/team/new', teamController_1.preFormCreateTeam);
 router.get('/team/:name.:code/edit', teamController_1.preFormUpdateTeam);
 router.get('/team/:name.:code', teamController_1.seeTeam);
-router.post('/team', teamController_1.postFormCreateTeam);
+router.post('/team/new', teamController_1.postFormCreateTeam);
 router.put('/team/:name.:code/edit', teamController_1.postFormUpdateTeam);
 exports.default = router;

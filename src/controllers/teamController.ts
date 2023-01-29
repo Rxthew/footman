@@ -101,6 +101,8 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
     
   };
 
+  
+
 export const seeTeam = async function(req: Request, res: Response, next: NextFunction){
 
       getTeamParameters(req,next)

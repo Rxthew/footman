@@ -12,7 +12,7 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
 router.get('/competition/new', preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', preFormUpdateCompetition);
 router.get('/competition/:name.:code', seeCompetition);
-router.post('/competition', postFormCreateCompetition);
+router.post('/competition/new', postFormCreateCompetition);
 router.put('/competition/:name.:code/edit', postFormUpdateCompetition);
 
 router.get('/player/new', preFormCreatePlayer);
@@ -24,7 +24,7 @@ router.put('/player/:firstName.:lastName.:code/edit', postFormUpdatePlayer);
 router.get('/team/new', preFormCreateTeam);
 router.get('/team/:name.:code/edit', preFormUpdateTeam);
 router.get('/team/:name.:code', seeTeam);
-router.post('/team', postFormCreateTeam);
+router.post('/team/new', postFormCreateTeam);
 router.put('/team/:name.:code/edit', postFormUpdateTeam);
 
 
