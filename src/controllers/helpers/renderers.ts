@@ -43,7 +43,8 @@ export const seeCompetitionRenderer = function(res:Response, results: res.seeCom
             teams: results.teams,
             season: results.season,
             rankings: results.rankings,
-            points: results.points
+            points: results.points,
+            teamUrls: results.teamUrls
         })
 };
 
@@ -112,7 +113,8 @@ export const seePlayerRenderer = function(res:Response, results: res.seePlayerRe
             defense: results.defense,
             goalkeeping: results.goalkeeping,
             intelligence: results.intelligence,
-            technique: results.technique
+            technique: results.technique,
+            teamUrl: results.teamUrl
 
         })
 };
@@ -147,7 +149,10 @@ export const seeTeamRenderer = function(res: Response, results: res.seeTeamResul
         res.render('seeTeam',{
          name: results.name,
          players: results.players,
-         competitions: results.competitions
+         playerUrls: results.playerUrls,
+         competitions: results.competitions,
+         competitionUrls: results.competitionUrls,
+
 
         })
 
