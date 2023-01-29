@@ -45,10 +45,13 @@ let postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetitio
 let seeCompetitionResults = resultsGenerator.seeCompetition();
 const transactionWrapper = queryHelpers.transactionWrapper;
 const seeCompetitionCb = async function (t) {
-    const sortCompetitionData = function (teams, rankings, points) {
+    const sortCompetitionData = function (teams, teamUrls, rankings, points) {
         if (rankings && rankings.length > 0) {
             teams.sort(function (x, y) {
                 return rankings[teams.indexOf(x)] > rankings[teams.indexOf(y)] ? 1 : -1;
+            });
+            teamUrls.sort(function (x, y) {
+                return rankings[teamUrls.indexOf(x)] > rankings[teamUrls.indexOf(y)] ? 1 : -1;
             });
             rankings.sort(function (x, y) {
                 return x > y ? 1 : -1;
@@ -88,14 +91,15 @@ const seeCompetitionCb = async function (t) {
     const competitionTeams = results.teams;
     const getChosenTeams = queryHelpers.getAllTeamNames;
     const getSeason = queryHelpers.getCompetitionSeason;
-    const { getPoints, getRankings } = queryHelpers;
+    const { getPoints, getRankings, getAllTeamUrlParams } = queryHelpers;
     let chosenTeams = getChosenTeams(competitionTeams);
     let teamRankings = getRankings(competitionTeams);
     let teamPoints = getPoints(competitionTeams);
-    sortCompetitionData(chosenTeams, teamRankings, teamPoints);
+    let urls = getAllTeamUrlParams(competitionTeams, ['name', 'code']);
+    sortCompetitionData(chosenTeams, urls, teamRankings, teamPoints);
     const populateSeeCompetitionResults = function () {
         if (results.competition && results.teams) {
-            Object.assign(seeCompetitionResults, results.competition.get(), { teams: chosenTeams }, { season: getSeason(competitionTeams) }, { rankings: teamRankings }, { points: teamPoints });
+            Object.assign(seeCompetitionResults, results.competition.get(), { teams: chosenTeams }, { season: getSeason(competitionTeams) }, { rankings: teamRankings }, { points: teamPoints }, { teamUrls: urls });
         }
         else {
             const err = new Error('Query regarding competition viewing returned invalid data.');

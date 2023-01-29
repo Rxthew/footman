@@ -45,8 +45,11 @@ let postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
 let seeTeamResults = resultsGenerator.seeTeam();
 const transactionWrapper = queryHelpers.transactionWrapper;
 const seeTeamCb = async function (t) {
-    const getCompetitionNames = queryHelpers.getAllCompetitionNames;
+    const { getAllCompetitionNames, getAllCompetitionUrlParams, getAllPlayerUrlParams } = queryHelpers;
     const seeTeamQuery = async function () {
+        const sortTeamData = function (arrayData) {
+            arrayData = arrayData && arrayData.length > 0 ? arrayData.sort() : arrayData;
+        };
         const parameters = (0, parameters_1.teamParameterPlaceholder)().parameters;
         const team = await team_1.default.findOne({
             where: {
@@ -63,14 +66,18 @@ const seeTeamCb = async function (t) {
         const competitionsResults = await team?.getCompetitions({ joinTableAttributes: ['season', 'points', 'ranking'] }).catch(function (error) {
             throw error;
         });
-        let competitions = competitionsResults && competitionsResults.length > 0 ? getCompetitionNames(competitionsResults) : competitionsResults;
+        let competitions = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionNames(competitionsResults) : competitionsResults;
         let players = playersResults && playersResults.length > 0 ? playersResults.map(player => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
-        competitions = competitions && competitions.length > 0 ? competitions.sort() : competitions;
-        players = players && players.length > 0 ? players.sort() : players;
+        let competitionUrls = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionUrlParams(competitionsResults, ['name', 'code']) : competitionsResults;
+        let playerUrls = playersResults && playersResults.length > 0 ? getAllPlayerUrlParams(playersResults, ['firstName', 'lastName', 'code']) : competitionsResults;
+        let sortedData = [competitions, players, competitionUrls, playerUrls];
+        sortedData.map(data => sortTeamData(data));
         return {
             team,
             players,
             competitions,
+            competitionUrls,
+            playerUrls
         };
     };
     const results = await seeTeamQuery().catch(function (error) {
@@ -78,7 +85,7 @@ const seeTeamCb = async function (t) {
     });
     const populateSeeTeamResults = function () {
         if (results.team && results.players && results.competitions) {
-            Object.assign(seeTeamResults, results.team.get(), { players: results.players }, { competitions: results.competitions });
+            Object.assign(seeTeamResults, results.team.get(), { players: results.players }, { competitions: results.competitions }, { competitionUrls: results.competitionUrls }, { playerUrls: results.playerUrls });
         }
         else {
             const err = new Error('Query regarding team viewing returned invalid data.');

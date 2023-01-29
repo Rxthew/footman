@@ -1,4 +1,3 @@
-
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { getCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
@@ -29,10 +28,13 @@ const transactionWrapper = queryHelpers.transactionWrapper;
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
-      const sortCompetitionData = function(teams:string[],rankings: number[] | undefined,points: number[] | undefined){
+      const sortCompetitionData = function(teams:string[], teamUrls:string[], rankings: number[] | undefined,points: number[] | undefined){
             if(rankings && rankings.length > 0){
                   teams.sort(function(x,y){
                         return rankings[teams.indexOf(x)] > rankings[teams.indexOf(y)] ? 1 : -1
+                  });
+                  teamUrls.sort(function(x,y){
+                        return rankings[teamUrls.indexOf(x)] > rankings[teamUrls.indexOf(y)] ? 1 : -1
                   });
                   rankings.sort(function(x,y){
                         return x > y ? 1 : -1
@@ -79,16 +81,18 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
       const getChosenTeams = queryHelpers.getAllTeamNames;
       const getSeason = queryHelpers.getCompetitionSeason;
 
-      const {getPoints, getRankings} = queryHelpers;
+      const {getPoints, getRankings, getAllTeamUrlParams} = queryHelpers;
 
       let chosenTeams = getChosenTeams(competitionTeams);
       let teamRankings = getRankings(competitionTeams);
       let teamPoints = getPoints(competitionTeams);
-      sortCompetitionData(chosenTeams, teamRankings, teamPoints);
+      let urls = getAllTeamUrlParams(competitionTeams, ['name','code']);
+      sortCompetitionData(chosenTeams,urls,teamRankings, teamPoints);
 
       const populateSeeCompetitionResults = function(){
             if(results.competition && results.teams){ 
-                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: chosenTeams}, {season: getSeason(competitionTeams)}, {rankings: teamRankings}, {points: teamPoints});   
+                  Object.assign(seeCompetitionResults, results.competition.get(), {teams: chosenTeams}, {season: getSeason(competitionTeams)}, {rankings: teamRankings}, {points: teamPoints}, {teamUrls: urls});
+
             }
             else{
                   const err = new Error('Query regarding competition viewing returned invalid data.');

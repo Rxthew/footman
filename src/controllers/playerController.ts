@@ -56,12 +56,14 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
       const results = await seePlayerQuery().catch(function(error:Error){
             throw error
         })
+
       
       const populateSeePlayerResults = function(){
             if(results.player){ 
                   Object.assign(seePlayerResults, results.player.get());
                   if(results.team){
-                        Object.assign(seePlayerResults, {team: results.team.getDataValue('name')})
+                        const url = queryHelpers.getAllTeamUrlParams([results.team],['name','code'])[0]
+                        Object.assign(seePlayerResults, {team: results.team.getDataValue('name')}, {teamUrl: url})
       
                   };                  
             }
