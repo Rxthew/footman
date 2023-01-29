@@ -11,8 +11,10 @@
     <section>
         <h2>Competitions</h2>
         <% if( (typeof competitions !== 'undefined') && competitions.length > 0){
-            competitions.forEach(competition => {%>
-                <p><%=competition %></p>
+            competitions.forEach((competition, competitionIndex) => {%>
+                <p>
+                  <a href="/competition/<%= competitionUrls[competitionIndex] %>"><%=competition %></a>
+                </p>
             <%})
               }    
             else {%>
@@ -24,8 +26,10 @@
     <section>
         <h2>Players</h2>
         <% if( (typeof players !== 'undefined') && players.length > 0){
-            players.forEach(player => {%>
-                <p><%=player %></p>
+            players.forEach((player,playerIndex) => {%>
+                <p>
+                  <a href="/player/<%= playerUrls[playerIndex] %>"><%=player %></a>
+                </p>
             <%})
               }    
             else {%>

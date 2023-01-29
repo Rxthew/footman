@@ -20,7 +20,7 @@
             teams.forEach((team,index)=>{%>
               <div>
                   <span><%= rankings[index] %></span>
-                  <span><%= team %></span>
+                  <a href="/team/<%= teamUrls[index] %>"><%= team %></a>
                 <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}
             })%>
               </div>
@@ -28,11 +28,11 @@
         else{%>
           <div>
             <span>Team</span>
-          <%teams.forEach(team =>{%> 
+          <%teams.forEach((team,teamIndex) =>{%> 
             <div>
-              <span>
+              <a href="/team/<%= teamUrls[teamIndex] %>">
                 <%= team %>
-              </span>
+              </a>
             </div>
           <%})%>
           </div> 

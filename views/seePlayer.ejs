@@ -8,7 +8,14 @@
   </head>
   <body>
     <h1> <%= name %></h1>
-    <p> Team: <%= team ? team : 'Free' %></p>
+    <% if(team){%>
+      <p>
+        <span>Team: </span>
+        <a href="/team/<%= teamUrl %>"><%= team %></a>
+      </p>
+    <%}else {%>
+      <p> Team: Free</p>
+    <%}%>
     <p> Nationality: <%= nationality %></p>
     <p> Position: <%= position %></p>
     <p> Age: <%= age %></p>
