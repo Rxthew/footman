@@ -17,12 +17,13 @@ const _checkDuplicate = function(finderFunction:(ref: string, req:Request, vals:
 
 };
 
-const _cleanEmptyInputs = function(value: string ){
-    if(Array.isArray(value) && value.some(element => element === '')){
+const _cleanEmptyInputs = function(value: string | string[] ){
+    if(Array.isArray(value) && value.every(element => element === '')){
         return undefined
     }
     return value === '' ? undefined : value 
 };
+
 
 const _cleanNullTeamChoice = function(teamValue:string, req: Request){
     if(teamValue === 'None'){
@@ -258,6 +259,13 @@ const _validateAge = function(age:string){
 
 };
 
+const _validateEmptyInput = function(values: string[]){
+    if(Array.isArray(values) && values.some(value => value === '')){
+        throw new Error('There appear to be some empty fields. Please fill them out with valid values before submission')
+    }
+    return true
+}
+
 const _validateNoneTeamName = function(name:string){
     if(name === 'None'){
         throw new Error('None is a reserved name for players with no team. Please choose another.')
@@ -306,12 +314,11 @@ export const createCompetitionValidator = () => {
     _checkDuplicate(_finderFunctions.duplicateCreateCompetition,'name',['season']),
     body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
     body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
+    body('points').custom(_validateEmptyInput),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]
 };
-
-
 
 
 export const updateCompetitionValidator = () => {
@@ -320,6 +327,7 @@ export const updateCompetitionValidator = () => {
     _checkDuplicate(_finderFunctions.duplicateUpdateCompetition,'name',['code','season']),
     body(['chosenTeams','points','rankings','season']).customSanitizer(_cleanEmptyInputs),
     body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
+    body('points').custom(_validateEmptyInput),
     body('rankings').custom(_uniqueRankings),
     body('rankings').customSanitizer(_sequentialRankings),
     ]

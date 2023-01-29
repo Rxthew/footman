@@ -17,7 +17,7 @@ const _checkDuplicate = function (finderFunction, reference, keysArray) {
     });
 };
 const _cleanEmptyInputs = function (value) {
-    if (Array.isArray(value) && value.some(element => element === '')) {
+    if (Array.isArray(value) && value.every(element => element === '')) {
         return undefined;
     }
     return value === '' ? undefined : value;
@@ -216,6 +216,12 @@ const _validateAge = function (age) {
         .isNumeric()
         .withMessage('Age must be a number');
 };
+const _validateEmptyInput = function (values) {
+    if (Array.isArray(values) && values.some(value => value === '')) {
+        throw new Error('There appear to be some empty fields. Please fill them out with valid values before submission');
+    }
+    return true;
+};
 const _validateNoneTeamName = function (name) {
     if (name === 'None') {
         throw new Error('None is a reserved name for players with no team. Please choose another.');
@@ -263,6 +269,7 @@ const createCompetitionValidator = () => {
         _checkDuplicate(_finderFunctions.duplicateCreateCompetition, 'name', ['season']),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
+        (0, express_validator_1.body)('points').custom(_validateEmptyInput),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
@@ -274,6 +281,7 @@ const updateCompetitionValidator = () => {
         _checkDuplicate(_finderFunctions.duplicateUpdateCompetition, 'name', ['code', 'season']),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings', 'season']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
+        (0, express_validator_1.body)('points').custom(_validateEmptyInput),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
         (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
     ];
