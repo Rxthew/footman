@@ -16,15 +16,18 @@ export interface seePlayerResults {
     intelligence?: number,
     technique?: number,
     code?: number
+    teamUrl?: string
     
 
 }
 
 export interface seeTeamResults {
-    name: string
-    players?: string[]
-    competitions?: string[]
-    code?: number
+    name: string,
+    players?: string[],
+    competitions?: string[],
+    code?: number,
+    competitionUrls?: string[],
+    playerUrls?: string[],
 }
 
 export interface seeCompetitionResults {
@@ -33,7 +36,8 @@ export interface seeCompetitionResults {
     season?: string[],
     rankings?: number[]
     points?: number[],
-    code?: number
+    code?: number,
+    teamUrls?: string[]
 }
 
 export interface preFormCreatePlayerResults {
