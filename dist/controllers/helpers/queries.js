@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getTeamSeason = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
+exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getTeamSeason = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamUrlParams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllPlayerUrlParams = exports.getAllCompetitionUrlParams = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
 const competition_1 = __importDefault(require("../../models/competition"));
 const initdb_1 = require("../../models/concerns/initdb");
 const team_1 = __importDefault(require("../../models/team"));
@@ -126,6 +126,54 @@ const getAllCompetitions = async function (t) {
     return competitions;
 };
 exports.getAllCompetitions = getAllCompetitions;
+const getAllCompetitionUrlParams = function (results, params) {
+    if (results && results.length > 0) {
+        try {
+            const generateCompetitionUrl = function (competition) {
+                const values = params.map(param => competition.getDataValue(param)?.toString());
+                if (values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')) {
+                    throw Error('Something went wrong when fetching querying details for competition links.');
+                }
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.', value) : value);
+                url = url.slice(1);
+                return url;
+            };
+            const urls = results.map(competition => generateCompetitionUrl(competition)).filter(obj => obj !== undefined);
+            return urls;
+        }
+        catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
+    return [];
+};
+exports.getAllCompetitionUrlParams = getAllCompetitionUrlParams;
+const getAllPlayerUrlParams = function (results, params) {
+    if (results && results.length > 0) {
+        try {
+            const generatePlayerUrl = function (player) {
+                const values = params.map(param => player.getDataValue(param)?.toString());
+                if (values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')) {
+                    throw Error('Something went wrong when fetching querying details for player links.');
+                }
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.', value) : value);
+                url = url.slice(1);
+                return url;
+            };
+            const urls = results.map(player => generatePlayerUrl(player)).filter(obj => obj !== undefined);
+            return urls;
+        }
+        catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
+    return [];
+};
+exports.getAllPlayerUrlParams = getAllPlayerUrlParams;
 const getAllSeasons = function (results, input) {
     const orderSeasons = function (seasons) {
         const years = seasons.map(season => parseInt(season.slice(0, 4)));
@@ -161,6 +209,30 @@ const getAllTeamNames = function (results) {
     return [];
 };
 exports.getAllTeamNames = getAllTeamNames;
+const getAllTeamUrlParams = function (results, params) {
+    if (results && results.length > 0) {
+        try {
+            const generateTeamUrl = function (team) {
+                const values = params.map(param => team.getDataValue(param)?.toString());
+                if (values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')) {
+                    throw Error('Something went wrong when fetching querying details for team links.');
+                }
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.', value) : value);
+                url = url.slice(1);
+                return url;
+            };
+            const urls = results.map(team => generateTeamUrl(team)).filter(obj => obj !== undefined);
+            return urls;
+        }
+        catch (err) {
+            console.log(err);
+            throw err;
+        }
+    }
+    return [];
+};
+exports.getAllTeamUrlParams = getAllTeamUrlParams;
 const getAllTeams = async function (t) {
     const teams = await team_1.default.findAll({
         include: [{

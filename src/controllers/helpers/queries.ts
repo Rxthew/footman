@@ -2,6 +2,7 @@ import { NextFunction } from 'express';
 import { Transaction } from 'sequelize'
 import Competition, { CompetitionModel } from '../../models/competition';
 import { sequelize } from '../../models/concerns/initdb';
+import { PlayerModel } from '../../models/player';
 import Team, { TeamModel } from '../../models/team';
 import { postFormCreateCompetitionResults, postFormUpdateCompetitionResults } from './results';
 
@@ -164,6 +165,67 @@ export const getAllCompetitions = async function(t:Transaction){
 
 };
 
+export const getAllCompetitionUrlParams = function(results: CompetitionModel[], params: ('name' | 'code' )[]){
+    if(results && results.length > 0){
+        try{
+            const generateCompetitionUrl = function(competition:CompetitionModel){
+                const values = params.map(param => competition.getDataValue(param)?.toString());
+
+                if(values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')){
+                    throw Error('Something went wrong when fetching querying details for competition links.')
+                }
+
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.',value) : value);
+                url = url.slice(1,);
+                
+                return url
+            }
+    
+            const urls = results.map(competition => generateCompetitionUrl(competition)).filter(obj => obj !== undefined)
+            return urls
+
+        }
+        catch(err){
+            console.log(err);
+            throw err
+        }
+        
+    }
+    return []
+};
+
+export const getAllPlayerUrlParams = function(results: PlayerModel[], params: ('firstName' | 'lastName' | 'code' )[]){
+    
+    if(results && results.length > 0){
+        try{
+            const generatePlayerUrl = function(player:PlayerModel){
+                const values = params.map(param => player.getDataValue(param)?.toString());
+
+                if(values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')){
+                    throw Error('Something went wrong when fetching querying details for player links.')
+                }
+
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.',value) : value);
+                url = url.slice(1,);
+                
+                return url
+            }
+    
+            const urls = results.map(player => generatePlayerUrl(player)).filter(obj => obj !== undefined)
+            return urls
+
+        }
+        catch(err){
+            console.log(err);
+            throw err
+        }
+        
+    }
+    return []
+};
+
 export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[], input: 'team' | 'competition'){
 
     const orderSeasons = function(seasons:string[]){
@@ -205,6 +267,35 @@ export const getAllSeasons = function(results: TeamModel[] | CompetitionModel[],
     }
     return []
     
+};
+
+export const getAllTeamUrlParams = function(results: TeamModel[], params: ('name' | 'code' )[]){
+    if(results && results.length > 0){
+        try{
+            const generateTeamUrl = function(team:TeamModel){
+                const values = params.map(param => team.getDataValue(param)?.toString());
+                if(values.some(value => value === 'undefined' || value === 'null' || value === 'NaN')){
+                    throw Error('Something went wrong when fetching querying details for team links.')
+                }
+
+                let url = '';
+                values.forEach(value => value ? url = url.concat('.',value) : value)
+                url = url.slice(1,)
+                
+                return url
+            }
+    
+            const urls = results.map(team => generateTeamUrl(team)).filter(obj => obj !== undefined)
+            return urls
+
+        }
+        catch(err){
+            console.log(err);
+            throw err
+        }
+        
+    }
+    return []
 };
 
  export const  getAllTeams = async function(t:Transaction){
