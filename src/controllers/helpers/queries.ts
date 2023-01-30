@@ -195,6 +195,7 @@ export const getAllCompetitionUrlParams = function(results: CompetitionModel[], 
     return []
 };
 
+
 export const getAllPlayerUrlParams = function(results: PlayerModel[], params: ('firstName' | 'lastName' | 'code' )[]){
     
     if(results && results.length > 0){
