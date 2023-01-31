@@ -2,7 +2,7 @@ import { NextFunction } from 'express';
 import { Transaction } from 'sequelize'
 import Competition, { CompetitionModel } from '../../models/competition';
 import { sequelize } from '../../models/concerns/initdb';
-import { PlayerModel } from '../../models/player';
+import Player, { PlayerModel } from '../../models/player';
 import Team, { TeamModel } from '../../models/team';
 import { postFormCreateCompetitionResults, postFormUpdateCompetitionResults } from './results';
 
@@ -196,8 +196,9 @@ export const getAllCompetitionUrlParams = function(results: CompetitionModel[], 
 };
 
 
+
 export const getAllPlayerUrlParams = function(results: PlayerModel[], params: ('firstName' | 'lastName' | 'code' )[]){
-    
+
     if(results && results.length > 0){
         try{
             const generatePlayerUrl = function(player:PlayerModel){
@@ -394,6 +395,67 @@ export const getDissociatedTeam = async function(t:Transaction, givenName: strin
 
 };
 
+export const getFeaturedCompetitionUrls = async function(t:Transaction, competitionNames: string[]){
+    const seasons = getSeasons();
+    const latestSeason = seasons[seasons.length - 1];
+
+    const competitionPromises = competitionNames.map(name => async () => await getCompetitionBySeason(t,name,latestSeason).catch((err:Error) => {throw err}));
+    const competitions = await Promise.all(competitionPromises.map(competitionPromise => competitionPromise())).catch((err:Error) => {throw err});
+    const urls = competitions.some(comp => comp === null) ? [] : getAllCompetitionUrlParams(competitions as CompetitionModel[], ['name','code'])
+    return urls
+
+};
+
+export const getFeaturedPlayerUrls = async function(t:Transaction, playerNames: string[][]){
+    const seasons = getSeasons();
+    const latestSeason = seasons[seasons.length - 1];
+
+    const playerPromises = playerNames.map(names => async () => await getPlayerBySeason(t,names[0],names[1],latestSeason).catch((err:Error) => {throw err}));
+    const players = await Promise.all(playerPromises.map(playerPromise => playerPromise().catch((err:Error) => {throw err})));
+    const urls = players.some(player => player === null) ? [] : getAllPlayerUrlParams(players as PlayerModel[], ['firstName','lastName','code']);
+    return urls
+
+};
+
+export const getFeaturedTeamUrls = async function(t:Transaction, teamNames: string[]){
+    const seasons = getSeasons();
+    const latestSeason = seasons[seasons.length - 1];
+
+    const teamPromises  = teamNames.map(name => async () => await getTeamBySeason(t,name,latestSeason).catch((err:Error) => {throw err}));
+    const teams = await Promise.all(teamPromises.map(teamPromise => teamPromise().catch((err:Error) => {throw err})));
+    const urls = teams.some(team => team === null) ? [] : getAllTeamUrlParams(teams as TeamModel[], ['name','code'])
+    return urls
+
+};
+
+export const getPlayerBySeason = async function(t:Transaction, givenFirstName: string, givenLastName: string, chosenSeason: string){
+    const player = await Player.findOne({
+        where: {
+            firstName: givenFirstName,
+            lastName: givenLastName
+        },
+        include: [{
+            model: Team,
+            required: true,
+            include: [{
+                model: Competition,
+                required: true,
+                through: {
+                    where: {
+                        season: chosenSeason
+                    }
+                }
+                
+            }]
+        }],
+        transaction: t
+    }).catch((err:Error)=> {throw err});
+
+    return player
+    
+};
+
+
 export const getPoints = function(competitionTeams:TeamModel[]):number[] | undefined{
     if(competitionTeams && competitionTeams.length > 0){
           const points = (competitionTeams as any[]).map(team => team['TeamsCompetitions'].getDataValue('points'));
@@ -422,9 +484,8 @@ export const getTeamBySeason = async function(t:Transaction, givenName: string, 
                 through: {
                     where: {
                         season: chosenSeason
-                }
-                
-                }
+                }            
+            }
             }],
             transaction: t
 
