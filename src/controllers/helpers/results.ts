@@ -1,3 +1,9 @@
+export interface seeHomepageResults{
+    featuredCompetitions: {name: string, url: string}[],
+    featuredPlayers: {names: string[], url:string}[],
+    featuredTeams: {name: string, url: string}[]
+}
+
 
 export interface seePlayerResults {
     firstName: string,
@@ -143,6 +149,15 @@ export interface preFormUpdateCompetitionResults extends preFormCreateCompetitio
 export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
     code?: number
 };
+
+
+export const seeHomepage = function():seeHomepageResults{
+    return{
+        featuredCompetitions: [],
+        featuredPlayers: [],
+        featuredTeams: []
+    }
+}
 
 export const preFormCreateCompetition = function():preFormCreateCompetitionResults{
     return {

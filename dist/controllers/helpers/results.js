@@ -1,12 +1,20 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seeTeam = exports.postFormUpdateTeam = exports.preFormUpdateTeam = exports.postFormCreateTeam = exports.preFormCreateTeam = exports.seePlayer = exports.postFormUpdatePlayer = exports.preFormUpdatePlayer = exports.postFormCreatePlayer = exports.preFormCreatePlayer = exports.seeCompetition = exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = void 0;
+exports.seeTeam = exports.postFormUpdateTeam = exports.preFormUpdateTeam = exports.postFormCreateTeam = exports.preFormCreateTeam = exports.seePlayer = exports.postFormUpdatePlayer = exports.preFormUpdatePlayer = exports.postFormCreatePlayer = exports.preFormCreatePlayer = exports.seeCompetition = exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeHomepage = void 0;
 ;
 ;
 ;
 ;
 ;
 ;
+const seeHomepage = function () {
+    return {
+        featuredCompetitions: [],
+        featuredPlayers: [],
+        featuredTeams: []
+    };
+};
+exports.seeHomepage = seeHomepage;
 const preFormCreateCompetition = function () {
     return {
         teams: [],
