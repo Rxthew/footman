@@ -1,13 +1,57 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title>Footman</title>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8"/>
     <meta name="viewport" content="width=device-width" initial-scale="1.0"/>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1>Express</h1>
+    <p>Welcome to Express</p>
+    <main>
+      <section>
+        <p>Featured Competitions:</p>
+        <div>
+          <%if(featuredCompetitions && featuredCompetitions.length > 0){
+              featuredCompetitions.forEach(element => {%>
+                <a href="competition/<%= element.url %>"> <%= element.name %></a>
+            <%})
+            }
+            else{%>
+              <p>No featured competitions available at the moment. Check back later.</p>
+            <%}%>
+
+        </div>
+      </section>
+      <section>
+        <p>Featured Players:</p>
+        <div>
+          <%if(featuredPlayers && featuredPlayers.length > 0){
+            featuredPlayers.forEach(element => {%>
+              <a href="player/<%= element.url %>"> <%= element.names[0]%> <%=element.names[1]%> </a>
+          <%})
+            }
+            else{%>
+              <p>No featured players available at the moment. Check back later.</p>
+            <%}%>
+        </div>
+  
+      </section>
+      <section>
+        <p>Featured Teams:</p>
+        <div>
+          <%if(featuredTeams && featuredTeams.length > 0){
+            featuredTeams.forEach(element => {%>
+              <a href="team/<%= element.url %>"> <%= element.name %></a>
+          <%})
+          }
+          else{%>
+            <p>No featured teams available at the moment. Check back later.</p>
+          <%}%>
+        </div>
+  
+      </section>
+    </main>
   </body>
 </html>
