@@ -1,13 +1,11 @@
 import express from 'express';
-import { Request, Response, NextFunction } from 'express';
+import { seeHomepage } from '../controllers/indexController';
 import { postFormCreateCompetition, postFormUpdateCompetition, preFormCreateCompetition, preFormUpdateCompetition, seeCompetition } from '../controllers/competitionController';
 import { postFormCreatePlayer, postFormUpdatePlayer, preFormCreatePlayer, preFormUpdatePlayer, seePlayer } from '../controllers/playerController';
 import { postFormCreateTeam, postFormUpdateTeam, preFormCreateTeam, preFormUpdateTeam, seeTeam } from '../controllers/teamController';
 const router = express.Router();
 
-router.get('/', function(req: Request, res: Response, next: NextFunction) {
-  res.render('index', { title: 'Express' });
-});
+router.get('/', seeHomepage);
 
 router.get('/competition/new', preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', preFormUpdateCompetition);

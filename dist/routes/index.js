@@ -4,13 +4,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const indexController_1 = require("../controllers/indexController");
 const competitionController_1 = require("../controllers/competitionController");
 const playerController_1 = require("../controllers/playerController");
 const teamController_1 = require("../controllers/teamController");
 const router = express_1.default.Router();
-router.get('/', function (req, res, next) {
-    res.render('index', { title: 'Express' });
-});
+router.get('/', indexController_1.seeHomepage);
 router.get('/competition/new', competitionController_1.preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
 router.get('/competition/:name.:code', competitionController_1.seeCompetition);
