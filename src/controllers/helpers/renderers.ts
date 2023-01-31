@@ -2,7 +2,14 @@ import { Response } from 'express';
 import * as res from "./results";
 
 
+export const seeHomepageRenderer = function(res: Response, results: res.seeHomepageResults){
+    res.render('index', {
+        featuredCompetitions: results.featuredCompetitions,
+        featuredPlayers: results.featuredPlayers,
+        featuredTeams: results.featuredTeams
+    })
 
+};
 
 export const preFormCreateCompetitionRenderer = function(res:Response, results: res.preFormCreateCompetitionResults){
         res.render('createCompetition',{

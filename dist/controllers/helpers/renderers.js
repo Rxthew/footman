@@ -1,6 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.seeTeamRenderer = exports.preFormUpdateTeamRenderer = exports.preFormCreateTeamRenderer = exports.seePlayerRenderer = exports.preFormUpdatePlayerRenderer = exports.preFormCreatePlayerRenderer = exports.seeCompetitionRenderer = exports.preFormUpdateCompetitionRenderer = exports.preFormCreateCompetitionRenderer = void 0;
+exports.seeTeamRenderer = exports.preFormUpdateTeamRenderer = exports.preFormCreateTeamRenderer = exports.seePlayerRenderer = exports.preFormUpdatePlayerRenderer = exports.preFormCreatePlayerRenderer = exports.seeCompetitionRenderer = exports.preFormUpdateCompetitionRenderer = exports.preFormCreateCompetitionRenderer = exports.seeHomepageRenderer = void 0;
+const seeHomepageRenderer = function (res, results) {
+    res.render('index', {
+        featuredCompetitions: results.featuredCompetitions,
+        featuredPlayers: results.featuredPlayers,
+        featuredTeams: results.featuredTeams
+    });
+};
+exports.seeHomepageRenderer = seeHomepageRenderer;
 const preFormCreateCompetitionRenderer = function (res, results) {
     res.render('createCompetition', {
         name: results.name,
