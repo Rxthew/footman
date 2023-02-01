@@ -44,7 +44,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
                   }).catch(function(error:Error){
                         throw error
                     });
-            const team = await (player as any)?.getTeam().catch(function(error:Error){
+            const team = await (player as any)?.getTeam({transaction: t}).catch(function(error:Error){
                   throw error
               })
             return {
@@ -280,7 +280,8 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
                               model: Competition,
                               through: {attributes: ['season']}
                         }
-                  ]
+                  ],
+                  transaction: t
             }).catch(function(error:Error){
                   throw error
               })

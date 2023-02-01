@@ -60,10 +60,10 @@ const seeTeamCb = async function (t) {
         }).catch(function (error) {
             throw error;
         });
-        const playersResults = await team?.getPlayers().catch(function (error) {
+        const playersResults = await team?.getPlayers({ transaction: t }).catch(function (error) {
             throw error;
         });
-        const competitionsResults = await team?.getCompetitions({ joinTableAttributes: ['season', 'points', 'ranking'] }).catch(function (error) {
+        const competitionsResults = await team?.getCompetitions({ joinTableAttributes: ['season', 'points', 'ranking'] }, { transaction: t }).catch(function (error) {
             throw error;
         });
         let competitions = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionNames(competitionsResults) : competitionsResults;
@@ -241,7 +241,7 @@ const preFormUpdateTeamCb = async function (t) {
         }).catch(function (error) {
             throw error;
         });
-        const teamCompetitions = team ? await team.getCompetitions()
+        const teamCompetitions = team ? await team.getCompetitions({ transaction: t })
             .catch(function (error) {
             throw error;
         }) : [];
