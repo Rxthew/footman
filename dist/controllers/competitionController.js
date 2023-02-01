@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetition = void 0;
+exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetitionIndex = exports.seeCompetition = void 0;
 const express_validator_1 = require("express-validator");
 const parameters_1 = require("./helpers/parameters");
 const queryHelpers = __importStar(require("./helpers/queries"));
@@ -36,13 +36,14 @@ const validators = __importStar(require("./helpers/validators"));
 const competition_1 = __importDefault(require("../models/competition"));
 const team_1 = __importDefault(require("../models/team"));
 require("../models/concerns/_runModels");
-const { preFormCreateCompetitionRenderer, preFormUpdateCompetitionRenderer, seeCompetitionRenderer } = renderers;
+const { preFormCreateCompetitionRenderer, preFormUpdateCompetitionRenderer, seeCompetitionRenderer, seeCompetitionIndexRenderer, } = renderers;
 const { createCompetitionValidator, updateCompetitionValidator } = validators;
 let preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
 let postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
 let preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
 let postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 let seeCompetitionResults = resultsGenerator.seeCompetition();
+let seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex();
 const transactionWrapper = queryHelpers.transactionWrapper;
 const seeCompetitionCb = async function (t) {
     const sortCompetitionData = function (teams, teamUrls, rankings, points) {
@@ -127,6 +128,67 @@ const seeCompetition = async function (req, res, next) {
     return;
 };
 exports.seeCompetition = seeCompetition;
+const seeCompetitionIndexCb = async function (t) {
+    const seeCompetitionIndexQuery = async function () {
+        const { getAllCompetitions, getAllCompetitionNames, getAllCompetitionUrlParams, getAllSeasons } = queryHelpers;
+        const allCompetitions = await getAllCompetitions(t).catch((err) => { throw err; });
+        const allCompetitionPromises = allCompetitions.map(competition => async () => { return await competition.countTeams({ transaction: t }); });
+        const teamsCount = await Promise.all(allCompetitionPromises.map(promise => promise())).catch((err) => { throw err; });
+        const associatedCompetitions = allCompetitions && allCompetitions.length > 0 ? allCompetitions.filter((c, index) => teamsCount[index] > 0) : [];
+        const seasons = getAllSeasons(associatedCompetitions, 'competition');
+        const latestSeason = seasons[seasons.length - 1];
+        const latestCompetitions = associatedCompetitions.filter(competition => competition['teams'][0]['TeamsCompetitions'].getDataValue('season') === latestSeason);
+        const names = getAllCompetitionNames(latestCompetitions);
+        const urls = getAllCompetitionUrlParams(latestCompetitions, ['name', 'code']);
+        let competitionDetails = { [latestSeason]: [] };
+        if (names.every(name => !!name) && urls.every(url => !!url) && latestSeason) {
+            const compileCompetitionDetails = function () {
+                names.forEach((compName, index) => {
+                    competitionDetails[latestSeason] = [...competitionDetails[latestSeason], { name: compName, url: urls[index] }];
+                });
+            };
+            const sortDetails = function () {
+                names.sort();
+                competitionDetails[latestSeason].sort(function (x, y) {
+                    return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1;
+                });
+            };
+            compileCompetitionDetails();
+            sortDetails();
+        }
+        return {
+            competitionDetails,
+            seasons
+        };
+    };
+    const results = await seeCompetitionIndexQuery();
+    const populateSeeCompetitionIndexResults = function () {
+        if (results.competitionDetails && results.seasons) {
+            Object.assign(seeCompetitionIndexResults, { competitionDetails: results.competitionDetails }, { seasons: results.seasons });
+        }
+        else {
+            const err = new Error('Query regarding competition index viewing returned invalid data.');
+            throw err;
+        }
+    };
+    try {
+        populateSeeCompetitionIndexResults();
+    }
+    catch (err) {
+        console.log(err);
+        const newErr = new Error('Query regarding competition index viewing returned invalid data.');
+        throw newErr;
+    }
+};
+const seeCompetitionIndex = async function (req, res, next) {
+    await transactionWrapper(seeCompetitionIndexCb, next).catch(function (error) {
+        next(error);
+    });
+    seeCompetitionIndexRenderer(res, seeCompetitionIndexResults);
+    seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex();
+    return;
+};
+exports.seeCompetitionIndex = seeCompetitionIndex;
 const preFormCreateCompetitionCb = async function (t) {
     const { getAllTeams, getSeasons, getAllTeamNames } = queryHelpers;
     const results = await getAllTeams(t).catch(function (error) {

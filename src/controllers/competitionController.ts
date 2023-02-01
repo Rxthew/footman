@@ -13,7 +13,8 @@ import '../models/concerns/_runModels';
 const { 
       preFormCreateCompetitionRenderer,
       preFormUpdateCompetitionRenderer, 
-      seeCompetitionRenderer
+      seeCompetitionRenderer,
+      seeCompetitionIndexRenderer,
 
 } = renderers;
 
@@ -24,7 +25,9 @@ let postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetitio
 let preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
 let postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 let seeCompetitionResults = resultsGenerator.seeCompetition();
+let seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex();
 const transactionWrapper = queryHelpers.transactionWrapper;
+
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
@@ -129,6 +132,92 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       seeCompetitionResults = resultsGenerator.seeCompetition();
       
       return 
+};
+
+const seeCompetitionIndexCb = async function(t:Transaction){
+
+      const seeCompetitionIndexQuery = async function(){
+            const {getAllCompetitions, getAllCompetitionNames, getAllCompetitionUrlParams, getAllSeasons} = queryHelpers;
+
+            const allCompetitions = await getAllCompetitions(t).catch((err:Error)=>{throw err});
+            const allCompetitionPromises = allCompetitions.map(competition => async()=> {return await (competition as any).countTeams({transaction: t})})
+            const teamsCount = await Promise.all(allCompetitionPromises.map(promise => promise())).catch((err:Error)=> {throw err})            
+            const associatedCompetitions = allCompetitions && allCompetitions.length > 0 ? allCompetitions.filter((c,index) => teamsCount[index] > 0) : []
+           
+            const seasons = getAllSeasons(associatedCompetitions, 'competition');
+            const latestSeason = seasons[seasons.length - 1];
+            const latestCompetitions = associatedCompetitions.filter(competition => (competition as any)['teams'][0]['TeamsCompetitions'].getDataValue('season') === latestSeason)
+
+            const names = getAllCompetitionNames(latestCompetitions);
+            const urls = getAllCompetitionUrlParams(latestCompetitions,['name','code']);
+
+
+            let competitionDetails: {[index:string]: {name: string, url: string}[]} = {[latestSeason]: []};
+
+            if(names.every(name => !!name) && urls.every(url => !!url) && latestSeason){
+
+                  const compileCompetitionDetails = function(){
+                        names.forEach((compName,index)=> {
+                              competitionDetails[latestSeason] = [...competitionDetails[latestSeason], {name: compName, url: urls[index]}]
+                        });
+                  }
+
+                  const sortDetails = function(){
+                        names.sort();                 
+                        competitionDetails[latestSeason].sort(function(x,y){
+                              return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1
+                        })
+                  }
+
+                  compileCompetitionDetails();
+                  sortDetails()
+                  
+            }
+            
+            return {
+                  competitionDetails,
+                  seasons
+            }
+      };
+
+      const results = await seeCompetitionIndexQuery()
+
+      const populateSeeCompetitionIndexResults = function(){
+            if(results.competitionDetails && results.seasons){ 
+                  Object.assign(seeCompetitionIndexResults, {competitionDetails: results.competitionDetails}, {seasons: results.seasons});
+
+            }
+            else{
+                  const err = new Error('Query regarding competition index viewing returned invalid data.');
+                  throw err;
+
+            }
+      }
+
+      try {
+           populateSeeCompetitionIndexResults()
+      }
+      catch(err){
+            console.log(err);
+            const newErr = new Error('Query regarding competition index viewing returned invalid data.');
+            throw newErr
+            
+      }
+
+
+};
+
+export const seeCompetitionIndex = async function(req:Request, res:Response, next: NextFunction):Promise<void>{
+
+      await transactionWrapper(seeCompetitionIndexCb, next).catch(function(error:Error){
+            next(error)
+        });
+
+      seeCompetitionIndexRenderer(res,seeCompetitionIndexResults);
+      seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex();
+      
+      return
+
 };
 
 const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
@@ -494,7 +583,7 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(), async
       preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
       postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
 
-}]
+}];
 
 
 
