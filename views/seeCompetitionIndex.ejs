@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Footman: Competitions</title>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
+    <meta name="viewport" content="width=device-width", initial-scale="1.0">
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1> All Competitions</h1>
+    <% if((typeof seasons !== 'undefined') && seasons.length > 0){%>
+        <main>
+            <section>
+                <select>
+                    <% for(let season of seasons){%>
+                        <option value="<%= season %>" <% if((typeof competitionDetails !== 'undefined') && season === Object.keys(competitionDetails)[0]){%> selected='true' <%}%> ><%= season %></option>
+                    <%}%>
+                </select>
+            </section>
+            <article>
+                <% if(typeof competitionDetails !== 'undefined'){
+                    let season = Object.keys(competitionDetails)[0];
+                    competitionDetails[season].forEach( (detail) =>{%>
+                        <div>
+                            <a href="/competition/<%=detail.url%>"><%= detail.name %></a>
+                        </div>
+                    <%})
+                }%>
+            </article>
+        </main>
+    <%} else {%>
+        <main>There are no competitions available at this time.</main>
+
+    <%}%> 
+  </body>
+</html>
