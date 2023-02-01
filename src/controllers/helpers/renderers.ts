@@ -55,6 +55,13 @@ export const seeCompetitionRenderer = function(res:Response, results: res.seeCom
         })
 };
 
+export const seeCompetitionIndexRenderer = function(res:Response, results: res.seeCompetitionIndexResults){
+        res.render('seeCompetitionIndex',{
+            competitionDetails: results.competitionDetails,
+            seasons: results.seasons
+        })
+};
+
 export const preFormCreatePlayerRenderer = function(res: Response, results: res.preFormCreatePlayerResults){
         res.render('createPlayer', {
             firstName: results.firstName,
