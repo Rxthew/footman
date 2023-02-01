@@ -328,6 +328,11 @@ const postFormUpdateTeamCb = async function (t) {
         if (postFormUpdateTeamResults.chosenCompetitions && postFormUpdateTeamResults.season) {
             await updatedTeam.setCompetitions(relevantCompetitions, { transaction: t, through: { season: chosenSeason } }).catch(function (err) { throw err; });
         }
+        else {
+            await updatedTeam.setCompetitions(null, { transaction: t }).catch(function (error) {
+                throw error;
+            });
+        }
         await updatedTeam?.save().catch(function (err) {
             throw err;
         });

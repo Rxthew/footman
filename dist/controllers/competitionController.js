@@ -420,6 +420,11 @@ const postFormUpdateCompetitionCb = async function (t) {
                 throw err;
             });
         }
+        else {
+            await updatedCompetition.setTeams(null, { transaction: t }).catch(function (error) {
+                throw error;
+            });
+        }
         await updatedCompetition?.save({ transaction: t }).catch(function (err) {
             throw err;
         });

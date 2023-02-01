@@ -531,6 +531,11 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                         throw err
                   });      
             }
+            else{
+                  await (updatedCompetition as any).setTeams(null, {transaction: t}).catch(function(error:Error){
+                        throw error
+                  })
+            }
 
             await updatedCompetition?.save({transaction: t}).catch(function(err:Error){
                   throw err
