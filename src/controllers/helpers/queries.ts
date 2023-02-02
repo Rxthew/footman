@@ -315,9 +315,11 @@ export const getAllTeamUrlParams = function(results: TeamModel[], params: ('name
     return teams
 };
 
- export const getAllTeamsWithCompetitions = function(results: TeamModel[]){
+ export const getAllTeamsWithCompetitions = async function(t:Transaction,results: TeamModel[]){
     if(results && results.length > 0){
-        const teams = results.filter( async (team) =>  await (team as any).countCompetitions() > 0);
+        const teamPromises = results.map(team => {return async() => await (team as any).countCompetitions({transaction: t})})
+        const competitionCounts = await Promise.all(teamPromises.map(promise => promise())).catch((err:Error)=>{throw err})
+        const teams = results.filter((t,index) => competitionCounts[index] > 0);
         return teams
     }
     return []
@@ -369,7 +371,10 @@ export const getDissociatedCompetition = async function(t:Transaction,givenName:
             transaction: t
         }).catch(function(error:Error){throw error})
 
-        const dissociated =  competitions.filter(async (competition) => await (competition as any).countTeams() === 0)
+            const competitionPromises = competitions && competitions.length > 0 ? competitions.map(competition => async() => {return await (competition as any).countTeams({transaction: t})}) : []
+            const teamsCount = competitionPromises.length > 0 ? await Promise.all(competitionPromises.map(promise => promise())).catch((err:Error)=> {throw err}) : competitionPromises 
+
+        const dissociated =  competitions.filter((c,index) => teamsCount[index] === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
 };
@@ -390,7 +395,10 @@ export const getDissociatedTeam = async function(t:Transaction, givenName: strin
             throw error
         })
 
-        const dissociated = teams.filter(async (team) => await (team as any).countCompetitions() === 0)
+        const teamPromises = teams && teams.length > 0 ? teams.map(team => async()=>{return await (team as any).countCompetitions({transaction: t})}) : [];
+        const competitionsCount = teamPromises.length > 0 ? await Promise.all(teamPromises.map(promise => promise())).catch((err:Error)=> {throw err}) : teamPromises
+
+        const dissociated = teams.filter((t,index)=> competitionsCount[index] === 0)
         return dissociated.length > 0 ? dissociated[0] : null
 
 };
@@ -499,7 +507,7 @@ export const getTeamBySeason = async function(t:Transaction, givenName: string, 
 
 
 export const getSeasons = function(){
-        return ['2021/22']
+        return ['2020/21','2021/22']
 };
 
 export const getTeamSeason = function(teamsCompetitions:CompetitionModel[]):string | undefined{

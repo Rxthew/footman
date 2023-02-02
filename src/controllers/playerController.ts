@@ -112,9 +112,9 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
             throw error
         })
 
-      const populatePreFormCreatePlayer = function(){
+      const populatePreFormCreatePlayer = async function(){
             if(results){
-                  const associatedTeams = getAllTeamsWithCompetitions(results);
+                  const associatedTeams = await getAllTeamsWithCompetitions(t,results);
                   const teams = getAllTeamNames(associatedTeams);
                   const seasons = getAllSeasons(results, 'team'); 
                   Object.assign(preFormCreatePlayerResults, {teams: teams}, {seasons: seasons});                 
@@ -127,7 +127,7 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
       }
 
       try {
-           populatePreFormCreatePlayer()
+           await populatePreFormCreatePlayer()
       }
       catch(err){
             console.log(err);
@@ -260,7 +260,7 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
             throw error
         })
       
-      const allAssociatedTeams = getAllTeamsWithCompetitions(allTeams);
+      const allAssociatedTeams = await getAllTeamsWithCompetitions(t,allTeams);
 
       const updatePlayerQuery = async function(){
             const parameters = playerParameterPlaceholder().parameters

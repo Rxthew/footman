@@ -249,9 +249,11 @@ const getAllTeams = async function (t) {
     return teams;
 };
 exports.getAllTeams = getAllTeams;
-const getAllTeamsWithCompetitions = function (results) {
+const getAllTeamsWithCompetitions = async function (t, results) {
     if (results && results.length > 0) {
-        const teams = results.filter(async (team) => await team.countCompetitions() > 0);
+        const teamPromises = results.map(team => { return async () => await team.countCompetitions({ transaction: t }); });
+        const competitionCounts = await Promise.all(teamPromises.map(promise => promise())).catch((err) => { throw err; });
+        const teams = results.filter((t, index) => competitionCounts[index] > 0);
         return teams;
     }
     return [];
@@ -297,7 +299,9 @@ const getDissociatedCompetition = async function (t, givenName) {
             }],
         transaction: t
     }).catch(function (error) { throw error; });
-    const dissociated = competitions.filter(async (competition) => await competition.countTeams() === 0);
+    const competitionPromises = competitions && competitions.length > 0 ? competitions.map(competition => async () => { return await competition.countTeams({ transaction: t }); }) : [];
+    const teamsCount = competitionPromises.length > 0 ? await Promise.all(competitionPromises.map(promise => promise())).catch((err) => { throw err; }) : competitionPromises;
+    const dissociated = competitions.filter((c, index) => teamsCount[index] === 0);
     return dissociated.length > 0 ? dissociated[0] : null;
 };
 exports.getDissociatedCompetition = getDissociatedCompetition;
@@ -316,7 +320,9 @@ const getDissociatedTeam = async function (t, givenName) {
     }).catch(function (error) {
         throw error;
     });
-    const dissociated = teams.filter(async (team) => await team.countCompetitions() === 0);
+    const teamPromises = teams && teams.length > 0 ? teams.map(team => async () => { return await team.countCompetitions({ transaction: t }); }) : [];
+    const competitionsCount = teamPromises.length > 0 ? await Promise.all(teamPromises.map(promise => promise())).catch((err) => { throw err; }) : teamPromises;
+    const dissociated = teams.filter((t, index) => competitionsCount[index] === 0);
     return dissociated.length > 0 ? dissociated[0] : null;
 };
 exports.getDissociatedTeam = getDissociatedTeam;
@@ -407,7 +413,7 @@ const getTeamBySeason = async function (t, givenName, chosenSeason) {
 };
 exports.getTeamBySeason = getTeamBySeason;
 const getSeasons = function () {
-    return ['2021/22'];
+    return ['2020/21', '2021/22'];
 };
 exports.getSeasons = getSeasons;
 const getTeamSeason = function (teamsCompetitions) {
