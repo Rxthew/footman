@@ -1,3 +1,7 @@
+export interface competitionDataResults {
+    [index:string]: {name: string, url: string}[]
+}
+
 export interface seeHomepageResults{
     featuredCompetitions: {name: string, url: string}[],
     featuredPlayers: {names: string[], url:string}[],
@@ -156,6 +160,9 @@ export interface postFormUpdateCompetitionResults extends postFormCreateCompetit
     code?: number
 };
 
+export const competitionData = function():competitionDataResults{
+    return {}
+};
 
 export const seeHomepage = function():seeHomepageResults{
     return{

@@ -1,8 +1,9 @@
 import express from 'express';
 import { seeHomepage } from '../controllers/indexController';
-import { postFormCreateCompetition, postFormUpdateCompetition, preFormCreateCompetition, preFormUpdateCompetition, seeCompetition, seeCompetitionIndex } from '../controllers/competitionController';
+import { competitionIndexData, postFormCreateCompetition, postFormUpdateCompetition, preFormCreateCompetition, preFormUpdateCompetition, seeCompetition, seeCompetitionIndex } from '../controllers/competitionController';
 import { postFormCreatePlayer, postFormUpdatePlayer, preFormCreatePlayer, preFormUpdatePlayer, seePlayer } from '../controllers/playerController';
 import { postFormCreateTeam, postFormUpdateTeam, preFormCreateTeam, preFormUpdateTeam, seeTeam } from '../controllers/teamController';
+
 const router = express.Router();
 
 router.get('/', seeHomepage);
@@ -10,7 +11,8 @@ router.get('/', seeHomepage);
 router.get('/competition/new', preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', preFormUpdateCompetition);
 router.get('/competition/:name.:code', seeCompetition);
-router.get('/competition/index',seeCompetitionIndex)
+router.get('/competition/data',competitionIndexData);
+router.get('/competition/index',seeCompetitionIndex);
 router.post('/competition/new', postFormCreateCompetition);
 router.put('/competition/:name.:code/edit', postFormUpdateCompetition);
 

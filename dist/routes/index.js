@@ -13,6 +13,7 @@ router.get('/', indexController_1.seeHomepage);
 router.get('/competition/new', competitionController_1.preFormCreateCompetition);
 router.get('/competition/:name.:code/edit', competitionController_1.preFormUpdateCompetition);
 router.get('/competition/:name.:code', competitionController_1.seeCompetition);
+router.get('/competition/data', competitionController_1.competitionIndexData);
 router.get('/competition/index', competitionController_1.seeCompetitionIndex);
 router.post('/competition/new', competitionController_1.postFormCreateCompetition);
 router.put('/competition/:name.:code/edit', competitionController_1.postFormUpdateCompetition);
