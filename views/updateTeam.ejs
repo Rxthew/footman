@@ -31,11 +31,12 @@
         </div>
         <div>
             <label for="season">Seasons:</label>
-            <select id="season" name="season">
+            <select id="season" name="season" <% if(typeof season !== 'undefined'){ %> disabled= true <%}%>>
                 <% for(let single_season of seasons){ %>
                     <option value="<%= single_season %>" <% if( (typeof season !== 'undefined') && season === single_season){%> selected=true <%}%>><%= single_season %></option>
                 <%}%>
             </select>
+            <% if(typeof season !== 'undefined'){ %> <input type="hidden" name="season" value="<%= season %>"> <%}%>
         </div>
         <footer>
             <button type="submit">Submit Updated Team</button>
