@@ -39,11 +39,11 @@ require("../models/concerns/_runModels");
 const competition_1 = __importDefault(require("../models/competition"));
 const { preFormCreatePlayerRenderer, preFormUpdatePlayerRenderer, seePlayerRenderer } = renderers;
 const { submitPlayerValidator } = validators;
-let seePlayerResults = resultsGenerator.seePlayer();
-let preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
-let postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
-let preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
-let postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
+let seePlayerResults = null;
+let preFormCreatePlayerResults = null;
+let postFormCreatePlayerResults = null;
+let preFormUpdatePlayerResults = null;
+let postFormUpdatePlayerResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
 const seePlayerCb = async function (t) {
     const seePlayerQuery = async function () {
@@ -71,6 +71,7 @@ const seePlayerCb = async function (t) {
     });
     const populateSeePlayerResults = function () {
         if (results.player) {
+            seePlayerResults = resultsGenerator.seePlayer();
             Object.assign(seePlayerResults, results.player.get());
             if (results.team) {
                 const url = queryHelpers.getAllTeamUrlParams([results.team], ['name', 'code'])[0];
@@ -100,7 +101,7 @@ const seePlayer = async function (req, res, next) {
     });
     seePlayerRenderer(res, seePlayerResults);
     (0, parameters_1.playerParameterPlaceholder)().reset();
-    seePlayerResults = resultsGenerator.seePlayer();
+    seePlayerResults = null;
     return;
 };
 exports.seePlayer = seePlayer;
@@ -111,6 +112,7 @@ const preFormCreatePlayerCb = async function (t) {
     });
     const populatePreFormCreatePlayer = async function () {
         if (results) {
+            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             const associatedTeams = await getAllTeamsWithCompetitions(t, results);
             const teams = getAllTeamNames(associatedTeams);
             const seasons = getAllSeasons(results, 'team');
@@ -136,12 +138,14 @@ const preFormCreatePlayer = async function (req, res, next) {
         next(error);
     });
     preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
-    preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
+    preFormCreatePlayerResults = null;
     return;
 };
 exports.preFormCreatePlayer = preFormCreatePlayer;
 const postFormCreatePlayerCb = async function (t) {
+    postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
     const getTeam = async function () {
+        postFormCreatePlayerResults = postFormCreatePlayerResults;
         const team = await team_1.default.findOne({
             where: {
                 name: postFormCreatePlayerResults.team,
@@ -162,6 +166,7 @@ const postFormCreatePlayerCb = async function (t) {
         return team;
     };
     const createPlayer = async function () {
+        postFormCreatePlayerResults = postFormCreatePlayerResults;
         const playerParameters = { ...postFormCreatePlayerResults };
         Object.assign(playerParameters, { team: undefined }, { season: undefined });
         const newPlayer = await player_1.default.create({
@@ -184,6 +189,7 @@ const postFormCreatePlayerCb = async function (t) {
 };
 exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
         const goToPlayerPage = async function () {
+            postFormCreatePlayerResults = postFormCreatePlayerResults;
             try {
                 const latestCode = await player_1.default.max('code').catch(function (error) {
                     throw error;
@@ -204,10 +210,12 @@ exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req,
             await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
                 next(error);
             });
+            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             Object.assign(preFormCreatePlayerResults, { errors: errors.mapped() }, req.body);
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
         }
         else {
+            postFormCreatePlayerResults = postFormCreatePlayerResults;
             Object.assign(postFormCreatePlayerResults, req.body);
             await transactionWrapper(postFormCreatePlayerCb, next).catch(function (error) {
                 next(error);
@@ -216,8 +224,8 @@ exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req,
                 next(error);
             });
         }
-        preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
-        postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
+        preFormCreatePlayerResults = null;
+        postFormCreatePlayerResults = null;
     }];
 const preFormUpdatePlayerCb = async function (t) {
     const { getAllTeams, getAllTeamsWithCompetitions, getAllTeamNames, getAllSeasons, getTeamSeason } = queryHelpers;
@@ -264,6 +272,7 @@ const preFormUpdatePlayerCb = async function (t) {
     });
     const populatePreFormUpdatePlayer = function () {
         if (results.player && results.teams && results.seasons) {
+            preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
             Object.assign(preFormUpdatePlayerResults, results.player.get(), { teams: results.teams }, { seasons: results.seasons });
             if (results.team && results.season) {
                 Object.assign(preFormUpdatePlayerResults, { team: results.team.getDataValue('name') }, { season: results.season });
@@ -291,12 +300,14 @@ const preFormUpdatePlayer = async function (req, res, next) {
     });
     preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
     (0, parameters_1.playerParameterPlaceholder)().reset();
-    preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
+    preFormUpdatePlayerResults = null;
     return;
 };
 exports.preFormUpdatePlayer = preFormUpdatePlayer;
 const postFormUpdatePlayerCb = async function (t) {
+    postFormUpdatePlayerResults = resultsGenerator.postFormUpdatePlayer();
     const getTeam = async function () {
+        postFormUpdatePlayerResults = postFormUpdatePlayerResults;
         const team = await team_1.default.findOne({
             where: {
                 name: postFormUpdatePlayerResults.team,
@@ -317,6 +328,7 @@ const postFormUpdatePlayerCb = async function (t) {
         return team;
     };
     const getPlayer = async function () {
+        postFormUpdatePlayerResults = postFormUpdatePlayerResults;
         const { firstName, lastName, code } = postFormUpdatePlayerResults;
         const player = await player_1.default.findOne({
             where: {
@@ -331,6 +343,7 @@ const postFormUpdatePlayerCb = async function (t) {
         return player;
     };
     const updatePlayer = async function () {
+        postFormUpdatePlayerResults = postFormUpdatePlayerResults;
         const playerParameters = { ...postFormUpdatePlayerResults };
         Object.assign(playerParameters, { team: undefined }, { season: undefined });
         const update = await player_1.default.update({
@@ -358,6 +371,7 @@ const postFormUpdatePlayerCb = async function (t) {
     });
 };
 exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
+        postFormUpdatePlayerResults = postFormUpdatePlayerResults;
         (0, parameters_1.getPlayerParameters)(req, next);
         Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
         const errors = (0, express_validator_1.validationResult)(req);
@@ -365,6 +379,7 @@ exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req,
             await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
                 next(error);
             });
+            preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
             Object.assign(preFormUpdatePlayerResults, req.body, { errors: errors.mapped() });
             preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
         }
@@ -377,6 +392,6 @@ exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req,
             res.redirect(`/player/${firstName}.${lastName}.${code}`);
         }
         (0, parameters_1.playerParameterPlaceholder)().reset();
-        preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
-        postFormUpdatePlayerResults = resultsGenerator.postFormCreatePlayer();
+        preFormUpdatePlayerResults = null;
+        postFormUpdatePlayerResults = null;
     }];

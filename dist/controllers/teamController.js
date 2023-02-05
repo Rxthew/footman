@@ -38,11 +38,11 @@ require("../models/concerns/_runModels");
 const competition_1 = __importDefault(require("../models/competition"));
 const { preFormCreateTeamRenderer, preFormUpdateTeamRenderer, seeTeamRenderer } = renderers;
 const { createTeamValidator, updateTeamValidator } = validators;
-let preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
-let postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
-let preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
-let postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
-let seeTeamResults = resultsGenerator.seeTeam();
+let preFormCreateTeamResults = null;
+let postFormCreateTeamResults = null;
+let preFormUpdateTeamResults = null;
+let postFormUpdateTeamResults = null;
+let seeTeamResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
 const seeTeamCb = async function (t) {
     const { getAllCompetitionNames, getAllCompetitionUrlParams, getAllPlayerUrlParams } = queryHelpers;
@@ -85,6 +85,7 @@ const seeTeamCb = async function (t) {
     });
     const populateSeeTeamResults = function () {
         if (results.team && results.players && results.competitions) {
+            seeTeamResults = resultsGenerator.seeTeam();
             Object.assign(seeTeamResults, results.team.get(), { players: results.players }, { competitions: results.competitions }, { competitionUrls: results.competitionUrls }, { playerUrls: results.playerUrls });
         }
         else {
@@ -109,7 +110,7 @@ const seeTeam = async function (req, res, next) {
     });
     seeTeamRenderer(res, seeTeamResults);
     (0, parameters_1.teamParameterPlaceholder)().reset();
-    seeTeamResults = resultsGenerator.seeTeam();
+    seeTeamResults = null;
     return;
 };
 exports.seeTeam = seeTeam;
@@ -121,6 +122,7 @@ const preFormCreateTeamCb = async function (t) {
     });
     const populatePreFormCreateTeam = function () {
         if (results) {
+            preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
             const competitions = getAllCompetitionNames(results);
             Object.assign(preFormCreateTeamResults, { competitions: competitions }, { seasons: getAllSeasons() });
         }
@@ -144,11 +146,12 @@ const preFormCreateTeam = async function (req, res, next) {
         next(error);
     });
     preFormCreateTeamRenderer(res, preFormCreateTeamResults);
-    preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+    preFormCreateTeamResults = null;
 };
 exports.preFormCreateTeam = preFormCreateTeam;
 const postFormCreateTeamCb = async function (t) {
     const { nextCompetitionTemplate } = queryHelpers;
+    postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
     const getRelevantCompetitions = async function () {
         let competitionPromises = [];
         const competitionNames = postFormCreateTeamResults.chosenCompetitions;
@@ -208,6 +211,7 @@ exports.postFormCreateTeam = [...createTeamValidator(), async function (req, res
             await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
                 next(error);
             });
+            preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
             Object.assign(preFormCreateTeamResults, { errors: errors.mapped() }, req.body);
             preFormCreateTeamRenderer(res, preFormCreateTeamResults);
         }
@@ -220,8 +224,8 @@ exports.postFormCreateTeam = [...createTeamValidator(), async function (req, res
                 next(error);
             });
         }
-        preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
-        postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
+        preFormCreateTeamResults = null;
+        postFormCreateTeamResults = null;
     }];
 const preFormUpdateTeamCb = async function (t) {
     const { getAllCompetitions, getAllCompetitionNames, getTeamSeason } = queryHelpers;
@@ -259,6 +263,7 @@ const preFormUpdateTeamCb = async function (t) {
     });
     const populatePreFormUpdateTeam = function () {
         if (results.team) {
+            preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
             Object.assign(preFormUpdateTeamResults, results.team.get(), { competitions: results.competitionNames }, { chosenCompetitions: results.chosenCompetitions }, { season: results.season }, { seasons: getSeasons() });
         }
         else {
@@ -283,12 +288,13 @@ const preFormUpdateTeam = async function (req, res, next) {
     });
     preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
     (0, parameters_1.teamParameterPlaceholder)().reset();
-    preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
+    preFormUpdateTeamResults = null;
     return;
 };
 exports.preFormUpdateTeam = preFormUpdateTeam;
 const postFormUpdateTeamCb = async function (t) {
     const { nextCompetitionTemplate } = queryHelpers;
+    postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
     const getRelevantCompetitions = async function () {
         let competitionPromises = [];
         const competitionNames = postFormUpdateTeamResults.chosenCompetitions;
@@ -325,6 +331,7 @@ const postFormUpdateTeamCb = async function (t) {
             transaction: t
         }).catch(function (err) { throw err; });
         updatedTeam?.set({ ...teamParameters });
+        postFormUpdateTeamResults = postFormUpdateTeamResults;
         if (postFormUpdateTeamResults.chosenCompetitions && postFormUpdateTeamResults.season) {
             await updatedTeam.setCompetitions(relevantCompetitions, { transaction: t, through: { season: chosenSeason } }).catch(function (err) { throw err; });
         }
@@ -348,6 +355,7 @@ exports.postFormUpdateTeam = [...updateTeamValidator(), async function (req, res
             await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
                 next(err);
             });
+            preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
             Object.assign(preFormUpdateTeamResults, req.body, { errors: errors.mapped() });
             preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
         }
