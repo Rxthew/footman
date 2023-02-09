@@ -22,17 +22,18 @@ let dataIndexContainer: dataIndexObj = {
     data: null
 }; 
 
-const sendCompetitionSignals = function(eventObject: eventObjectType, eventKey: string | number, eventObjectParams:{[index:string] : ( any | any[])} | undefined){
+export const sendCompetitionSignals = async function(eventObject: eventObjectType, eventKey: string | number, eventObjectParams:{[index:string] : ( any | any[])} | undefined){
     if(eventObjectParams){
           const params = eventObjectParams;
           if(params[eventKey] && eventObject[eventKey]){
                 if(Array.isArray(eventObject[eventKey])){
-                      const chosenFunctions = eventObject[eventKey] as ((...args:any[]) =>any)[];
-                      chosenFunctions.map((fn,index) => fn(...params[eventKey].indexOf(index)));
+                      const chosenFunctions = eventObject[eventKey] as ((...args:any[]) =>  any)[];
+                      const chosenFunctionsPromises = chosenFunctions.map((fn,index) => async () => await fn(...params[eventKey].indexOf(index)));
+                      await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err:Error){throw err});
                 }
                 else {
-                      const chosenFunction = eventObject[eventKey] as (...args:any[])=>any;
-                      chosenFunction(...params[eventKey])
+                      const chosenFunction = eventObject[eventKey] as (...args:any[]) => any;
+                      (async () => await chosenFunction(...params[eventKey]).catch(function(err:Error){throw err}))()
                 }
           }
 
@@ -41,11 +42,13 @@ const sendCompetitionSignals = function(eventObject: eventObjectType, eventKey: 
     else{
           if(Array.isArray(eventObject[eventKey])){
                 const chosenFunctions = eventObject[eventKey] as (() =>any)[];
-                chosenFunctions.map((fn) => fn());
+                const chosenFunctionsPromises = chosenFunctions.map((fn) => async() => await fn());
+                await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err){throw err})
+                
           }
           else{
                 const chosenFunction = eventObject[eventKey] as ()=>any;
-                chosenFunction();
+                (async () => await chosenFunction().catch(function(err:Error){throw err}))()
           }
     }
 
