@@ -41,6 +41,30 @@ let seeCompetitionIndexResults: resultsGenerator.seeCompetitionIndexResults | nu
 
 const transactionWrapper = queryHelpers.transactionWrapper; 
 
+const competitionIndexSignal = function(req:Request, res:Response, next: NextFunction){
+      
+      const newIndexData = async function(){
+
+            const generateData = async function(){  
+                  await transactionWrapper(competitionIndexDataCb,next).catch((err:Error)=>{throw err});
+                  writeIndexData(competitionDataResults)
+
+            };
+            
+            const nullifyData = function(){
+                  competitionDataResults = null;
+            };
+
+            await generateData();
+            nullifyData()
+      }
+
+      const eventObject = {'competitionIndex': newIndexData}
+      sendCompetitionSignals(eventObject,'competitionIndex',undefined)
+
+}
+
+
 const competitionIndexDataCb = async function(t:Transaction){
    
     const competitionIndexDataQuery = async function(){
