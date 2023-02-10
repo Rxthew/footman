@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import { getCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
+import * as misc from './helpers/misc';
 import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
@@ -12,6 +13,14 @@ import '../models/concerns/_runModels';
 
 
 
+const { 
+      hashIndexData, 
+      readHashedIndexData, 
+      readIndexData,
+      sendCompetitionSignals,
+      writeHashedIndexData, 
+      writeIndexData
+} = misc;
 const { 
       preFormCreateCompetitionRenderer,
       preFormUpdateCompetitionRenderer, 
@@ -29,8 +38,8 @@ let preFormUpdateCompetitionResults: resultsGenerator.preFormUpdateCompetitionRe
 let postFormUpdateCompetitionResults: resultsGenerator.postFormUpdateCompetitionResults | null = null;
 let seeCompetitionResults: resultsGenerator.seeCompetitionResults | null = null;
 let seeCompetitionIndexResults: resultsGenerator.seeCompetitionIndexResults | null = null;
-const transactionWrapper = queryHelpers.transactionWrapper;
 
+const transactionWrapper = queryHelpers.transactionWrapper; 
 
 const competitionIndexDataCb = async function(t:Transaction){
    
@@ -55,20 +64,30 @@ const competitionIndexDataCb = async function(t:Transaction){
 
           if(names.every(name => !!name) && urls.every(url => !!url) && seasons.every(season => !!season)){
 
-                const compileCompetitionData = function(){
-                      if(seasons.length > 0){
-                              seasons.forEach((seasonName,index)=> {
-                                    competitionData[seasonName as string] = [];
-                                    competitionData[seasonName as string] = [...competitionData[seasonName as string], {
-                                    name: names[index],
-                                    url: urls[index]
-                                    }]
-                              });
-                      }
-                      
-                }
+            const sortDetails = function(seasonName:string){
+                  let namesCopy: string[] | null = [...names]
+                  namesCopy.sort();                 
+                  competitionData[seasonName].sort(function(x,y){
+                        return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1
+                  });
+                  namesCopy = null;
+            };   
 
-                compileCompetitionData()
+            const compileCompetitionData = function(){
+                  if(seasons.length > 0){
+                        seasons.forEach((seasonName,index)=> {
+                              competitionData[seasonName as string] = [];
+                              competitionData[seasonName as string] = [...competitionData[seasonName as string], {
+                              name: names[index],
+                              url: urls[index]
+                              }]
+                              sortDetails(seasonName as string)                              
+                        });
+                  }
+                  
+            };
+
+            compileCompetitionData();
           }
           
           return competitionData
@@ -77,7 +96,7 @@ const competitionIndexDataCb = async function(t:Transaction){
     const results = await competitionIndexDataQuery().catch((err:Error)=> {throw err});
     if(results){
             competitionDataResults = resultsGenerator.competitionData();
-            Object.assign(competitionDataResults, results)
+            Object.assign(competitionDataResults, results);
     }    
 
 };
@@ -204,58 +223,94 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       return 
 };
 
-const seeCompetitionIndexCb = async function(t:Transaction){
+const seeCompetitionIndexCb =  async function(t:Transaction){
 
-      const seeCompetitionIndexQuery = async function(){
-            const {getAllCompetitions, getAllCompetitionNames, getAllCompetitionUrlParams, getAllSeasons} = queryHelpers;
+      const competitionIndexDataProcessor = function(currentData: resultsGenerator.competitionDataResults){
 
-            const allCompetitions = await getAllCompetitions(t).catch((err:Error)=>{throw err});
-            const allCompetitionPromises = allCompetitions.map(competition => async()=> {return await (competition as any).countTeams({transaction: t})})
-            const teamsCount = await Promise.all(allCompetitionPromises.map(promise => promise())).catch((err:Error)=> {throw err})            
-            const associatedCompetitions = allCompetitions && allCompetitions.length > 0 ? allCompetitions.filter((c,index) => teamsCount[index] > 0) : []
-           
-            const seasons = getAllSeasons(associatedCompetitions, 'competition');
-            const latestSeason = seasons[seasons.length - 1];
-            const latestCompetitions = associatedCompetitions.filter(competition => (competition as any)['teams'][0]['TeamsCompetitions'].getDataValue('season') === latestSeason)
+            const generateSeasons = function(){
+                  const seasons = Object.keys(currentData);
+                  return seasons
+            };
 
-            const names = getAllCompetitionNames(latestCompetitions);
-            const urls = getAllCompetitionUrlParams(latestCompetitions,['name','code']);
+            const generateCompetitionDetails = function(){
+                  const seasons = generateSeasons();
+                  const latestSeason = seasons[seasons.length -1];
+                  const latestCompetitions = currentData[latestSeason];
+                  return {[latestSeason]: latestCompetitions}
 
+            };
 
-            let competitionDetails: {[index:string]: {name: string, url: string}[]} = {[latestSeason]: []};
+            const nullifyIndexData = function(){
+                  writeIndexData(null);
+            };
 
-            if(names.every(name => !!name) && urls.every(url => !!url) && latestSeason){
-
-                  const compileCompetitionDetails = function(){
-                        names.forEach((compName,index)=> {
-                              competitionDetails[latestSeason] = [...competitionDetails[latestSeason], {name: compName, url: urls[index]}]
-                        });
-                  }
-
-                  const sortDetails = function(){
-                        names.sort();                 
-                        competitionDetails[latestSeason].sort(function(x,y){
-                              return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1
-                        })
-                  }
-
-                  compileCompetitionDetails();
-                  sortDetails()
-                  
+            const generateHashes = function(){
+                  const hashed = hashIndexData(currentData)
+                  writeHashedIndexData(hashed)
             }
-            
-            return {
-                  competitionDetails,
-                  seasons
-            }
+
+            generateHashes();
+
+            const data = {
+                  seasons: generateSeasons(),
+                  competitionDetails: generateCompetitionDetails(),
+                  hashes: readHashedIndexData()
+            };
+
+            nullifyIndexData();
+            return data
       };
 
+      const passCurrentData = function<dataType>(currentHashes:{[index:string]:string}, currentData:dataType){
+            const seasons = Object.keys(currentHashes); 
+            return {
+                  seasons: seasons,
+                  competitionDetails: currentData,
+                  hashes: currentHashes,
+
+            }
+
+      };     
+
+      const newCompetitionIndexData = async function(){
+
+            const generateData = async function(){
+                  await competitionIndexDataCb(t).catch((err:Error)=>{throw err});
+                  writeIndexData(competitionDataResults)
+
+            };
+            
+            const nullifyData = function(){
+                  competitionDataResults = null;
+            };
+
+            await generateData();
+            const data = competitionIndexDataProcessor(competitionDataResults as resultsGenerator.competitionDataResults);
+            nullifyData()
+
+            return data
+      };
+
+
+      const seeCompetitionIndexQuery = async function(){
+            
+            const currentData = readIndexData();
+            const currentHashes = readHashedIndexData();
+
+
+            switch(true){
+                  case !!(currentData): return competitionIndexDataProcessor(currentData);
+                  case !!(currentHashes): return passCurrentData(currentHashes,currentData);
+                  default: return await newCompetitionIndexData();
+            }
+            
+      };
       const results = await seeCompetitionIndexQuery()
 
       const populateSeeCompetitionIndexResults = function(){
-            if(results.competitionDetails && results.seasons){
+            if(results.competitionDetails || results.hashes){
                   seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex() 
-                  Object.assign(seeCompetitionIndexResults, {competitionDetails: results.competitionDetails}, {seasons: results.seasons});
+                  Object.assign(seeCompetitionIndexResults, {competitionDetails: results.competitionDetails}, {seasons: results.seasons}, {hashes: results.hashes});
 
             }
             else{
@@ -290,7 +345,7 @@ export const seeCompetitionIndex = async function(req:Request, res:Response, nex
       return
 
 };
-
+ 
 const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       const {getAllTeams,getSeasons, getAllTeamNames} = queryHelpers;
@@ -665,6 +720,12 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(), async
       postFormUpdateCompetitionResults = null;
 
 }];
+
+export const setIndexDataCache = function(req:Request,res:Response,next:NextFunction){
+      res.set('Cache-Control', 'public, max-age=31536000, immutable');
+      next();
+
+};
 
 
 
