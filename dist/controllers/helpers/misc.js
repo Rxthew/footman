@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeHashedIndexData = exports.writeIndexData = exports.readHashedIndexData = exports.readIndexData = exports.hashIndexData = exports.sendCompetitionSignals = void 0;
+exports.writeHashedIndexData = exports.writeIndexData = exports.readHashedIndexData = exports.readIndexData = exports.hashIndexData = exports.sendCompetitionSignals = exports.dataIndexContainer = void 0;
 const crypto_1 = require("crypto");
 ;
 ;
 ;
-let dataIndexContainer = {
+exports.dataIndexContainer = {
     hashes: null,
     data: null
 };
@@ -43,8 +43,8 @@ const indexHandler = {
         return obj[prop];
     },
     set(obj, prop, value) {
-        if (typeof obj[prop] === 'string' || typeof obj[prop] === null) {
-            dataIndexContainer = Object.assign({}, obj, { [prop]: value });
+        if (typeof obj[prop] === 'string' || obj[prop] === null) {
+            exports.dataIndexContainer = Object.assign({}, obj, { [prop]: value });
             return true;
         }
         else {
@@ -59,13 +59,13 @@ const hashIndexData = function (parsedIndexData) {
         const hash = (0, crypto_1.createHash)('sha256');
         hash.update(JSON.stringify(parsedIndexData[season]));
         const hashedValue = hash.digest('base64');
-        Object.assign(hashes, { season: hashedValue });
+        Object.assign(hashes, { [season]: hashedValue });
     }
     const stringifiedHashes = JSON.stringify(hashes);
     return stringifiedHashes;
 };
 exports.hashIndexData = hashIndexData;
-const readIndexData = function (dataIndex = dataIndexContainer, handler = indexHandler) {
+const readIndexData = function (dataIndex = exports.dataIndexContainer, handler = indexHandler) {
     const indexData = new Proxy(dataIndex, handler);
     const { data } = indexData;
     if (data) {
@@ -74,7 +74,7 @@ const readIndexData = function (dataIndex = dataIndexContainer, handler = indexH
     }
 };
 exports.readIndexData = readIndexData;
-const readHashedIndexData = function (dataIndex = dataIndexContainer, handler = indexHandler) {
+const readHashedIndexData = function (dataIndex = exports.dataIndexContainer, handler = indexHandler) {
     const indexData = new Proxy(dataIndex, handler);
     const { hashes } = indexData;
     if (hashes) {
@@ -83,13 +83,13 @@ const readHashedIndexData = function (dataIndex = dataIndexContainer, handler = 
     }
 };
 exports.readHashedIndexData = readHashedIndexData;
-const writeIndexData = function (newData, dataIndex = dataIndexContainer, handler = indexHandler) {
+const writeIndexData = function (newData, dataIndex = exports.dataIndexContainer, handler = indexHandler) {
     const indexData = new Proxy(dataIndex, handler);
     indexData.data = newData ? JSON.stringify(newData) : newData;
     return dataIndex;
 };
 exports.writeIndexData = writeIndexData;
-const writeHashedIndexData = function (stringifiedHashes, dataIndex = dataIndexContainer, handler = indexHandler) {
+const writeHashedIndexData = function (stringifiedHashes, dataIndex = exports.dataIndexContainer, handler = indexHandler) {
     const indexData = new Proxy(dataIndex, handler);
     indexData.hashes = stringifiedHashes;
     return dataIndex;

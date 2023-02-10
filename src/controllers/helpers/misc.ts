@@ -1,6 +1,7 @@
 import { competitionDataResults } from './results';
 import { createHash } from 'crypto';
 
+
 interface eventObjectType {
     [index:string] : ((...args:any[]) => any) | ((...args:any[]) =>any)[] 
 
@@ -60,7 +61,7 @@ const indexHandler:dataIndexHandler = {
 
     },
     set(obj:dataIndexObj, prop: keyof dataIndexObj, value: null | string){        
-          if(typeof obj[prop] === 'string' || typeof obj[prop] === null){
+          if(typeof obj[prop] === 'string' || obj[prop] === null){
                 dataIndexContainer = Object.assign({}, obj, {[prop]: value});
                 return true
           }
@@ -73,13 +74,22 @@ const indexHandler:dataIndexHandler = {
 };
 
 export const hashIndexData = function(parsedIndexData: competitionDataResults){
+
+    const _sanitiseHashString = function(hashString: string){
+       const hashStringArray = hashString.split('');
+       const noDelimiterArray = hashStringArray.filter(character => character !== '.' && character !== '/');
+       const sanitised = noDelimiterArray.join('');
+       return sanitised
+    }  
+
     const seasons = Object.keys(parsedIndexData);
     const hashes = {};
     for (let season of seasons){
           const hash = createHash('sha256');
           hash.update(JSON.stringify(parsedIndexData[season]));
           const hashedValue = hash.digest('base64');
-          Object.assign(hashes, {season: hashedValue});
+          const sanitisedValue = _sanitiseHashString(hashedValue)
+          Object.assign(hashes, {[season]: sanitisedValue});
     }
     const stringifiedHashes = JSON.stringify(hashes);
     return stringifiedHashes
@@ -117,3 +127,4 @@ export const writeHashedIndexData = function(stringifiedHashes:string | null, da
     indexData.hashes = stringifiedHashes
     return dataIndex
 }
+
