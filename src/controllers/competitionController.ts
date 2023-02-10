@@ -41,7 +41,7 @@ let seeCompetitionIndexResults: resultsGenerator.seeCompetitionIndexResults | nu
 
 const transactionWrapper = queryHelpers.transactionWrapper; 
 
-const competitionIndexSignal = function(req:Request, res:Response, next: NextFunction){
+const competitionIndexSignal = async function(req:Request, res:Response, next: NextFunction){
       
       const newIndexData = async function(){
 
@@ -57,10 +57,11 @@ const competitionIndexSignal = function(req:Request, res:Response, next: NextFun
 
             await generateData();
             nullifyData()
-      }
+      };
 
-      const eventObject = {'competitionIndex': newIndexData}
-      sendCompetitionSignals(eventObject,'competitionIndex',undefined)
+      const eventObject = {'competitionIndex': newIndexData};
+      await sendCompetitionSignals(eventObject,'competitionIndex',undefined);
+      next();
 
 }
 
@@ -489,24 +490,9 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
 
 };
 
-export const postFormCreateCompetition = [...createCompetitionValidator(), async function(req:Request, res:Response, next:NextFunction):Promise<void>{
-
-      const goToCompetitionPage = async function(){
-            try{
-            const latestCode = await Competition.max('code').catch(function(error:Error){
-                  throw error
-              });
-            const competitionName = (postFormCreateCompetitionResults as resultsGenerator.postFormCreateCompetitionResults).name;
-            
-            res.redirect(`/competition/${competitionName}.${latestCode}`)
-            }
-            catch(err){
-                  if(err){
-                        console.log(err)
-                        return next(err)
-                  }
-            }
-      }
+export const postFormCreateCompetition = [...createCompetitionValidator(), 
+      
+      async function(req:Request, res:Response, next:NextFunction):Promise<void>{
                 
       const errors = validationResult(req);
 
@@ -523,16 +509,45 @@ export const postFormCreateCompetition = [...createCompetitionValidator(), async
             await transactionWrapper(postFormCreateCompetitionCb,next).catch(function(error:Error){
                   next(error)
               });
-            await goToCompetitionPage().catch(function(error:Error){
-                  next(error) 
-              }) 
-            
+
+            next()
+            return  
       }
 
       preFormCreateCompetitionResults = null;
       postFormCreateCompetitionResults = null;
 
-}]
+      },
+
+      competitionIndexSignal,
+
+      async (req:Request,res:Response, next:NextFunction) => {
+
+            const goToCompetitionPage = async function(){
+                  try {
+                        const latestCode = await Competition.max('code').catch(function(error:Error){
+                              throw error
+                        });
+                        const competitionName = (postFormCreateCompetitionResults as resultsGenerator.postFormCreateCompetitionResults).name;
+                        
+                        res.redirect(`/competition/${competitionName}.${latestCode}`)
+                  }
+                  catch(err){
+                        if(err){
+                              console.log(err)
+                              return next(err)
+                        }
+                  }
+            }
+
+            await goToCompetitionPage().catch(function(error:Error){
+                  next(error) 
+            })
+
+            preFormCreateCompetitionResults = null;
+            postFormCreateCompetitionResults = null;
+      }
+]
 
 const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
@@ -699,8 +714,6 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
       }
             
-
-
       const latestCompetition = await updateCompetition().catch(function(err:Error){
             throw err;
       });
@@ -713,43 +726,66 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
 
 };
 
-export const postFormUpdateCompetition = [...updateCompetitionValidator(), async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+export const postFormUpdateCompetition = [...updateCompetitionValidator(), 
+      
+      async function(req:Request,res:Response,next:NextFunction):Promise<void>{
 
-      getCompetitionParameters(req,next);
-      const errors = validationResult(req);
+            getCompetitionParameters(req,next);
+            const errors = validationResult(req);
 
-      if(!errors.isEmpty()){
+            if(!errors.isEmpty()){
 
-            await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function(err){
-                  next(err)
-            });
-            preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
-            Object.assign(preFormUpdateCompetitionResults, req.body, {errors: errors.mapped()});
-            preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);       
+                  await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function(err){
+                        next(err)
+                  });
+                  preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
+                  Object.assign(preFormUpdateCompetitionResults, req.body, {errors: errors.mapped()});
+                  preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);       
 
+            }
+            else{
+                  Object.assign((postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults), req.body);
+                  await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function(error:Error){
+                        next(error)
+                        
+                  });
+
+                  next();
+                  return
+
+
+            }
+
+            competitionParameterPlaceholder().reset();
+            preFormUpdateCompetitionResults = null;
+            postFormUpdateCompetitionResults = null;
+
+      },
+
+      competitionIndexSignal,
+
+      async (req:Request,res:Response, next:NextFunction) => {
+
+            const goToCompetitionPage = function(){
+                  const [name,code] = [(postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults).name, req.params.code];
+                  res.redirect(`/competition/${name}.${code}`);
+            }
+
+            goToCompetitionPage()
+
+            competitionParameterPlaceholder().reset(); 
+            preFormCreateCompetitionResults = null;
+            postFormCreateCompetitionResults = null;
       }
-      else{
-            Object.assign((postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults), req.body);
-            await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function(error:Error){
-                  next(error)
-                  
-              });
-            const [name,code] = [(postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults).name, req.params.code];
-            res.redirect(`/competition/${name}.${code}`);
 
-      }
-
-      competitionParameterPlaceholder().reset();
-      preFormUpdateCompetitionResults = null;
-      postFormUpdateCompetitionResults = null;
-
-}];
+];
 
 export const setIndexDataCache = function(req:Request,res:Response,next:NextFunction){
       res.set('Cache-Control', 'public, max-age=31536000, immutable');
       next();
 
 };
+
 
 
 

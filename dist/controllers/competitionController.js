@@ -26,9 +26,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetitionIndex = exports.seeCompetition = exports.competitionIndexData = void 0;
+exports.setIndexDataCache = exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetitionIndex = exports.seeCompetition = exports.competitionIndexData = void 0;
 const express_validator_1 = require("express-validator");
 const parameters_1 = require("./helpers/parameters");
+const misc = __importStar(require("./helpers/misc"));
 const queryHelpers = __importStar(require("./helpers/queries"));
 const renderers = __importStar(require("./helpers/renderers"));
 const resultsGenerator = __importStar(require("./helpers/results"));
@@ -36,6 +37,7 @@ const validators = __importStar(require("./helpers/validators"));
 const competition_1 = __importDefault(require("../models/competition"));
 const team_1 = __importDefault(require("../models/team"));
 require("../models/concerns/_runModels");
+const { hashIndexData, readHashedIndexData, readIndexData, sendCompetitionSignals, writeHashedIndexData, writeIndexData } = misc;
 const { preFormCreateCompetitionRenderer, preFormUpdateCompetitionRenderer, seeCompetitionRenderer, seeCompetitionIndexRenderer, } = renderers;
 const { createCompetitionValidator, updateCompetitionValidator } = validators;
 let competitionDataResults = null;
@@ -46,6 +48,22 @@ let postFormUpdateCompetitionResults = null;
 let seeCompetitionResults = null;
 let seeCompetitionIndexResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
+const competitionIndexSignal = async function (req, res, next) {
+    const newIndexData = async function () {
+        const generateData = async function () {
+            await transactionWrapper(competitionIndexDataCb, next).catch((err) => { throw err; });
+            writeIndexData(competitionDataResults);
+        };
+        const nullifyData = function () {
+            competitionDataResults = null;
+        };
+        await generateData();
+        nullifyData();
+    };
+    const eventObject = { 'competitionIndex': newIndexData };
+    await sendCompetitionSignals(eventObject, 'competitionIndex', undefined);
+    next();
+};
 const competitionIndexDataCb = async function (t) {
     const competitionIndexDataQuery = async function () {
         const { getAllCompetitions, getAllCompetitionUrlParams, getCompetitionSeason } = queryHelpers;
@@ -60,6 +78,14 @@ const competitionIndexDataCb = async function (t) {
         const urls = getAllCompetitionUrlParams(associatedCompetitions, ['name', 'code']);
         let competitionData = {};
         if (names.every(name => !!name) && urls.every(url => !!url) && seasons.every(season => !!season)) {
+            const sortDetails = function (seasonName) {
+                let namesCopy = [...names];
+                namesCopy.sort();
+                competitionData[seasonName].sort(function (x, y) {
+                    return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1;
+                });
+                namesCopy = null;
+            };
             const compileCompetitionData = function () {
                 if (seasons.length > 0) {
                     seasons.forEach((seasonName, index) => {
@@ -68,6 +94,7 @@ const competitionIndexDataCb = async function (t) {
                                 name: names[index],
                                 url: urls[index]
                             }];
+                        sortDetails(seasonName);
                     });
                 }
             };
@@ -173,43 +200,68 @@ const seeCompetition = async function (req, res, next) {
 };
 exports.seeCompetition = seeCompetition;
 const seeCompetitionIndexCb = async function (t) {
-    const seeCompetitionIndexQuery = async function () {
-        const { getAllCompetitions, getAllCompetitionNames, getAllCompetitionUrlParams, getAllSeasons } = queryHelpers;
-        const allCompetitions = await getAllCompetitions(t).catch((err) => { throw err; });
-        const allCompetitionPromises = allCompetitions.map(competition => async () => { return await competition.countTeams({ transaction: t }); });
-        const teamsCount = await Promise.all(allCompetitionPromises.map(promise => promise())).catch((err) => { throw err; });
-        const associatedCompetitions = allCompetitions && allCompetitions.length > 0 ? allCompetitions.filter((c, index) => teamsCount[index] > 0) : [];
-        const seasons = getAllSeasons(associatedCompetitions, 'competition');
-        const latestSeason = seasons[seasons.length - 1];
-        const latestCompetitions = associatedCompetitions.filter(competition => competition['teams'][0]['TeamsCompetitions'].getDataValue('season') === latestSeason);
-        const names = getAllCompetitionNames(latestCompetitions);
-        const urls = getAllCompetitionUrlParams(latestCompetitions, ['name', 'code']);
-        let competitionDetails = { [latestSeason]: [] };
-        if (names.every(name => !!name) && urls.every(url => !!url) && latestSeason) {
-            const compileCompetitionDetails = function () {
-                names.forEach((compName, index) => {
-                    competitionDetails[latestSeason] = [...competitionDetails[latestSeason], { name: compName, url: urls[index] }];
-                });
-            };
-            const sortDetails = function () {
-                names.sort();
-                competitionDetails[latestSeason].sort(function (x, y) {
-                    return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1;
-                });
-            };
-            compileCompetitionDetails();
-            sortDetails();
-        }
-        return {
-            competitionDetails,
-            seasons
+    const competitionIndexDataProcessor = function (currentData) {
+        const generateSeasons = function () {
+            const seasons = Object.keys(currentData);
+            return seasons;
         };
+        const generateCompetitionDetails = function () {
+            const seasons = generateSeasons();
+            const latestSeason = seasons[seasons.length - 1];
+            const latestCompetitions = currentData[latestSeason];
+            return { [latestSeason]: latestCompetitions };
+        };
+        const nullifyIndexData = function () {
+            writeIndexData(null);
+        };
+        const generateHashes = function () {
+            const hashed = hashIndexData(currentData);
+            writeHashedIndexData(hashed);
+        };
+        generateHashes();
+        const data = {
+            seasons: generateSeasons(),
+            competitionDetails: generateCompetitionDetails(),
+            hashes: readHashedIndexData()
+        };
+        nullifyIndexData();
+        return data;
+    };
+    const passCurrentData = function (currentHashes, currentData) {
+        const seasons = Object.keys(currentHashes);
+        return {
+            seasons: seasons,
+            competitionDetails: currentData,
+            hashes: currentHashes,
+        };
+    };
+    const newCompetitionIndexData = async function () {
+        const generateData = async function () {
+            await competitionIndexDataCb(t).catch((err) => { throw err; });
+            writeIndexData(competitionDataResults);
+        };
+        const nullifyData = function () {
+            competitionDataResults = null;
+        };
+        await generateData();
+        const data = competitionIndexDataProcessor(competitionDataResults);
+        nullifyData();
+        return data;
+    };
+    const seeCompetitionIndexQuery = async function () {
+        const currentData = readIndexData();
+        const currentHashes = readHashedIndexData();
+        switch (true) {
+            case !!(currentData): return competitionIndexDataProcessor(currentData);
+            case !!(currentHashes): return passCurrentData(currentHashes, currentData);
+            default: return await newCompetitionIndexData();
+        }
     };
     const results = await seeCompetitionIndexQuery();
     const populateSeeCompetitionIndexResults = function () {
-        if (results.competitionDetails && results.seasons) {
+        if (results.competitionDetails || results.hashes) {
             seeCompetitionIndexResults = resultsGenerator.seeCompetitionIndex();
-            Object.assign(seeCompetitionIndexResults, { competitionDetails: results.competitionDetails }, { seasons: results.seasons });
+            Object.assign(seeCompetitionIndexResults, { competitionDetails: results.competitionDetails }, { seasons: results.seasons }, { hashes: results.hashes });
         }
         else {
             const err = new Error('Query regarding competition index viewing returned invalid data.');
@@ -320,7 +372,30 @@ const postFormCreateCompetitionCb = async function (t) {
         throw err;
     });
 };
-exports.postFormCreateCompetition = [...createCompetitionValidator(), async function (req, res, next) {
+exports.postFormCreateCompetition = [...createCompetitionValidator(),
+    async function (req, res, next) {
+        const errors = (0, express_validator_1.validationResult)(req);
+        if (!errors.isEmpty()) {
+            await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
+                next(error);
+            });
+            preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
+            Object.assign(preFormCreateCompetitionResults, { errors: errors.mapped() }, req.body);
+            preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+        }
+        else {
+            Object.assign(postFormCreateCompetitionResults, req.body);
+            await transactionWrapper(postFormCreateCompetitionCb, next).catch(function (error) {
+                next(error);
+            });
+            next();
+            return;
+        }
+        preFormCreateCompetitionResults = null;
+        postFormCreateCompetitionResults = null;
+    },
+    competitionIndexSignal,
+    async (req, res, next) => {
         const goToCompetitionPage = async function () {
             try {
                 const latestCode = await competition_1.default.max('code').catch(function (error) {
@@ -336,27 +411,13 @@ exports.postFormCreateCompetition = [...createCompetitionValidator(), async func
                 }
             }
         };
-        const errors = (0, express_validator_1.validationResult)(req);
-        if (!errors.isEmpty()) {
-            await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
-                next(error);
-            });
-            preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
-            Object.assign(preFormCreateCompetitionResults, { errors: errors.mapped() }, req.body);
-            preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
-        }
-        else {
-            Object.assign(postFormCreateCompetitionResults, req.body);
-            await transactionWrapper(postFormCreateCompetitionCb, next).catch(function (error) {
-                next(error);
-            });
-            await goToCompetitionPage().catch(function (error) {
-                next(error);
-            });
-        }
+        await goToCompetitionPage().catch(function (error) {
+            next(error);
+        });
         preFormCreateCompetitionResults = null;
         postFormCreateCompetitionResults = null;
-    }];
+    }
+];
 const preFormUpdateCompetitionCb = async function (t) {
     const { getAllTeams, getAllTeamNames, getSeasons } = queryHelpers;
     const getSeason = queryHelpers.getCompetitionSeason;
@@ -490,7 +551,8 @@ const postFormUpdateCompetitionCb = async function (t) {
         throw err;
     }) : false;
 };
-exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async function (req, res, next) {
+exports.postFormUpdateCompetition = [...updateCompetitionValidator(),
+    async function (req, res, next) {
         (0, parameters_1.getCompetitionParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
@@ -506,10 +568,27 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(), async func
             await transactionWrapper(postFormUpdateCompetitionCb, next).catch(function (error) {
                 next(error);
             });
-            const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
-            res.redirect(`/competition/${name}.${code}`);
+            next();
+            return;
         }
         (0, parameters_1.competitionParameterPlaceholder)().reset();
         preFormUpdateCompetitionResults = null;
         postFormUpdateCompetitionResults = null;
-    }];
+    },
+    competitionIndexSignal,
+    async (req, res, next) => {
+        const goToCompetitionPage = function () {
+            const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
+            res.redirect(`/competition/${name}.${code}`);
+        };
+        goToCompetitionPage();
+        (0, parameters_1.competitionParameterPlaceholder)().reset();
+        preFormCreateCompetitionResults = null;
+        postFormCreateCompetitionResults = null;
+    }
+];
+const setIndexDataCache = function (req, res, next) {
+    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+    next();
+};
+exports.setIndexDataCache = setIndexDataCache;

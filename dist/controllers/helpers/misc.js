@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeHashedIndexData = exports.writeIndexData = exports.readHashedIndexData = exports.readIndexData = exports.hashIndexData = void 0;
+exports.writeHashedIndexData = exports.writeIndexData = exports.readHashedIndexData = exports.readIndexData = exports.hashIndexData = exports.sendCompetitionSignals = void 0;
 const crypto_1 = require("crypto");
 ;
 ;
@@ -9,17 +9,18 @@ let dataIndexContainer = {
     hashes: null,
     data: null
 };
-const sendCompetitionSignals = function (eventObject, eventKey, eventObjectParams) {
+const sendCompetitionSignals = async function (eventObject, eventKey, eventObjectParams) {
     if (eventObjectParams) {
         const params = eventObjectParams;
         if (params[eventKey] && eventObject[eventKey]) {
             if (Array.isArray(eventObject[eventKey])) {
                 const chosenFunctions = eventObject[eventKey];
-                chosenFunctions.map((fn, index) => fn(...params[eventKey].indexOf(index)));
+                const chosenFunctionsPromises = chosenFunctions.map((fn, index) => async () => await fn(...params[eventKey].indexOf(index)));
+                await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function (err) { throw err; });
             }
             else {
                 const chosenFunction = eventObject[eventKey];
-                chosenFunction(...params[eventKey]);
+                (async () => await chosenFunction(...params[eventKey]).catch(function (err) { throw err; }))();
             }
         }
         return;
@@ -27,14 +28,16 @@ const sendCompetitionSignals = function (eventObject, eventKey, eventObjectParam
     else {
         if (Array.isArray(eventObject[eventKey])) {
             const chosenFunctions = eventObject[eventKey];
-            chosenFunctions.map((fn) => fn());
+            const chosenFunctionsPromises = chosenFunctions.map((fn) => async () => await fn());
+            await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function (err) { throw err; });
         }
         else {
             const chosenFunction = eventObject[eventKey];
-            chosenFunction();
+            (async () => await chosenFunction().catch(function (err) { throw err; }))();
         }
     }
 };
+exports.sendCompetitionSignals = sendCompetitionSignals;
 const indexHandler = {
     get(obj, prop) {
         return obj[prop];

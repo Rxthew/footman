@@ -66,6 +66,7 @@ exports.seeCompetition = seeCompetition;
 const seeCompetitionIndex = function () {
     return {
         competitionDetails: {},
+        hashes: {},
         seasons: []
     };
 };
