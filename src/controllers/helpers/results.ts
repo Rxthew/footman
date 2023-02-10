@@ -52,6 +52,7 @@ export interface seeCompetitionResults {
 
 export interface seeCompetitionIndexResults {
     competitionDetails: {[index: string] :{ name: string, url: string}[]},
+    hashes: {[index:string]: string},
     seasons: string[]
 };
 
@@ -213,6 +214,7 @@ export const seeCompetition = function():seeCompetitionResults{
 export const seeCompetitionIndex = function():seeCompetitionIndexResults{
     return {
         competitionDetails: {},
+        hashes: {},
         seasons: []
     }
 
