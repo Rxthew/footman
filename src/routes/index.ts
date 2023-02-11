@@ -21,7 +21,7 @@ router.put('/competition/:name.:code/edit', postFormUpdateCompetition);
 router.get('/player/new', preFormCreatePlayer);
 router.get('/player/:firstName.:lastName.:code/edit', preFormUpdatePlayer);
 router.get('/player/:firstName.:lastName.:code', seePlayer);
-router.post('/player', postFormCreatePlayer);
+router.post('/player/new', postFormCreatePlayer);
 router.put('/player/:firstName.:lastName.:code/edit', postFormUpdatePlayer);
 
 router.get('/team/new', preFormCreateTeam);

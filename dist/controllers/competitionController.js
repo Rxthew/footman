@@ -82,14 +82,16 @@ const competitionIndexDataCb = async function (t) {
                 let namesCopy = [...names];
                 namesCopy.sort();
                 competitionData[seasonName].sort(function (x, y) {
-                    return names.indexOf(x['name']) < names.indexOf(y['name']) ? -1 : 1;
+                    return namesCopy.indexOf(x['name']) < namesCopy.indexOf(y['name']) ? -1 : 1;
                 });
                 namesCopy = null;
             };
             const compileCompetitionData = function () {
                 if (seasons.length > 0) {
                     seasons.forEach((seasonName, index) => {
-                        competitionData[seasonName] = [];
+                        if (!Object.prototype.hasOwnProperty.call(competitionData, seasonName)) {
+                            competitionData[seasonName] = [];
+                        }
                         competitionData[seasonName] = [...competitionData[seasonName], {
                                 name: names[index],
                                 url: urls[index]
@@ -294,7 +296,6 @@ const preFormCreateCompetitionCb = async function (t) {
     const populatePreFormCreateCompetition = function () {
         if (results) {
             const teamNames = getAllTeamNames(results);
-            preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
             Object.assign(preFormCreateCompetitionResults, { teams: teamNames }, { seasons: getSeasons() });
         }
         else {
@@ -313,6 +314,7 @@ const preFormCreateCompetitionCb = async function (t) {
     return;
 };
 const preFormCreateCompetition = async function (req, res, next) {
+    preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
     await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
         next(error);
     });
@@ -321,7 +323,6 @@ const preFormCreateCompetition = async function (req, res, next) {
 };
 exports.preFormCreateCompetition = preFormCreateCompetition;
 const postFormCreateCompetitionCb = async function (t) {
-    postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
     const { applyPoints, applyRanking, nextTeamTemplate } = queryHelpers;
     const getRelevantTeams = async function () {
         let teamPromises = [];
@@ -374,12 +375,13 @@ const postFormCreateCompetitionCb = async function (t) {
 };
 exports.postFormCreateCompetition = [...createCompetitionValidator(),
     async function (req, res, next) {
+        postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
+        preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
                 next(error);
             });
-            preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
             Object.assign(preFormCreateCompetitionResults, { errors: errors.mapped() }, req.body);
             preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
         }
@@ -459,7 +461,6 @@ const preFormUpdateCompetitionCb = async function (t) {
     });
     const populatePreFormUpdateCompetition = function () {
         if (results.competition) {
-            preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
             Object.assign(preFormUpdateCompetitionResults, results.competition.get(), { teams: results.teamNames }, { season: results.givenSeason }, { chosenTeams: results.chosenTeams }, { seasons: getSeasons() }, { rankings: results.givenRankings }, { points: results.givenPoints });
         }
         else {
@@ -479,6 +480,7 @@ const preFormUpdateCompetitionCb = async function (t) {
 };
 const preFormUpdateCompetition = async function (req, res, next) {
     (0, parameters_1.getCompetitionParameters)(req, next);
+    preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
     await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
     preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
     (0, parameters_1.competitionParameterPlaceholder)().reset();
@@ -487,7 +489,7 @@ const preFormUpdateCompetition = async function (req, res, next) {
 exports.preFormUpdateCompetition = preFormUpdateCompetition;
 const postFormUpdateCompetitionCb = async function (t) {
     const { applyPoints, applyRanking, nextTeamTemplate } = queryHelpers;
-    postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+    postFormUpdateCompetitionResults = postFormUpdateCompetitionResults;
     const getRelevantTeams = async function () {
         let teamPromises = [];
         const teamNames = postFormUpdateCompetitionResults.chosenTeams;
@@ -555,11 +557,12 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(),
     async function (req, res, next) {
         (0, parameters_1.getCompetitionParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
+        preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
+        postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {
                 next(err);
             });
-            preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
             Object.assign(preFormUpdateCompetitionResults, req.body, { errors: errors.mapped() });
             preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
         }

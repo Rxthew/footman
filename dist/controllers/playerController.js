@@ -112,7 +112,6 @@ const preFormCreatePlayerCb = async function (t) {
     });
     const populatePreFormCreatePlayer = async function () {
         if (results) {
-            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             const associatedTeams = await getAllTeamsWithCompetitions(t, results);
             const teams = getAllTeamNames(associatedTeams);
             const seasons = getAllSeasons(results, 'team');
@@ -134,6 +133,7 @@ const preFormCreatePlayerCb = async function (t) {
     return;
 };
 const preFormCreatePlayer = async function (req, res, next) {
+    preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
     await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
         next(error);
     });
@@ -143,7 +143,6 @@ const preFormCreatePlayer = async function (req, res, next) {
 };
 exports.preFormCreatePlayer = preFormCreatePlayer;
 const postFormCreatePlayerCb = async function (t) {
-    postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
     const getTeam = async function () {
         postFormCreatePlayerResults = postFormCreatePlayerResults;
         const team = await team_1.default.findOne({
@@ -207,15 +206,15 @@ exports.postFormCreatePlayer = [...submitPlayerValidator(), async function (req,
         };
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
+            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
                 next(error);
             });
-            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             Object.assign(preFormCreatePlayerResults, { errors: errors.mapped() }, req.body);
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
         }
         else {
-            postFormCreatePlayerResults = postFormCreatePlayerResults;
+            postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
             Object.assign(postFormCreatePlayerResults, req.body);
             await transactionWrapper(postFormCreatePlayerCb, next).catch(function (error) {
                 next(error);
@@ -295,6 +294,7 @@ const preFormUpdatePlayerCb = async function (t) {
 };
 const preFormUpdatePlayer = async function (req, res, next) {
     (0, parameters_1.getPlayerParameters)(req, next);
+    preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
     await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
         next(error);
     });
@@ -305,7 +305,6 @@ const preFormUpdatePlayer = async function (req, res, next) {
 };
 exports.preFormUpdatePlayer = preFormUpdatePlayer;
 const postFormUpdatePlayerCb = async function (t) {
-    postFormUpdatePlayerResults = resultsGenerator.postFormUpdatePlayer();
     const getTeam = async function () {
         postFormUpdatePlayerResults = postFormUpdatePlayerResults;
         const team = await team_1.default.findOne({
@@ -371,7 +370,8 @@ const postFormUpdatePlayerCb = async function (t) {
     });
 };
 exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req, res, next) {
-        postFormUpdatePlayerResults = postFormUpdatePlayerResults;
+        postFormUpdatePlayerResults = resultsGenerator.postFormUpdatePlayer();
+        preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
         (0, parameters_1.getPlayerParameters)(req, next);
         Object.assign(postFormUpdatePlayerResults, { code: req.params.code });
         const errors = (0, express_validator_1.validationResult)(req);
@@ -379,7 +379,6 @@ exports.postFormUpdatePlayer = [...submitPlayerValidator(), async function (req,
             await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
                 next(error);
             });
-            preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
             Object.assign(preFormUpdatePlayerResults, req.body, { errors: errors.mapped() });
             preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
         }

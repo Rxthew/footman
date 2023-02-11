@@ -131,9 +131,8 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
       const populatePreFormCreateTeam = function(){
             if(results){
-                  preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
                   const competitions = getAllCompetitionNames(results);
-                  Object.assign(preFormCreateTeamResults,{competitions: competitions}, {seasons: getAllSeasons()});
+                  Object.assign(preFormCreateTeamResults as resultsGenerator.preFormCreateTeamResults,{competitions: competitions}, {seasons: getAllSeasons()});
             }
             else{
                   const err = new Error('Query regarding team creation returned invalid data.')
@@ -157,10 +156,11 @@ const preFormCreateTeamCb = async function(t: Transaction){
 
 export const preFormCreateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
+      preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
       await transactionWrapper(preFormCreateTeamCb,next).catch(function(error:Error){
             next(error)
         });
-      preFormCreateTeamRenderer(res, (preFormCreateTeamResults as resultsGenerator.preFormCreateTeamResults));
+      preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       preFormCreateTeamResults = null
 
 }
@@ -169,7 +169,6 @@ const postFormCreateTeamCb = async function(t:Transaction){
 
 
      const { nextCompetitionTemplate } = queryHelpers
-     postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
 
       const getRelevantCompetitions = async function(){
             let competitionPromises:(() => Promise<CompetitionModel|null>)[] = [];
@@ -224,6 +223,9 @@ const postFormCreateTeamCb = async function(t:Transaction){
 }
 
 export const postFormCreateTeam =[...createTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+
+      postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
+      preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
       
       const goToTeamPage = async function(){
             try{
@@ -247,12 +249,12 @@ export const postFormCreateTeam =[...createTeamValidator(), async function(req: 
             await transactionWrapper(preFormCreateTeamCb,next).catch(function(error:Error){
                   next(error) 
               });
-            preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+            
             Object.assign(preFormCreateTeamResults, {errors: errors.mapped()},  req.body);
             preFormCreateTeamRenderer(res, preFormCreateTeamResults);
       }
       else{
-            Object.assign((postFormCreateTeamResults as resultsGenerator.postFormCreateTeamResults), req.body);
+            Object.assign(postFormCreateTeamResults, req.body);
             await transactionWrapper(postFormCreateTeamCb,next).catch(function(error:Error){
                   next(error)
               });
@@ -316,8 +318,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 
       const populatePreFormUpdateTeam = function(){
             if(results.team){
-                  preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
-                  Object.assign(preFormUpdateTeamResults, results.team.get(), {competitions: results.competitionNames}, {chosenCompetitions: results.chosenCompetitions}, 
+                  Object.assign(preFormUpdateTeamResults as resultsGenerator.preFormUpdateTeamResults, results.team.get(), {competitions: results.competitionNames}, {chosenCompetitions: results.chosenCompetitions}, 
                   {season: results.season}, {seasons: getSeasons()}); 
             }
             else{
@@ -341,7 +342,8 @@ const preFormUpdateTeamCb = async function(t: Transaction){
 }
 
 export const preFormUpdateTeam = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-      getTeamParameters(req,next)
+      getTeamParameters(req,next);
+      preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
 
       await transactionWrapper(preFormUpdateTeamCb,next).catch(function(error:Error){
             next(error)
@@ -357,7 +359,6 @@ export const preFormUpdateTeam = async function(req: Request, res: Response, nex
 const postFormUpdateTeamCb = async function(t:Transaction){
       
       const {nextCompetitionTemplate} = queryHelpers;
-      postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
 
       const getRelevantCompetitions = async function(){
            
@@ -432,6 +433,8 @@ const postFormUpdateTeamCb = async function(t:Transaction){
 
 export const postFormUpdateTeam = [...updateTeamValidator(), async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
+      postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
+      preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
       getTeamParameters(req,next);
       const errors = validationResult(req);
 
@@ -440,7 +443,6 @@ export const postFormUpdateTeam = [...updateTeamValidator(), async function(req:
             await transactionWrapper(preFormUpdateTeamCb,next).catch(function(err){
                   next(err) 
             });
-            preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
             Object.assign(preFormUpdateTeamResults, req.body, {errors: errors.mapped()});
             preFormUpdateTeamRenderer(res,preFormUpdateTeamResults);       
 
@@ -456,8 +458,8 @@ export const postFormUpdateTeam = [...updateTeamValidator(), async function(req:
       }
 
       teamParameterPlaceholder().reset()
-      preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
-      postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
+      preFormUpdateTeamResults = null;
+      postFormUpdateTeamResults = null;
 }]
 
 

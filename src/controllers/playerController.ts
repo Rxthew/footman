@@ -115,11 +115,10 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
       const populatePreFormCreatePlayer = async function(){
             if(results){
-                  preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
                   const associatedTeams = await getAllTeamsWithCompetitions(t,results);
                   const teams = getAllTeamNames(associatedTeams);
                   const seasons = getAllSeasons(results, 'team'); 
-                  Object.assign(preFormCreatePlayerResults, {teams: teams}, {seasons: seasons});                 
+                  Object.assign((preFormCreatePlayerResults as resultsGenerator.preFormCreatePlayerResults), {teams: teams}, {seasons: seasons});                 
             }
             else{
                   const err = new Error('Query regarding player creation returned invalid data.')
@@ -142,11 +141,12 @@ const preFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
 
 export const preFormCreatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-      
+     
+      preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
       await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
             next(error)
         });
-      preFormCreatePlayerRenderer(res, preFormCreatePlayerResults as resultsGenerator.preFormCreatePlayerResults);
+      preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       preFormCreatePlayerResults = null;
 
       return
@@ -156,7 +156,7 @@ export const preFormCreatePlayer = async function(req: Request, res: Response, n
 
 const postFormCreatePlayerCb = async function(t: Transaction): Promise<void>{
 
-      postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
+      
       const getTeam = async function(){
 
             postFormCreatePlayerResults = postFormCreatePlayerResults as resultsGenerator.postFormCreatePlayerResults
@@ -236,15 +236,15 @@ export const postFormCreatePlayer = [...submitPlayerValidator(), async function(
       const errors = validationResult(req);
 
       if(!errors.isEmpty()){
+            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
                   next(error)
               });
-            preFormCreatePlayerResults = resultsGenerator.preFormCreatePlayer();
             Object.assign(preFormCreatePlayerResults, {errors: errors.mapped()}, req.body);
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
       }
       else{
-            postFormCreatePlayerResults = postFormCreatePlayerResults as resultsGenerator.postFormCreatePlayerResults
+            postFormCreatePlayerResults = resultsGenerator.postFormCreatePlayer();
             Object.assign(postFormCreatePlayerResults, req.body);
             await transactionWrapper(postFormCreatePlayerCb,next).catch(function(error:Error){
                   next(error)
@@ -342,12 +342,13 @@ const preFormUpdatePlayerCb = async function(t: Transaction){
 export const preFormUpdatePlayer = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
       getPlayerParameters(req,next);
+      preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
       
       
       await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
             next(error)
         }); 
-      preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults as resultsGenerator.preFormUpdatePlayerResults);
+      preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
       playerParameterPlaceholder().reset()
       preFormUpdatePlayerResults = null;
       
@@ -358,7 +359,6 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
 
 const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
-      postFormUpdatePlayerResults = resultsGenerator.postFormUpdatePlayer();
       const getTeam = async function(){
             postFormUpdatePlayerResults = postFormUpdatePlayerResults as resultsGenerator.postFormUpdatePlayerResults
             const team = await Team.findOne({
@@ -438,8 +438,9 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
 
 export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(req: Request, res: Response, next:NextFunction): Promise<void>{
 
-      postFormUpdatePlayerResults = postFormUpdatePlayerResults as resultsGenerator.postFormUpdatePlayerResults
-      getPlayerParameters(req,next)
+      postFormUpdatePlayerResults = resultsGenerator.postFormUpdatePlayer();
+      preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
+      getPlayerParameters(req,next);
       Object.assign(postFormUpdatePlayerResults,{code: req.params.code});
 
 
@@ -449,7 +450,6 @@ export const postFormUpdatePlayer = [...submitPlayerValidator(), async function(
             await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
                   next(error)
               });
-            preFormUpdatePlayerResults = resultsGenerator.preFormUpdatePlayer();
             Object.assign(preFormUpdatePlayerResults, req.body, {errors: errors.mapped()});
             preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
 
