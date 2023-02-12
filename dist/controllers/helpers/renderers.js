@@ -49,7 +49,8 @@ exports.seeCompetitionRenderer = seeCompetitionRenderer;
 const seeCompetitionIndexRenderer = function (res, results) {
     res.render('seeCompetitionIndex', {
         competitionDetails: results.competitionDetails,
-        seasons: results.seasons
+        seasons: results.seasons,
+        hashes: results.hashes
     });
 };
 exports.seeCompetitionIndexRenderer = seeCompetitionIndexRenderer;

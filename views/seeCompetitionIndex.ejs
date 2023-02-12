@@ -13,7 +13,8 @@
             <section>
                 <select>
                     <% for(let season of seasons){%>
-                        <option value="<%= season %>" <% if((typeof competitionDetails !== 'undefined') && season === Object.keys(competitionDetails)[0]){%> selected='true' <%}%> ><%= season %></option>
+                        <option value="<%= season %>" <% if(season === seasons[seasons.length - 1]){%> selected='true' <%} 
+                            if(typeof hashes !== 'undefined'){%> data-hash="<%= hashes[season] %>"  <%}%> ><%= season %></option>
                     <%}%>
                 </select>
             </section>
