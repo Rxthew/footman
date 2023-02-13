@@ -45,7 +45,7 @@ let teamParameters: teamParametersType = {
 const _resetPlaceholderParameters = function<T extends {}>(obj:T){
     const placeholders = Object.assign({},obj);
     const resetAttributes = function(){
-        Object.assign(obj, placeholders) 
+        Object.assign(obj, placeholders)
     }
     return resetAttributes
 };
@@ -60,7 +60,16 @@ const _syncParameters = function(placeholderObject:competitionParametersType | p
     };
 
     const _assessRequestParameters = function(req: Request, next: NextFunction,): void{
-        try {           
+        try {      
+            console.log('______________________________________________________________________________________________')
+            console.log('This is the placeholder')
+            console.log('______________________________________________________________________________________________')
+            console.log(placeholderObject)
+            console.log('______________________________________________________________________________________________')
+            console.log('This is the request object')
+            console.log('______________________________________________________________________________________________')
+            console.log(req.params)     
+            console.log('______________________________________________________________________________________________')
             let attributes = Object.assign({},placeholderObject)                     
             for(let name of Object.keys(attributes)){
                 attributes[name] = req.params[name] ? req.params[name] : attributes[name]
@@ -82,29 +91,29 @@ const _syncParameters = function(placeholderObject:competitionParametersType | p
     
 }
 
+const resetCompetitionParameters = _resetPlaceholderParameters(competitionParameters);
 export const competitionParameterPlaceholder = function(){
-    const resetCompetitionParameters = _resetPlaceholderParameters(competitionParameters);
     return {
         parameters: competitionParameters,
         reset: resetCompetitionParameters
     }
-}
+};
 
+const resetPlayerParameters = _resetPlaceholderParameters(playerParameters);
 export const playerParameterPlaceholder = function(){
-    const resetPlayerParameters = _resetPlaceholderParameters(playerParameters);
     return {
         parameters: playerParameters,
         reset: resetPlayerParameters
     }
-}
+};
 
+const resetTeamParameters = _resetPlaceholderParameters(teamParameters);
 export const teamParameterPlaceholder = function(){
-    const resetTeamParameters = _resetPlaceholderParameters(teamParameters);
     return {
         parameters: teamParameters,
         reset: resetTeamParameters
     }
-}
+};
 
 
 export const getCompetitionParameters = _syncParameters(competitionParameters);

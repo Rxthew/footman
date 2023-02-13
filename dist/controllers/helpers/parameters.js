@@ -32,6 +32,15 @@ const _syncParameters = function (placeholderObject) {
     };
     const _assessRequestParameters = function (req, next) {
         try {
+            console.log('______________________________________________________________________________________________');
+            console.log('This is the placeholder');
+            console.log('______________________________________________________________________________________________');
+            console.log(placeholderObject);
+            console.log('______________________________________________________________________________________________');
+            console.log('This is the request object');
+            console.log('______________________________________________________________________________________________');
+            console.log(req.params);
+            console.log('______________________________________________________________________________________________');
             let attributes = Object.assign({}, placeholderObject);
             for (let name of Object.keys(attributes)) {
                 attributes[name] = req.params[name] ? req.params[name] : attributes[name];
@@ -48,24 +57,24 @@ const _syncParameters = function (placeholderObject) {
         _assessRequestParameters(req, next);
     };
 };
+const resetCompetitionParameters = _resetPlaceholderParameters(competitionParameters);
 const competitionParameterPlaceholder = function () {
-    const resetCompetitionParameters = _resetPlaceholderParameters(competitionParameters);
     return {
         parameters: competitionParameters,
         reset: resetCompetitionParameters
     };
 };
 exports.competitionParameterPlaceholder = competitionParameterPlaceholder;
+const resetPlayerParameters = _resetPlaceholderParameters(playerParameters);
 const playerParameterPlaceholder = function () {
-    const resetPlayerParameters = _resetPlaceholderParameters(playerParameters);
     return {
         parameters: playerParameters,
         reset: resetPlayerParameters
     };
 };
 exports.playerParameterPlaceholder = playerParameterPlaceholder;
+const resetTeamParameters = _resetPlaceholderParameters(teamParameters);
 const teamParameterPlaceholder = function () {
-    const resetTeamParameters = _resetPlaceholderParameters(teamParameters);
     return {
         parameters: teamParameters,
         reset: resetTeamParameters
