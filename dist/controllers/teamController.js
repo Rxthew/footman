@@ -108,7 +108,10 @@ const seeTeam = async function (req, res, next) {
     await transactionWrapper(seeTeamCb, next).catch(function (error) {
         next(error);
     });
-    seeTeamRenderer(res, seeTeamResults);
+    if (seeTeamResults) {
+        seeTeamRenderer(res, seeTeamResults);
+    }
+    ;
     (0, parameters_1.teamParameterPlaceholder)().reset();
     seeTeamResults = null;
     return;
@@ -145,7 +148,10 @@ const preFormCreateTeam = async function (req, res, next) {
     await transactionWrapper(preFormCreateTeamCb, next).catch(function (error) {
         next(error);
     });
-    preFormCreateTeamRenderer(res, preFormCreateTeamResults);
+    if (preFormCreateTeamResults) {
+        preFormCreateTeamRenderer(res, preFormCreateTeamResults);
+    }
+    ;
     preFormCreateTeamResults = null;
 };
 exports.preFormCreateTeam = preFormCreateTeam;
@@ -286,7 +292,9 @@ const preFormUpdateTeam = async function (req, res, next) {
     await transactionWrapper(preFormUpdateTeamCb, next).catch(function (error) {
         next(error);
     });
-    preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
+    if (preFormUpdateTeamResults) {
+        preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
+    }
     (0, parameters_1.teamParameterPlaceholder)().reset();
     preFormUpdateTeamResults = null;
     return;

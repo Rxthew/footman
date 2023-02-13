@@ -195,7 +195,9 @@ const seeCompetition = async function (req, res, next) {
     await transactionWrapper(seeCompetitionCb, next).catch(function (error) {
         next(error);
     });
-    seeCompetitionRenderer(res, seeCompetitionResults);
+    if (seeCompetitionResults) {
+        seeCompetitionRenderer(res, seeCompetitionResults);
+    }
     (0, parameters_1.competitionParameterPlaceholder)().reset();
     seeCompetitionResults = null;
     return;
@@ -283,7 +285,9 @@ const seeCompetitionIndex = async function (req, res, next) {
     await transactionWrapper(seeCompetitionIndexCb, next).catch(function (error) {
         next(error);
     });
-    seeCompetitionIndexRenderer(res, seeCompetitionIndexResults);
+    if (seeCompetitionIndexResults) {
+        seeCompetitionIndexRenderer(res, seeCompetitionIndexResults);
+    }
     seeCompetitionIndexResults = null;
     return;
 };
@@ -318,7 +322,9 @@ const preFormCreateCompetition = async function (req, res, next) {
     await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
         next(error);
     });
-    preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+    if (preFormCreateCompetitionResults) {
+        preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+    }
     preFormCreateCompetitionResults = null;
 };
 exports.preFormCreateCompetition = preFormCreateCompetition;
@@ -482,7 +488,10 @@ const preFormUpdateCompetition = async function (req, res, next) {
     (0, parameters_1.getCompetitionParameters)(req, next);
     preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
     await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
-    preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
+    if (preFormUpdateCompetitionResults) {
+        preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
+    }
+    ;
     (0, parameters_1.competitionParameterPlaceholder)().reset();
     preFormUpdateCompetitionResults = null;
 };

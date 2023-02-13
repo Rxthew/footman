@@ -82,8 +82,9 @@ export const seeHomepage = async function(req:Request,res:Response,next:NextFunc
         next(error)
     });
 
-    
-    seeHomepageRenderer(res,seeHomepageResults);
+    if(seeHomepageResults){
+        seeHomepageRenderer(res,seeHomepageResults);
+    }
     seeHomepageResults = resultsGenerator.seeHomepage();
 
 }

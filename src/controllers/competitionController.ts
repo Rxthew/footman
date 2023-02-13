@@ -239,9 +239,11 @@ export const seeCompetition = async function(req: Request, res: Response, next: 
       
       await transactionWrapper(seeCompetitionCb,next).catch(function(error:Error){
             next(error)
-        });
+      });
 
-      seeCompetitionRenderer(res,seeCompetitionResults as resultsGenerator.seeCompetitionResults);
+      if(seeCompetitionResults){
+            seeCompetitionRenderer(res,seeCompetitionResults);
+      }
 
       competitionParameterPlaceholder().reset();
       seeCompetitionResults = null;
@@ -364,7 +366,11 @@ export const seeCompetitionIndex = async function(req:Request, res:Response, nex
             next(error)
         });
 
-      seeCompetitionIndexRenderer(res,seeCompetitionIndexResults as resultsGenerator.seeCompetitionIndexResults);
+
+      if(seeCompetitionIndexResults){
+            seeCompetitionIndexRenderer(res,seeCompetitionIndexResults);
+      }
+      
       seeCompetitionIndexResults = null;
       
       return
@@ -410,7 +416,9 @@ export const preFormCreateCompetition = async function(req: Request, res: Respon
       await transactionWrapper(preFormCreateCompetitionCb,next).catch(function(error:Error){
             next(error)
         });
-      preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults as resultsGenerator.preFormCreateCompetitionResults);
+      if(preFormCreateCompetitionResults){
+            preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+      }
       preFormCreateCompetitionResults = null;
 };
 
@@ -504,6 +512,7 @@ export const postFormCreateCompetition = [...createCompetitionValidator(),
 
             Object.assign(preFormCreateCompetitionResults, {errors: errors.mapped()}, req.body);
             preFormCreateCompetitionRenderer(res, preFormCreateCompetitionResults);
+            
       }
       else{
             Object.assign(postFormCreateCompetitionResults, req.body);
@@ -632,9 +641,10 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
       preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
 
       await transactionWrapper(preFormUpdateCompetitionCb,next).catch(function(error:Error){next(error)});
-      preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults as resultsGenerator.preFormUpdateCompetitionResults);
-   
-
+      if(preFormUpdateCompetitionResults){
+            preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
+      };
+      
       competitionParameterPlaceholder().reset();
       preFormUpdateCompetitionResults = null;
 };

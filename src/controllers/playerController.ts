@@ -96,7 +96,9 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
       await transactionWrapper(seePlayerCb,next).catch(function(error:Error){
             next(error)
         });
-      seePlayerRenderer(res,seePlayerResults as resultsGenerator.seePlayerResults);
+      if(seePlayerResults){
+            seePlayerRenderer(res,seePlayerResults);
+      };
 
       playerParameterPlaceholder().reset()
       seePlayerResults = null;
@@ -146,7 +148,9 @@ export const preFormCreatePlayer = async function(req: Request, res: Response, n
       await transactionWrapper(preFormCreatePlayerCb,next).catch(function(error:Error){
             next(error)
         });
-      preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
+      if(preFormCreatePlayerResults){
+            preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
+      };
       preFormCreatePlayerResults = null;
 
       return
@@ -347,8 +351,11 @@ export const preFormUpdatePlayer = async function(req: Request, res: Response, n
       
       await transactionWrapper(preFormUpdatePlayerCb,next).catch(function(error:Error){
             next(error)
-        }); 
-      preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
+      });
+      if(preFormUpdatePlayerResults){
+            preFormUpdatePlayerRenderer(res,preFormUpdatePlayerResults);
+      } 
+      
       playerParameterPlaceholder().reset()
       preFormUpdatePlayerResults = null;
       

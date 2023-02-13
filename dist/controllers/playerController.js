@@ -99,7 +99,10 @@ const seePlayer = async function (req, res, next) {
     await transactionWrapper(seePlayerCb, next).catch(function (error) {
         next(error);
     });
-    seePlayerRenderer(res, seePlayerResults);
+    if (seePlayerResults) {
+        seePlayerRenderer(res, seePlayerResults);
+    }
+    ;
     (0, parameters_1.playerParameterPlaceholder)().reset();
     seePlayerResults = null;
     return;
@@ -137,7 +140,10 @@ const preFormCreatePlayer = async function (req, res, next) {
     await transactionWrapper(preFormCreatePlayerCb, next).catch(function (error) {
         next(error);
     });
-    preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
+    if (preFormCreatePlayerResults) {
+        preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
+    }
+    ;
     preFormCreatePlayerResults = null;
     return;
 };
@@ -298,7 +304,9 @@ const preFormUpdatePlayer = async function (req, res, next) {
     await transactionWrapper(preFormUpdatePlayerCb, next).catch(function (error) {
         next(error);
     });
-    preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
+    if (preFormUpdatePlayerResults) {
+        preFormUpdatePlayerRenderer(res, preFormUpdatePlayerResults);
+    }
     (0, parameters_1.playerParameterPlaceholder)().reset();
     preFormUpdatePlayerResults = null;
     return;

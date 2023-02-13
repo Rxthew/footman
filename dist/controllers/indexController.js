@@ -80,7 +80,9 @@ const seeHomepage = async function (req, res, next) {
     await transactionWrapper(seeHomepageCb, next).catch(function (error) {
         next(error);
     });
-    (0, renderers_1.seeHomepageRenderer)(res, seeHomepageResults);
+    if (seeHomepageResults) {
+        (0, renderers_1.seeHomepageRenderer)(res, seeHomepageResults);
+    }
     seeHomepageResults = resultsGenerator.seeHomepage();
 };
 exports.seeHomepage = seeHomepage;
