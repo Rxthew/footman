@@ -61,15 +61,6 @@ const _syncParameters = function(placeholderObject:competitionParametersType | p
 
     const _assessRequestParameters = function(req: Request, next: NextFunction,): void{
         try {      
-            console.log('______________________________________________________________________________________________')
-            console.log('This is the placeholder')
-            console.log('______________________________________________________________________________________________')
-            console.log(placeholderObject)
-            console.log('______________________________________________________________________________________________')
-            console.log('This is the request object')
-            console.log('______________________________________________________________________________________________')
-            console.log(req.params)     
-            console.log('______________________________________________________________________________________________')
             let attributes = Object.assign({},placeholderObject)                     
             for(let name of Object.keys(attributes)){
                 attributes[name] = req.params[name] ? req.params[name] : attributes[name]

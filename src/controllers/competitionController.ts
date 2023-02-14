@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
+import axios from 'axios';
 import { getCompetitionParameters, competitionParameterPlaceholder } from './helpers/parameters';
 import * as misc from './helpers/misc';
 import * as queryHelpers from './helpers/queries';
@@ -10,6 +11,7 @@ import Competition from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
+
 
 
 
@@ -131,7 +133,7 @@ const competitionIndexDataCb = async function(t:Transaction){
 export const competitionIndexData = async function(req:Request, res:Response, next:NextFunction){
       
       await transactionWrapper(competitionIndexDataCb,next).catch(function(err:Error){throw err});
-
+      
       res.json(
             competitionDataResults
       );
@@ -290,16 +292,20 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
             return data
       };
 
-      const passCurrentData = function<dataType>(currentHashes:{[index:string]:string}, currentData:dataType){
-            const seasons = Object.keys(currentHashes); 
-            return {
-                  seasons: seasons,
-                  competitionDetails: currentData,
-                  hashes: currentHashes,
+      const getCachedData = async function(latestHash:string){
+            try{
+                  const api = axios.create({
+                        baseURL: 'http://127.0.0.1:3000'
+                  });
+                  const cachedData = await api.get(`/competition/data/${latestHash}`);
+                  const data = cachedData.data;
+                  return data
+                  }
+            catch(err){
+                  throw err
+            };
 
-            }
-
-      };     
+      };
 
       const newCompetitionIndexData = async function(){
 
@@ -315,10 +321,27 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
 
             await generateData();
             const data = competitionIndexDataProcessor(competitionDataResults as resultsGenerator.competitionDataResults);
-            nullifyData()
+            nullifyData();
 
             return data
       };
+
+
+
+      const passCurrentData = async function(currentHashes:{[index:string]:string}){
+            const seasons = Object.keys(currentHashes).sort();
+            const latestSeason = seasons[seasons.length - 1];
+            const latestHash = currentHashes[latestSeason];
+            const cachedData = await getCachedData(latestHash);
+            const currentData = {[latestSeason]: cachedData[latestSeason]};
+            return {
+                  seasons: seasons,
+                  competitionDetails: currentData,
+                  hashes: currentHashes,
+
+            }
+
+      };     
 
 
       const seeCompetitionIndexQuery = async function(){
@@ -328,7 +351,7 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
 
             switch(true){
                   case !!(currentData): return competitionIndexDataProcessor(currentData);
-                  case !!(currentHashes): return passCurrentData(currentHashes,currentData);
+                  case !!(currentHashes): return await passCurrentData(currentHashes);
                   default: return await newCompetitionIndexData();
             }
             
