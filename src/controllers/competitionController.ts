@@ -133,7 +133,7 @@ const competitionIndexDataCb = async function(t:Transaction){
 export const competitionIndexData = async function(req:Request, res:Response, next:NextFunction){
       
       await transactionWrapper(competitionIndexDataCb,next).catch(function(err:Error){throw err});
-      
+
       res.json(
             competitionDataResults
       );
@@ -292,15 +292,24 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
             return data
       };
 
+      const abortFetch = function(controller:AbortController){
+           const controllerAbort = function(){controller.abort()}
+           setTimeout(controllerAbort,10000)
+           return 
+      };
+
       const getCachedData = async function(latestHash:string){
             try{
+                  const controller = new AbortController();
                   const api = axios.create({
-                        baseURL: 'http://127.0.0.1:3000'
+                        baseURL: 'http://127.0.0.1:3000',
+                        signal: controller.signal
                   });
                   const cachedData = await api.get(`/competition/data/${latestHash}`);
                   const data = cachedData.data;
+                  abortFetch(controller);
                   return data
-                  }
+            }
             catch(err){
                   throw err
             };

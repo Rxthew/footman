@@ -232,13 +232,21 @@ const seeCompetitionIndexCb = async function (t) {
         nullifyIndexData();
         return data;
     };
+    const abortFetch = function (controller) {
+        const controllerAbort = function () { controller.abort(); };
+        setTimeout(controllerAbort, 10000);
+        return;
+    };
     const getCachedData = async function (latestHash) {
         try {
+            const controller = new AbortController();
             const api = axios_1.default.create({
-                baseURL: 'http://127.0.0.1:3000'
+                baseURL: 'http://127.0.0.1:3000',
+                signal: controller.signal
             });
             const cachedData = await api.get(`/competition/data/${latestHash}`);
             const data = cachedData.data;
+            abortFetch(controller);
             return data;
         }
         catch (err) {

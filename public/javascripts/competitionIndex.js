@@ -1,7 +1,14 @@
+const abortFetch = function(controller){
+    const controllerAbort = function(){controller.abort()}
+    setTimeout(controllerAbort,10000)
+    return 
+}
 
 const getCompetitionIndexData = async function(datahash=''){
     try{
-    const response = await fetch(`/competition/data/${datahash}`, {mode: 'cors'});
+    const controller = new AbortController();
+    const response = await fetch(`/competition/data/${datahash}`, {mode: 'cors', signal: controller.signal});
+    abortFetch(controller);
     if(response.ok){
         const indexData = response.json();
         return indexData
