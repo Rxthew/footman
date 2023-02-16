@@ -144,6 +144,52 @@ export const competitionIndexData = async function(req:Request, res:Response, ne
 
 };
 
+const deleteCompetitionCb = async function(t:Transaction):Promise<void>{
+
+      const parameters = competitionParameterPlaceholder().parameters;
+
+      const competition = await Competition.findOne({
+            where: {
+                  name: parameters.name,
+                  code: parameters.code
+            },
+            transaction: t
+            }).catch(function(error:Error){
+                  throw error
+                  });
+
+      await competition?.destroy().catch(function(error:Error){
+            throw error
+            });
+}
+
+export const deleteCompetition = [  
+
+      async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+
+      getCompetitionParameters(req,next);
+
+      await transactionWrapper(deleteCompetitionCb,next).catch(function(error:Error){
+            next(error)
+        });
+
+      },
+
+      competitionIndexSignal,
+
+      async (req:Request,res:Response, next:NextFunction) => {
+
+            const goToHomePage = function(){
+                  res.redirect('index');
+            }
+      
+            goToHomePage()
+            competitionParameterPlaceholder().reset(); 
+      
+      }
+
+]
+
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
@@ -824,6 +870,8 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(),
       }
 
 ];
+
+
 
 export const setIndexDataCache = function(req:Request,res:Response,next:NextFunction){
       res.set('Cache-Control', 'public, max-age=31536000, immutable');
