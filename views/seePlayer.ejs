@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
     <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/see.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
     <h1> <%= name %></h1>
@@ -28,5 +29,10 @@
     <p> Goalkeeping: <%= goalkeeping ? goalkeeping : 'unknown' %></p>
     <p> Intelligence: <%= intelligence ? intelligence : 'unknown' %></p>
     <p> Technique: <%= technique ? technique : 'unknown' %></p>
+    <div id="formContainer">
+      <form action="?_method=DELETE" method="POST">
+        <button type="submit">Delete Player</button>
+      </form>
+    </div>    
   </body>
 </html>

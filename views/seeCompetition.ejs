@@ -5,6 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
     <meta name="viewport" content="width=device-width", initial-scale="1.0">
     <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script src="/javascripts/see.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
     <h1> <%= name %></h1>
@@ -42,6 +43,11 @@
         <div>
             <span>No teams available at the moment.</span>
         </div>
-    <%}%> 
+    <%}%>
+    <div id="formContainer">
+      <form action="?_method=DELETE" method="POST">
+        <button type="submit">Delete Competition</button>
+      </form> 
+    </div>
   </body>
 </html>
