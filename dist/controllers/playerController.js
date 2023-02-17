@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postFormUpdatePlayer = exports.preFormUpdatePlayer = exports.postFormCreatePlayer = exports.preFormCreatePlayer = exports.seePlayer = void 0;
+exports.postFormUpdatePlayer = exports.preFormUpdatePlayer = exports.postFormCreatePlayer = exports.preFormCreatePlayer = exports.seePlayer = exports.deletePlayer = void 0;
 const express_validator_1 = require("express-validator");
 const parameters_1 = require("./helpers/parameters");
 const queryHelpers = __importStar(require("./helpers/queries"));
@@ -45,6 +45,34 @@ let postFormCreatePlayerResults = null;
 let preFormUpdatePlayerResults = null;
 let postFormUpdatePlayerResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
+const deletePlayerCb = async function (t) {
+    const parameters = (0, parameters_1.playerParameterPlaceholder)().parameters;
+    const player = await player_1.default.findOne({
+        where: {
+            firstName: parameters.firstName,
+            lastName: parameters.lastName,
+            code: parameters.code
+        },
+        transaction: t
+    }).catch(function (error) {
+        throw error;
+    });
+    await player?.destroy().catch(function (error) {
+        throw error;
+    });
+};
+const deletePlayer = async function (req, res, next) {
+    (0, parameters_1.getPlayerParameters)(req, next);
+    await transactionWrapper(deletePlayerCb, next).catch(function (error) {
+        next(error);
+    });
+    const goToHomePage = function () {
+        res.redirect('/');
+    };
+    goToHomePage();
+    (0, parameters_1.playerParameterPlaceholder)().reset();
+};
+exports.deletePlayer = deletePlayer;
 const seePlayerCb = async function (t) {
     const seePlayerQuery = async function () {
         const parameters = (0, parameters_1.playerParameterPlaceholder)().parameters;

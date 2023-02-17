@@ -29,6 +29,44 @@ let preFormUpdatePlayerResults: resultsGenerator.preFormUpdatePlayerResults | nu
 let postFormUpdatePlayerResults: resultsGenerator.postFormUpdatePlayerResults | null = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
 
+const deletePlayerCb = async function(t:Transaction):Promise<void>{
+
+      const parameters = playerParameterPlaceholder().parameters;
+
+      const player = await Player.findOne({
+            where: {
+                  firstName: parameters.firstName,
+                  lastName: parameters.lastName,
+                  code: parameters.code
+            },
+            transaction: t
+            }).catch(function(error:Error){
+                  throw error
+                  });
+
+      await player?.destroy().catch(function(error:Error){
+            throw error
+            });
+};
+
+export const deletePlayer = async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+
+      getPlayerParameters(req,next);
+
+      await transactionWrapper(deletePlayerCb,next).catch(function(error:Error){
+            next(error)
+        });
+
+      
+      const goToHomePage = function(){
+            res.redirect('/');
+      };
+
+      goToHomePage();
+      playerParameterPlaceholder().reset(); 
+
+};
+
 
 const seePlayerCb = async function (t:Transaction): Promise<void>{
       

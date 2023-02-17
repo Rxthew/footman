@@ -161,7 +161,7 @@ const deleteCompetitionCb = async function(t:Transaction):Promise<void>{
       await competition?.destroy().catch(function(error:Error){
             throw error
             });
-}
+};
 
 export const deleteCompetition = [  
 
@@ -173,6 +173,8 @@ export const deleteCompetition = [
             next(error)
         });
 
+      next();
+
       },
 
       competitionIndexSignal,
@@ -180,7 +182,8 @@ export const deleteCompetition = [
       async (req:Request,res:Response, next:NextFunction) => {
 
             const goToHomePage = function(){
-                  res.redirect('index');
+                  console.log('I am here')
+                  res.redirect('/');
             }
       
             goToHomePage()
@@ -188,7 +191,7 @@ export const deleteCompetition = [
       
       }
 
-]
+];
 
 
 const seeCompetitionCb = async function (t:Transaction): Promise<void>{

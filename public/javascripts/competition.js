@@ -53,8 +53,6 @@ const toggleCorrespondingInputs = function(event){
 }
 
 
-
-
 const togglePoints = function(event){
     if(event.target.id === 'apply_points'){
         const points = document.querySelectorAll('input[name=points]');
@@ -68,6 +66,7 @@ const togglePoints = function(event){
     }
    
 };
+
 const toggleRanking = function(event){
         if(event.target.id === 'apply_ranking' || event.target.id === 'apply_points'){
             const ranks = document.querySelectorAll('select[name=rankings]');

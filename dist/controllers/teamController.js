@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postFormUpdateTeam = exports.preFormUpdateTeam = exports.postFormCreateTeam = exports.preFormCreateTeam = exports.seeTeam = void 0;
+exports.postFormUpdateTeam = exports.preFormUpdateTeam = exports.postFormCreateTeam = exports.preFormCreateTeam = exports.seeTeam = exports.deleteTeam = void 0;
 const express_validator_1 = require("express-validator");
 const parameters_1 = require("./helpers/parameters");
 const queryHelpers = __importStar(require("./helpers/queries"));
@@ -44,6 +44,33 @@ let preFormUpdateTeamResults = null;
 let postFormUpdateTeamResults = null;
 let seeTeamResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
+const deleteTeamCb = async function (t) {
+    const parameters = (0, parameters_1.teamParameterPlaceholder)().parameters;
+    const team = await team_1.default.findOne({
+        where: {
+            name: parameters.name,
+            code: parameters.code
+        },
+        transaction: t
+    }).catch(function (error) {
+        throw error;
+    });
+    await team?.destroy().catch(function (error) {
+        throw error;
+    });
+};
+const deleteTeam = async function (req, res, next) {
+    (0, parameters_1.getTeamParameters)(req, next);
+    await transactionWrapper(deleteTeamCb, next).catch(function (error) {
+        next(error);
+    });
+    const goToHomePage = function () {
+        res.redirect('/');
+    };
+    goToHomePage();
+    (0, parameters_1.teamParameterPlaceholder)().reset();
+};
+exports.deleteTeam = deleteTeam;
 const seeTeamCb = async function (t) {
     const { getAllCompetitionNames, getAllCompetitionUrlParams, getAllPlayerUrlParams } = queryHelpers;
     const seeTeamQuery = async function () {

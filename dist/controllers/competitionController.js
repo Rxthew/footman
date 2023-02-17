@@ -26,7 +26,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setIndexDataCache = exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetitionIndex = exports.seeCompetition = exports.competitionIndexData = void 0;
+exports.setIndexDataCache = exports.postFormUpdateCompetition = exports.preFormUpdateCompetition = exports.postFormCreateCompetition = exports.preFormCreateCompetition = exports.seeCompetitionIndex = exports.seeCompetition = exports.deleteCompetition = exports.competitionIndexData = void 0;
 const express_validator_1 = require("express-validator");
 const axios_1 = __importDefault(require("axios"));
 const parameters_1 = require("./helpers/parameters");
@@ -118,6 +118,39 @@ const competitionIndexData = async function (req, res, next) {
     return;
 };
 exports.competitionIndexData = competitionIndexData;
+const deleteCompetitionCb = async function (t) {
+    const parameters = (0, parameters_1.competitionParameterPlaceholder)().parameters;
+    const competition = await competition_1.default.findOne({
+        where: {
+            name: parameters.name,
+            code: parameters.code
+        },
+        transaction: t
+    }).catch(function (error) {
+        throw error;
+    });
+    await competition?.destroy().catch(function (error) {
+        throw error;
+    });
+};
+exports.deleteCompetition = [
+    async function (req, res, next) {
+        (0, parameters_1.getCompetitionParameters)(req, next);
+        await transactionWrapper(deleteCompetitionCb, next).catch(function (error) {
+            next(error);
+        });
+        next();
+    },
+    competitionIndexSignal,
+    async (req, res, next) => {
+        const goToHomePage = function () {
+            console.log('I am here');
+            res.redirect('/');
+        };
+        goToHomePage();
+        (0, parameters_1.competitionParameterPlaceholder)().reset();
+    }
+];
 const seeCompetitionCb = async function (t) {
     const sortCompetitionData = function (teams, teamUrls, rankings, points) {
         if (rankings && rankings.length > 0) {

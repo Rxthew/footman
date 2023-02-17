@@ -29,6 +29,43 @@ let postFormUpdateTeamResults:resultsGenerator.postFormUpdateTeamResults | null 
 let seeTeamResults:resultsGenerator.seeTeamResults | null = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
 
+const deleteTeamCb = async function(t:Transaction):Promise<void>{
+
+      const parameters = teamParameterPlaceholder().parameters;
+
+      const team = await Team.findOne({
+            where: {
+                  name: parameters.name,
+                  code: parameters.code
+            },
+            transaction: t
+            }).catch(function(error:Error){
+                  throw error
+                  });
+
+      await team?.destroy().catch(function(error:Error){
+            throw error
+            });
+};
+
+export const deleteTeam = async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+
+      getTeamParameters(req,next);
+
+      await transactionWrapper(deleteTeamCb,next).catch(function(error:Error){
+            next(error)
+        });
+
+      
+      const goToHomePage = function(){
+            res.redirect('/');
+      };
+
+      goToHomePage();
+      teamParameterPlaceholder().reset(); 
+
+};
+
 const seeTeamCb = async function (t:Transaction): Promise<void>{
 
       
