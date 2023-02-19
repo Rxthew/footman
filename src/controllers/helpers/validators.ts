@@ -1,6 +1,7 @@
 import { Request } from 'express';
 import { body } from 'express-validator';
 import { Op } from 'sequelize';
+import { sequentialRankings } from './misc';
 import  Competition  from '../../models/competition';
 import  Team  from '../../models/team';
 
@@ -171,43 +172,6 @@ const _sanitiseString = function(stringsArray: string[], person:boolean=false){
     return sanitisers
 };
 
-const _sequentialRankings = function(valuesArray: string[] | undefined){
-    if(valuesArray){
-        const rankings = valuesArray.map(value => parseInt(value));
-        if(rankings.some(value => value > rankings.length)){
-
-            const mapOldToNewValues = function(){
-                const rankChange = new Map();
-                const orderedRankings = [...rankings].sort(function(x,y){
-                    return x > y ? 1 : -1
-                });
-                for(let largest = rankings.length; largest > 0; largest--){
-                    rankChange.set(orderedRankings.pop(),largest)
-                }
-                return rankChange
-            };
-            
-            const produceNewRankings = function(valuesMap: Map<number,number>){
-                let newRankings:(number | undefined)[] = [];
-                for(let index = 0;index < rankings.length;index++){
-                    newRankings = [...newRankings, valuesMap.get(rankings[index])]
-                } 
-                const newStringRanks = newRankings.map(ranking => ranking?.toString())
-                return newStringRanks
-            };
-
-            const oldToNewValuesMap = mapOldToNewValues();
-            return produceNewRankings(oldToNewValuesMap);
-            
-        }
-
-        return rankings
-
-    }
-    
-    
-};
-
 
 const _teamSeasonCheck = async function(reference:string,req:Request,keysArray: string[]){
     const givenName = reference;
@@ -316,7 +280,7 @@ export const createCompetitionValidator = () => {
     body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
     body('points').custom(_validateEmptyInput),
     body('rankings').custom(_uniqueRankings),
-    body('rankings').customSanitizer(_sequentialRankings),
+    body('rankings').customSanitizer(sequentialRankings),
     ]
 };
 
@@ -329,7 +293,7 @@ export const updateCompetitionValidator = () => {
     body(['chosenTeams','points','rankings']).customSanitizer(_arrayCheck),
     body('points').custom(_validateEmptyInput),
     body('rankings').custom(_uniqueRankings),
-    body('rankings').customSanitizer(_sequentialRankings),
+    body('rankings').customSanitizer(sequentialRankings),
     ]
 }
 

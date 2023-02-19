@@ -23,37 +23,6 @@ let dataIndexContainer: dataIndexObj = {
     data: null
 }; 
 
-export const sendCompetitionSignals = async function(eventObject: eventObjectType, eventKey: string | number, eventObjectParams:{[index:string] : ( any | any[])} | undefined){
-    if(eventObjectParams){
-          const params = eventObjectParams;
-          if(params[eventKey] && eventObject[eventKey]){
-                if(Array.isArray(eventObject[eventKey])){
-                      const chosenFunctions = eventObject[eventKey] as ((...args:any[]) =>  any)[];
-                      const chosenFunctionsPromises = chosenFunctions.map((fn,index) => async () => await fn(...params[eventKey].indexOf(index)));
-                      await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err:Error){throw err});
-                }
-                else {
-                      const chosenFunction = eventObject[eventKey] as (...args:any[]) => any;
-                      (async () => await chosenFunction(...params[eventKey]).catch(function(err:Error){throw err}))()
-                }
-          }
-
-          return
-    }
-    else{
-          if(Array.isArray(eventObject[eventKey])){
-                const chosenFunctions = eventObject[eventKey] as (() =>any)[];
-                const chosenFunctionsPromises = chosenFunctions.map((fn) => async() => await fn());
-                await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err){throw err})
-                
-          }
-          else{
-                const chosenFunction = eventObject[eventKey] as ()=>any;
-                (async () => await chosenFunction().catch(function(err:Error){throw err}))()
-          }
-    }
-
-};
 
 const indexHandler:dataIndexHandler = {
     get(obj:dataIndexObj,prop:keyof dataIndexObj){
@@ -115,6 +84,76 @@ export const readHashedIndexData = function(dataIndex:dataIndexObj=dataIndexCont
     }
 
 };
+
+export const sequentialRankings = function(valuesArray: string[] | undefined){
+      if(valuesArray){
+          const rankings = valuesArray.map(value => parseInt(value));
+          if(rankings.some(value => value > rankings.length)){
+  
+              const mapOldToNewValues = function(){
+                  const rankChange = new Map();
+                  const orderedRankings = [...rankings].sort(function(x,y){
+                      return x > y ? 1 : -1
+                  });
+                  for(let largest = rankings.length; largest > 0; largest--){
+                      rankChange.set(orderedRankings.pop(),largest)
+                  }
+                  return rankChange
+              };
+              
+              const produceNewRankings = function(valuesMap: Map<number,number>){
+                  let newRankings:(number | undefined)[] = [];
+                  for(let index = 0;index < rankings.length;index++){
+                      newRankings = [...newRankings, valuesMap.get(rankings[index])]
+                  } 
+                  const newStringRanks = newRankings.map(ranking => ranking?.toString())
+                  return newStringRanks
+              };
+  
+              const oldToNewValuesMap = mapOldToNewValues();
+              return produceNewRankings(oldToNewValuesMap);
+              
+          }
+  
+          return rankings
+  
+      }
+      
+      
+  };
+
+  export const sendCompetitionSignals = async function(eventObject: eventObjectType, eventKey: string | number, eventObjectParams:{[index:string] : ( any | any[])} | undefined){
+      if(eventObjectParams){
+            const params = eventObjectParams;
+            if(params[eventKey] && eventObject[eventKey]){
+                  if(Array.isArray(eventObject[eventKey])){
+                        const chosenFunctions = eventObject[eventKey] as ((...args:any[]) =>  any)[];
+                        const chosenFunctionsPromises = chosenFunctions.map((fn,index) => async () => await fn(...params[eventKey].indexOf(index)));
+                        await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err:Error){throw err});
+                  }
+                  else {
+                        const chosenFunction = eventObject[eventKey] as (...args:any[]) => any;
+                        (async () => await chosenFunction(...params[eventKey]).catch(function(err:Error){throw err}))()
+                  }
+            }
+  
+            return
+      }
+      else{
+            if(Array.isArray(eventObject[eventKey])){
+                  const chosenFunctions = eventObject[eventKey] as (() =>any)[];
+                  const chosenFunctionsPromises = chosenFunctions.map((fn) => async() => await fn());
+                  await Promise.all(chosenFunctionsPromises.map(promise => promise())).catch(function(err){throw err})
+                  
+            }
+            else{
+                  const chosenFunction = eventObject[eventKey] as ()=>any;
+                  (async () => await chosenFunction().catch(function(err:Error){throw err}))()
+            }
+      }
+  
+  };
+  
 
 export const writeIndexData = function(newData: competitionDataResults | null, dataIndex:dataIndexObj=dataIndexContainer, handler=indexHandler){
     const indexData = new Proxy(dataIndex, handler);
