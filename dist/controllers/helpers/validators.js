@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.updateCompetitionValidator = exports.createCompetitionValidator = exports.updateTeamValidator = exports.createTeamValidator = exports.submitPlayerValidator = void 0;
 const express_validator_1 = require("express-validator");
 const sequelize_1 = require("sequelize");
+const misc_1 = require("./misc");
 const competition_1 = __importDefault(require("../../models/competition"));
 const team_1 = __importDefault(require("../../models/team"));
 const _arrayCheck = function (value) {
@@ -150,34 +151,6 @@ const _sanitiseString = function (stringsArray, person = false) {
             .escape());
     return sanitisers;
 };
-const _sequentialRankings = function (valuesArray) {
-    if (valuesArray) {
-        const rankings = valuesArray.map(value => parseInt(value));
-        if (rankings.some(value => value > rankings.length)) {
-            const mapOldToNewValues = function () {
-                const rankChange = new Map();
-                const orderedRankings = [...rankings].sort(function (x, y) {
-                    return x > y ? 1 : -1;
-                });
-                for (let largest = rankings.length; largest > 0; largest--) {
-                    rankChange.set(orderedRankings.pop(), largest);
-                }
-                return rankChange;
-            };
-            const produceNewRankings = function (valuesMap) {
-                let newRankings = [];
-                for (let index = 0; index < rankings.length; index++) {
-                    newRankings = [...newRankings, valuesMap.get(rankings[index])];
-                }
-                const newStringRanks = newRankings.map(ranking => ranking?.toString());
-                return newStringRanks;
-            };
-            const oldToNewValuesMap = mapOldToNewValues();
-            return produceNewRankings(oldToNewValuesMap);
-        }
-        return rankings;
-    }
-};
 const _teamSeasonCheck = async function (reference, req, keysArray) {
     const givenName = reference;
     const [chosenSeason] = keysArray.map(key => req.body[key]);
@@ -271,7 +244,7 @@ const createCompetitionValidator = () => {
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
         (0, express_validator_1.body)('points').custom(_validateEmptyInput),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
-        (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
+        (0, express_validator_1.body)('rankings').customSanitizer(misc_1.sequentialRankings),
     ];
 };
 exports.createCompetitionValidator = createCompetitionValidator;
@@ -283,7 +256,7 @@ const updateCompetitionValidator = () => {
         (0, express_validator_1.body)(['chosenTeams', 'points', 'rankings']).customSanitizer(_arrayCheck),
         (0, express_validator_1.body)('points').custom(_validateEmptyInput),
         (0, express_validator_1.body)('rankings').custom(_uniqueRankings),
-        (0, express_validator_1.body)('rankings').customSanitizer(_sequentialRankings),
+        (0, express_validator_1.body)('rankings').customSanitizer(misc_1.sequentialRankings),
     ];
 };
 exports.updateCompetitionValidator = updateCompetitionValidator;

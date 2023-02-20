@@ -7,7 +7,7 @@ import * as queryHelpers from './helpers/queries';
 import * as renderers  from './helpers/renderers';
 import * as resultsGenerator from './helpers/results';
 import * as validators from './helpers/validators';
-import Competition from '../models/competition';
+import Competition, { CompetitionModel } from '../models/competition';
 import  Team, {TeamModel} from '../models/team';
 import { Transaction } from 'sequelize';
 import '../models/concerns/_runModels';
@@ -182,7 +182,6 @@ export const deleteCompetition = [
       async (req:Request,res:Response, next:NextFunction) => {
 
             const goToHomePage = function(){
-                  console.log('I am here')
                   res.redirect('/');
             }
       
@@ -193,8 +192,7 @@ export const deleteCompetition = [
 
 ];
 
-
-const seeCompetitionCb = async function (t:Transaction): Promise<void>{
+const seeCompetitionCb = async function (t:Transaction): Promise<void>{ 
 
       const sortCompetitionData = function(teams:string[], teamUrls:string[], rankings: number[] | undefined,points: number[] | undefined){
             if(rankings && rankings.length > 0){
@@ -284,23 +282,97 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
     
   };
 
-export const seeCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
-
-      getCompetitionParameters(req,next);
+export const seeCompetition = [ 
       
-      await transactionWrapper(seeCompetitionCb,next).catch(function(error:Error){
-            next(error)
-      });
+      async function(req: Request, res: Response, next: NextFunction):Promise<void>{
 
-      if(seeCompetitionResults){
-            seeCompetitionRenderer(res,seeCompetitionResults);
+            getCompetitionParameters(req,next);
+            
+            await transactionWrapper(seeCompetitionCb,next).catch(function(error:Error){
+                  next(error)
+            });
+
+            next()   
+
+      },
+
+      async function(req: Request, res: Response, next: NextFunction): Promise<void>{
+            const { applyRanking } = queryHelpers;
+            const { sequentialRankings } = misc
+
+            const checkRankings = function(rankings: number[] | undefined){
+                  if(rankings && rankings.length > 0){
+                        return rankings.some(ranking => ranking > rankings.length)
+                  }
+            };
+
+            const updateSeeCompetitionResults = function(){
+                  if(seeCompetitionResults){
+                        const rankings = seeCompetitionResults.rankings;
+                        if(checkRankings(rankings)){
+                              const stringifiedRankings = rankings?.map(ranking => ranking.toString());
+                              const newRankings = sequentialRankings(stringifiedRankings);
+                              Object.assign(seeCompetitionResults, {rankings: newRankings});
+                        }
+                  }
+                  
+            };
+
+            let competitionResult:CompetitionModel | null = null;
+
+            const getCompetitionQuery = async function(t:Transaction){
+                  const parameters = competitionParameterPlaceholder().parameters; 
+                  const competition = await Competition.findOne({
+                  where: {
+                        name: parameters.name,
+                        code: parameters.code
+                  },
+                  transaction: t
+                  }).catch(function(error:Error){
+                        throw error
+                    });
+                  if(competition){
+                        competitionResult = competition
+                        
+                  }
+                 
+            };
+
+            const updateDatabaseWithNewRankings = async function(){
+                  if(seeCompetitionResults){
+                        await transactionWrapper(getCompetitionQuery,next).catch((err:Error)=> {throw err});
+                        if(competitionResult){
+                              postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+                              Object.assign(postFormUpdateCompetitionResults, {chosenTeams: seeCompetitionResults.teams, rankings: seeCompetitionResults.rankings});
+                              const applyLatestRankings =  async function(t:Transaction){
+                                    if(postFormUpdateCompetitionResults){
+                                          await applyRanking((competitionResult as CompetitionModel),postFormUpdateCompetitionResults,t);
+
+                                    }            
+                              };
+                              await transactionWrapper(applyLatestRankings,next).catch((err:Error)=>{throw err});
+
+                        }
+                  }
+            };
+            updateSeeCompetitionResults();
+            await updateDatabaseWithNewRankings().catch((err:Error)=>{throw err});
+            next()
+      },
+
+      function(req: Request, res: Response, next: NextFunction): void{
+
+            if(seeCompetitionResults){
+                  seeCompetitionRenderer(res,seeCompetitionResults);
+            }
+
+            competitionParameterPlaceholder().reset();
+            postFormUpdateCompetitionResults = null;
+            seeCompetitionResults = null;
+            
+            return 
       }
-
-      competitionParameterPlaceholder().reset();
-      seeCompetitionResults = null;
-      
-      return 
-};
+];
 
 const seeCompetitionIndexCb =  async function(t:Transaction){
 
@@ -883,10 +955,3 @@ export const setIndexDataCache = function(req:Request,res:Response,next:NextFunc
 };
 
 
-
-
-
-
-
-  
-  

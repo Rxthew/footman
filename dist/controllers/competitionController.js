@@ -144,7 +144,6 @@ exports.deleteCompetition = [
     competitionIndexSignal,
     async (req, res, next) => {
         const goToHomePage = function () {
-            console.log('I am here');
             res.redirect('/');
         };
         goToHomePage();
@@ -224,19 +223,77 @@ const seeCompetitionCb = async function (t) {
     }
     return;
 };
-const seeCompetition = async function (req, res, next) {
-    (0, parameters_1.getCompetitionParameters)(req, next);
-    await transactionWrapper(seeCompetitionCb, next).catch(function (error) {
-        next(error);
-    });
-    if (seeCompetitionResults) {
-        seeCompetitionRenderer(res, seeCompetitionResults);
+exports.seeCompetition = [
+    async function (req, res, next) {
+        (0, parameters_1.getCompetitionParameters)(req, next);
+        await transactionWrapper(seeCompetitionCb, next).catch(function (error) {
+            next(error);
+        });
+        next();
+    },
+    async function (req, res, next) {
+        const { applyRanking } = queryHelpers;
+        const { sequentialRankings } = misc;
+        const checkRankings = function (rankings) {
+            if (rankings && rankings.length > 0) {
+                return rankings.some(ranking => ranking > rankings.length);
+            }
+        };
+        const updateSeeCompetitionResults = function () {
+            if (seeCompetitionResults) {
+                const rankings = seeCompetitionResults.rankings;
+                if (checkRankings(rankings)) {
+                    const stringifiedRankings = rankings?.map(ranking => ranking.toString());
+                    const newRankings = sequentialRankings(stringifiedRankings);
+                    Object.assign(seeCompetitionResults, { rankings: newRankings });
+                }
+            }
+        };
+        let competitionResult = null;
+        const getCompetitionQuery = async function (t) {
+            const parameters = (0, parameters_1.competitionParameterPlaceholder)().parameters;
+            const competition = await competition_1.default.findOne({
+                where: {
+                    name: parameters.name,
+                    code: parameters.code
+                },
+                transaction: t
+            }).catch(function (error) {
+                throw error;
+            });
+            if (competition) {
+                competitionResult = competition;
+            }
+        };
+        const updateDatabaseWithNewRankings = async function () {
+            if (seeCompetitionResults) {
+                await transactionWrapper(getCompetitionQuery, next).catch((err) => { throw err; });
+                if (competitionResult) {
+                    postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+                    Object.assign(postFormUpdateCompetitionResults, { chosenTeams: seeCompetitionResults.teams, rankings: seeCompetitionResults.rankings });
+                    const applyLatestRankings = async function (t) {
+                        if (postFormUpdateCompetitionResults) {
+                            await applyRanking(competitionResult, postFormUpdateCompetitionResults, t);
+                        }
+                    };
+                    await transactionWrapper(applyLatestRankings, next).catch((err) => { throw err; });
+                }
+            }
+        };
+        updateSeeCompetitionResults();
+        await updateDatabaseWithNewRankings().catch((err) => { throw err; });
+        next();
+    },
+    function (req, res, next) {
+        if (seeCompetitionResults) {
+            seeCompetitionRenderer(res, seeCompetitionResults);
+        }
+        (0, parameters_1.competitionParameterPlaceholder)().reset();
+        postFormUpdateCompetitionResults = null;
+        seeCompetitionResults = null;
+        return;
     }
-    (0, parameters_1.competitionParameterPlaceholder)().reset();
-    seeCompetitionResults = null;
-    return;
-};
-exports.seeCompetition = seeCompetition;
+];
 const seeCompetitionIndexCb = async function (t) {
     const competitionIndexDataProcessor = function (currentData) {
         const generateSeasons = function () {
