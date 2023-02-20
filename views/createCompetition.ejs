@@ -8,7 +8,8 @@
     <script src="/javascripts/competition.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
-    <h1>Create Competition</h1>
+    <%- include('partials/header') %>
+    <h2>Create Competition</h2>
     <form action="" method="POST">
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 

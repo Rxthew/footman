@@ -34,7 +34,7 @@ const seeHomepageCb = async function (t) {
         const { getFeaturedCompetitionUrls, getFeaturedPlayerUrls, getFeaturedTeamUrls } = queryHelpers;
         const featuredCompetitionNames = ['English Premier League'];
         const featuredPlayerNames = [['Kevin', 'De Bruyne']];
-        const featuredTeamNames = ['Manchester City', 'Liverpool'];
+        const featuredTeamNames = ['Manchester City'];
         const featuredCompetitionsUrls = await getFeaturedCompetitionUrls(t, featuredCompetitionNames).catch((err) => { throw err; });
         const featuredPlayersUrls = await getFeaturedPlayerUrls(t, featuredPlayerNames).catch((err) => { throw err; });
         const featuredTeamsUrls = await getFeaturedTeamUrls(t, featuredTeamNames).catch((err) => { throw err; });

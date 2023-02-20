@@ -8,7 +8,8 @@
     <script src="/javascripts/see.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
-    <h1> <%= name %></h1>
+    <%- include('partials/header') %>
+    <h2> <%= name %></h2>
     <% if( (typeof teams !== 'undefined') && teams.length > 0){
         if(typeof season !== 'undefined'){ %>
             <p>For the season <%= season %> the <%= name %> saw the following teams compete:</p>

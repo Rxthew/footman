@@ -8,7 +8,8 @@
     <script src="/javascripts/competitionIndex.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
-    <h1> All Competitions</h1>
+    <%- include('partials/header') %>
+    <h2> All Competitions</h2>
     <% if((typeof seasons !== 'undefined') && seasons.length > 0){%>
         <main>
             <section>

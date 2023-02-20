@@ -15,7 +15,7 @@ const seeHomepageCb = async function(t:Transaction){
     
         const featuredCompetitionNames = ['English Premier League'];
         const featuredPlayerNames = [ ['Kevin', 'De Bruyne'] ];
-        const featuredTeamNames = ['Manchester City', 'Liverpool'];
+        const featuredTeamNames = ['Manchester City'];
 
         const featuredCompetitionsUrls = await getFeaturedCompetitionUrls(t,featuredCompetitionNames).catch((err:Error) => {throw err});
         const featuredPlayersUrls = await getFeaturedPlayerUrls(t,featuredPlayerNames).catch((err:Error) => {throw err});

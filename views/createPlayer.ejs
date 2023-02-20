@@ -7,7 +7,8 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1>Create Player</h1>
+    <%- include('partials/header') %>
+    <h2>Create Player</h2>
     <form action="" method="POST">
         <div>
             <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 

@@ -7,8 +7,7 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1>Express</h1>
-    <p>Welcome to Express</p>
+    <%- include('partials/header') %>
     <main>
       <section>
         <p>Featured Competitions:</p>
@@ -36,7 +35,6 @@
               <p>No featured players available at the moment. Check back later.</p>
             <%}%>
         </div>
-  
       </section>
       <section>
         <p>Featured Teams:</p>
@@ -50,8 +48,12 @@
             <p>No featured teams available at the moment. Check back later.</p>
           <%}%>
         </div>
-  
       </section>
     </main>
+    <aside>
+      <a href="/competition/new">Add Competition</a>
+      <a href="/player/new">Add Player</a>
+      <a href="/team/new">Add Team</a>
+    </aside>
   </body>
 </html>
