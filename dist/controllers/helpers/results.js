@@ -26,7 +26,10 @@ const seeHomepage = function () {
     return {
         featuredCompetitions: [],
         featuredPlayers: [],
-        featuredTeams: []
+        featuredTeams: [],
+        freeCompetitions: [],
+        freePlayers: [],
+        freeTeams: []
     };
 };
 exports.seeHomepage = seeHomepage;

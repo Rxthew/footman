@@ -6,7 +6,10 @@ export const seeHomepageRenderer = function(res: Response, results: res.seeHomep
     res.render('index', {
         featuredCompetitions: results.featuredCompetitions,
         featuredPlayers: results.featuredPlayers,
-        featuredTeams: results.featuredTeams
+        featuredTeams: results.featuredTeams,
+        freeCompetitions: results.freeCompetitions,
+        freePlayers: results.freePlayers,
+        freeTeams: results.freeTeams
     })
 
 };

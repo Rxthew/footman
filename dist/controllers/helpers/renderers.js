@@ -5,7 +5,10 @@ const seeHomepageRenderer = function (res, results) {
     res.render('index', {
         featuredCompetitions: results.featuredCompetitions,
         featuredPlayers: results.featuredPlayers,
-        featuredTeams: results.featuredTeams
+        featuredTeams: results.featuredTeams,
+        freeCompetitions: results.freeCompetitions,
+        freePlayers: results.freePlayers,
+        freeTeams: results.freeTeams
     });
 };
 exports.seeHomepageRenderer = seeHomepageRenderer;

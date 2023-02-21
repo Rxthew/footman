@@ -5,7 +5,10 @@ export interface competitionDataResults {
 export interface seeHomepageResults{
     featuredCompetitions: {name: string, url: string}[],
     featuredPlayers: {names: string[], url:string}[],
-    featuredTeams: {name: string, url: string}[]
+    featuredTeams: {name: string, url: string}[],
+    freeCompetitions: {[index:string]: {name: string, url: string}}[],
+    freePlayers: {[index:string]: {name: string, url: string}}[],
+    freeTeams: {[index:string]: {name: string, url: string}}[]
 };
 
 
@@ -169,7 +172,10 @@ export const seeHomepage = function():seeHomepageResults{
     return{
         featuredCompetitions: [],
         featuredPlayers: [],
-        featuredTeams: []
+        featuredTeams: [],
+        freeCompetitions: [],
+        freePlayers: [],
+        freeTeams: []
     }
 };
 
