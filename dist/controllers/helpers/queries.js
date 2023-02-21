@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getTeamSeason = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getPlayerBySeason = exports.getFeaturedTeamUrls = exports.getFeaturedPlayerUrls = exports.getFeaturedCompetitionUrls = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamUrlParams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllPlayerUrlParams = exports.getAllCompetitionUrlParams = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
+exports.transactionWrapper = exports.nextTeamTemplate = exports.nextCompetitionTemplate = exports.getTeamSeason = exports.getSeasons = exports.getTeamBySeason = exports.getRankings = exports.getPoints = exports.getPlayerBySeason = exports.getFeaturedTeamUrls = exports.getFeaturedPlayerUrls = exports.getFeaturedCompetitionUrls = exports.getDissociatedTeam = exports.getDissociatedCompetition = exports.getCompetitionSeason = exports.getCompetitionBySeason = exports.getAllTeamsWithCompetitions = exports.getAllTeams = exports.getAllTeamUrlParams = exports.getAllTeamNames = exports.getAllSeasons = exports.getAllPlayerUrlParams = exports.getAllDissociatedTeams = exports.getAllDissociatedPlayers = exports.getAllDissociatedCompetitions = exports.getAllCompetitionUrlParams = exports.getAllCompetitions = exports.getAllCompetitionNames = exports.applyRanking = exports.applyPoints = void 0;
 const competition_1 = __importDefault(require("../../models/competition"));
 const initdb_1 = require("../../models/concerns/initdb");
 const player_1 = __importDefault(require("../../models/player"));
@@ -151,6 +151,53 @@ const getAllCompetitionUrlParams = function (results, params) {
     return [];
 };
 exports.getAllCompetitionUrlParams = getAllCompetitionUrlParams;
+const getAllDissociatedCompetitions = async function (t) {
+    const competitions = await competition_1.default.findAll({
+        include: [{
+                model: team_1.default,
+                through: {
+                    attributes: ['season']
+                }
+            }],
+        transaction: t
+    }).catch(function (error) { throw error; });
+    const competitionPromises = competitions && competitions.length > 0 ? competitions.map(competition => async () => { return await competition.countTeams({ transaction: t }); }) : [];
+    const teamsCount = competitionPromises.length > 0 ? await Promise.all(competitionPromises.map(promise => promise())).catch((err) => { throw err; }) : competitionPromises;
+    const dissociated = competitions.filter((c, index) => teamsCount[index] === 0);
+    return dissociated;
+};
+exports.getAllDissociatedCompetitions = getAllDissociatedCompetitions;
+const getAllDissociatedPlayers = async function (t) {
+    const players = await player_1.default.findAll({
+        include: [{
+                model: team_1.default
+            }],
+        transaction: t
+    }).catch(function (error) { throw error; });
+    const playerPromises = players && players.length > 0 ? players.map(player => async () => { return await player.getTeam({ transaction: t }); }) : [];
+    const playersAssociationStatus = playerPromises.length > 0 ? await Promise.all(playerPromises.map(promise => promise())).catch((err) => { throw err; }) : playerPromises;
+    const dissociated = players.filter((c, index) => playersAssociationStatus[index] === null);
+    return dissociated;
+};
+exports.getAllDissociatedPlayers = getAllDissociatedPlayers;
+const getAllDissociatedTeams = async function (t) {
+    const teams = await team_1.default.findAll({
+        include: [{
+                model: competition_1.default,
+                through: {
+                    attributes: ['season']
+                }
+            }],
+        transaction: t
+    }).catch(function (error) {
+        throw error;
+    });
+    const teamPromises = teams && teams.length > 0 ? teams.map(team => async () => { return await team.countCompetitions({ transaction: t }); }) : [];
+    const competitionsCount = teamPromises.length > 0 ? await Promise.all(teamPromises.map(promise => promise())).catch((err) => { throw err; }) : teamPromises;
+    const dissociated = teams.filter((t, index) => competitionsCount[index] === 0);
+    return dissociated;
+};
+exports.getAllDissociatedTeams = getAllDissociatedTeams;
 const getAllPlayerUrlParams = function (results, params) {
     if (results && results.length > 0) {
         try {

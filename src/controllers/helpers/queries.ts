@@ -195,6 +195,63 @@ export const getAllCompetitionUrlParams = function(results: CompetitionModel[], 
     return []
 };
 
+export const getAllDissociatedCompetitions = async function(t:Transaction){
+    const competitions = await Competition.findAll({
+        include: [{
+            model: Team,
+            through: {
+                attributes: ['season']
+            }
+        }],
+        transaction: t
+    }).catch(function(error:Error){throw error})
+
+    const competitionPromises = competitions && competitions.length > 0 ? competitions.map(competition => async() => {return await (competition as any).countTeams({transaction: t})}) : []
+    const teamsCount = competitionPromises.length > 0 ? await Promise.all(competitionPromises.map(promise => promise())).catch((err:Error)=> {throw err}) : competitionPromises 
+
+    const dissociated =  competitions.filter((c,index) => teamsCount[index] === 0)
+    return dissociated
+
+};
+
+export const getAllDissociatedPlayers = async function(t:Transaction){
+    const players = await Player.findAll({
+        include: [{
+            model: Team
+        }],
+        transaction: t
+    }).catch(function(error:Error){throw error})
+
+    const playerPromises = players && players.length > 0 ? players.map(player => async() => {return await (player as any).getTeam({transaction: t})}) : [];
+    const playersAssociationStatus = playerPromises.length > 0 ? await Promise.all(playerPromises.map(promise => promise())).catch((err:Error)=> {throw err}) : playerPromises;
+
+    const dissociated =  players.filter((c,index) => playersAssociationStatus[index] === null);
+    return dissociated
+
+};
+
+
+
+export const getAllDissociatedTeams = async function(t:Transaction){
+    const teams = await Team.findAll({
+        include: [{
+            model: Competition,
+            through: {
+                attributes: ['season']
+            }
+        }],
+        transaction: t
+    }).catch(function(error:Error){
+        throw error
+    })
+
+    const teamPromises = teams && teams.length > 0 ? teams.map(team => async()=>{return await (team as any).countCompetitions({transaction: t})}) : [];
+    const competitionsCount = teamPromises.length > 0 ? await Promise.all(teamPromises.map(promise => promise())).catch((err:Error)=> {throw err}) : teamPromises
+
+    const dissociated = teams.filter((t,index)=> competitionsCount[index] === 0)
+    return dissociated
+
+};
 
 
 export const getAllPlayerUrlParams = function(results: PlayerModel[], params: ('firstName' | 'lastName' | 'code' )[]){
