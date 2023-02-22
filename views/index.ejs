@@ -9,51 +9,95 @@
   <body>
     <%- include('partials/header') %>
     <main>
-      <section>
-        <p>Featured Competitions:</p>
-        <div>
-          <%if(featuredCompetitions && featuredCompetitions.length > 0){
-              featuredCompetitions.forEach(element => {%>
-                <a href="competition/<%= element.url %>"> <%= element.name %></a>
+      <article>
+        <h2>Features</h2>
+        <section>
+          <p>Featured Competitions:</p>
+          <div>
+            <%if(featuredCompetitions && featuredCompetitions.length > 0){
+                featuredCompetitions.forEach(element => {%>
+                  <a href="competition/<%= element.url %>"> <%= element.name %></a>
+              <%})
+              }
+              else{%>
+                <p>No featured competitions available at the moment. Check back later.</p>
+              <%}%>
+          </div>
+          <hr>
+        </section>
+        <section>
+          <p>Featured Players:</p>
+          <div>
+            <%if(featuredPlayers && featuredPlayers.length > 0){
+              featuredPlayers.forEach(element => {%>
+                <a href="player/<%= element.url %>"> <%= element.names[0]%> <%=element.names[1]%> </a>
+            <%})
+              }
+              else{%>
+                <p>No featured players available at the moment. Check back later.</p>
+              <%}%>
+          </div>
+        </section>
+        <hr>
+        <section>
+          <p>Featured Teams:</p>
+          <div>
+            <%if(featuredTeams && featuredTeams.length > 0){
+              featuredTeams.forEach(element => {%>
+                <a href="team/<%= element.url %>"> <%= element.name %></a>
             <%})
             }
             else{%>
-              <p>No featured competitions available at the moment. Check back later.</p>
+              <p>No featured teams available at the moment. Check back later.</p>
             <%}%>
-
-        </div>
-      </section>
-      <section>
-        <p>Featured Players:</p>
-        <div>
-          <%if(featuredPlayers && featuredPlayers.length > 0){
-            featuredPlayers.forEach(element => {%>
-              <a href="player/<%= element.url %>"> <%= element.names[0]%> <%=element.names[1]%> </a>
-          <%})
-            }
-            else{%>
-              <p>No featured players available at the moment. Check back later.</p>
+          </div>
+        </section>
+        <hr>
+      </article>
+      <% if((freePlayers !== 'undefined' && freePlayers.length > 0) || (freeCompetitions !== 'undefined' && freeCompetitions.length > 0) || (freeTeams !== 'undefined' && freeTeams.length > 0) ){%>
+      <article>
+         <h3>Items pending integration</h3>
+         <section>
+          <%if(freeCompetitions !== 'undefined' && freeCompetitions.length > 0){%>
+            <h4>Competitions:</h4>
+            <h5>The following need to be assigned at least one team.</h5>
+             <div>
+              <% for(let index = 0;index <= 2; index++){
+                if(typeof freeCompetitions[index] !== 'undefined'){%>
+                <a href="competition/<%= freeCompetitions[index].url %>"><%= freeCompetitions[index].name%></a>
+               <%}
+              }%>
+             </div>
             <%}%>
-        </div>
-      </section>
-      <section>
-        <p>Featured Teams:</p>
-        <div>
-          <%if(featuredTeams && featuredTeams.length > 0){
-            featuredTeams.forEach(element => {%>
-              <a href="team/<%= element.url %>"> <%= element.name %></a>
-          <%})
-          }
-          else{%>
-            <p>No featured teams available at the moment. Check back later.</p>
-          <%}%>
-        </div>
-      </section>
+         </section>
+         <section>
+          <%if(freePlayers !== 'undefined' && freePlayers.length > 0){%>
+            <h4>Players:</h4>
+            <h5>The following need to be assigned at least one team.</h5>
+             <div>
+              <% for(let index = 0;index <= 2; index++){
+                if(typeof freePlayers[index] !== 'undefined'){%>
+                <a href="player/<%= freePlayers[index].url %>"><%= freePlayers[index].names[0]%> <%= freePlayers[index].names[1]%></a>
+               <%}
+              }%>
+             </div>
+            <%}%>
+         </section>
+         <section>
+          <%if(freeTeams !== 'undefined' && freeTeams.length > 0){%>
+            <h4>Teams:</h4>
+            <h5>The following need to be assigned at least one competition.</h5>
+             <div>
+              <% for(let index = 0;index <= 2; index++){
+                if(typeof freeTeams[index] !== 'undefined'){%>
+                <a href="team/<%= freeTeams[index].url %>"><%= freeTeams[index].name%></a>
+               <%}
+              }%>
+             </div>
+            <%}%>
+         </section>
+      </article>
+      <%}%>
     </main>
-    <aside>
-      <a href="/competition/new">Add Competition</a>
-      <a href="/player/new">Add Player</a>
-      <a href="/team/new">Add Team</a>
-    </aside>
   </body>
 </html>
