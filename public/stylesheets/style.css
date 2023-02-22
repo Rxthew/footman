@@ -45,3 +45,30 @@ h1 {
   line-height: 2.5rem;
 }
 
+h2 {
+  margin: 0.25rem;
+  line-height: 2.5rem;
+}
+
+hr {
+  margin: 1rem;
+  color: #fede00
+}
+
+.addLinks {
+  display:flex;
+  justify-content: flex-end;
+  position: relative;
+}
+
+.revealAddLinks {
+    display: flex;
+    flex-direction: column;
+    min-width: max-content;
+    position: absolute
+}
+
+.hideAddLinks {
+  display: none;
+}
+
