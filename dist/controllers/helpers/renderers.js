@@ -40,6 +40,7 @@ const preFormUpdateCompetitionRenderer = function (res, results) {
 exports.preFormUpdateCompetitionRenderer = preFormUpdateCompetitionRenderer;
 const seeCompetitionRenderer = function (res, results) {
     res.render('seeCompetition', {
+        code: results.code,
         name: results.name,
         teams: results.teams,
         season: results.season,
@@ -107,6 +108,9 @@ const preFormUpdatePlayerRenderer = function (res, results) {
 exports.preFormUpdatePlayerRenderer = preFormUpdatePlayerRenderer;
 const seePlayerRenderer = function (res, results) {
     res.render('seePlayer', {
+        code: results.code,
+        firstName: results.firstName,
+        lastName: results.lastName,
         name: results.firstName + ' ' + results.lastName,
         team: results.team,
         nationality: results.nationality,
@@ -149,6 +153,7 @@ const preFormUpdateTeamRenderer = function (res, results) {
 exports.preFormUpdateTeamRenderer = preFormUpdateTeamRenderer;
 const seeTeamRenderer = function (res, results) {
     res.render('seeTeam', {
+        code: results.code,
         name: results.name,
         players: results.players,
         playerUrls: results.playerUrls,
