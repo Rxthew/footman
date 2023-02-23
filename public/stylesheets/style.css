@@ -16,14 +16,24 @@ body {
   flex-direction: column;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   gap: 1rem;
+  letter-spacing: 0.1rem;
+  line-height: 1.5rem;
   min-height: 100vh;
 
 }
 
 
-a {
-  color: #00B7FF;
-  padding: 0 0.25rem;
+a, button, .revealAddLinks a {
+  background: #59981A;
+  border-radius: 10px;
+  border: none;
+  color: black;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0.25rem 1rem;
+  outline: none;
+  text-decoration: none;
+  
 }
 
 div {
@@ -31,23 +41,34 @@ div {
   margin: 1rem 0;
 }
 
+
  header {
    background: #0A7029;
    display: flex;
-   justify-content: center;
+   justify-content: space-around;
    min-width: 100%;
-   padding: 2rem 0
+   padding: 2rem 0;
 
 }
+
+header a, header button {
+  background: none;
+  border: none;
+  border-radius: 0rem;
+  padding: 0;
+}
+
 
 h1 {
   font-size: 2.25rem;
-  line-height: 2.5rem;
+  letter-spacing:0.5rem;
+  text-shadow: 2px 2px 5px #C8DF52;
+  
 }
 
-h2 {
+h2, h3, h4, h5 {
   margin: 0.25rem;
-  line-height: 2.5rem;
+  
 }
 
 hr {
@@ -55,20 +76,75 @@ hr {
   color: #fede00
 }
 
+nav {
+  display:flex;
+  align-items: flex-start;
+}
+
+
 .addLinks {
   display:flex;
   justify-content: flex-end;
+  margin: 0 0.5rem;
   position: relative;
 }
 
-.revealAddLinks {
-    display: flex;
-    flex-direction: column;
-    min-width: max-content;
-    position: absolute
+.gold {
+  fill: #fede00;
+
 }
 
 .hideAddLinks {
   display: none;
+}
+
+.revealAddLinks {
+    background: #0A7029;
+    border-radius: 10px;
+    box-shadow: 5px 5px 2px 1px #59981A;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: max-content;
+    position: absolute;
+    margin: 1rem 0;
+    padding: 2rem;
+    top: 100%
+    
+}
+
+.bckwdrotate {
+  animation: brotate 0.5s ease-in-out normal both}
+
+
+.fwdrotate {
+  animation: frotate 0.5s linear normal both;
+
+}
+
+@keyframes brotate {
+  0% {
+    transform: rotate(0)
+  }
+  50% {
+    transform: rotate(-45deg)
+  }
+  100% {
+    transform: rotate(-90deg)
+  }
+
+}
+
+@keyframes frotate {
+  0% {
+    transform: rotate(0)
+  }
+  50% {
+    transform: rotate(45deg)
+  }
+  100% {
+    transform: rotate(90deg)
+  }
+
 }
 
