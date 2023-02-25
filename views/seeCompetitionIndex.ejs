@@ -14,6 +14,7 @@
     <% if((typeof seasons !== 'undefined') && seasons.length > 0){%>
         <main>
             <section>
+                <label>Season:</label>
                 <select>
                     <% for(let season of seasons){%>
                         <option value="<%= season %>" <% if(season === seasons[seasons.length - 1]){%> selected='true' <%} 

@@ -9,50 +9,54 @@
     <script src="/javascripts/default.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
-    <%- include('partials/header') %>
-    <h2> <%= name %></h2>
-    <% if( (typeof teams !== 'undefined') && teams.length > 0){
-        if(typeof season !== 'undefined'){ %>
-            <p>For the season <%= season %> the <%= name %> saw the following teams compete:</p>
-        <%} 
-        if((typeof rankings !== 'undefined') && rankings.length > 0){%>
-              <div>
-                <span>Rank</span>
-                <span>Team</span>
-            <% if((typeof points !== 'undefined') && points.length > 0){%> <span>Points</span> <%}   
-            teams.forEach((team,index)=>{%>
-              <div>
-                  <span><%= rankings[index] %></span>
-                  <a href="/team/<%= teamUrls[index] %>"><%= team %></a>
-                <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}
-            })%>
-              </div>
-        <%}
-        else{%>
-          <div>
-            <span>Team</span>
-          <%teams.forEach((team,teamIndex) =>{%> 
+      <%- include('partials/header') %>
+      <main>
+      <h2> <%= name %></h2>
+      <% if( (typeof teams !== 'undefined') && teams.length > 0){
+          if(typeof season !== 'undefined'){ %>
+              <p>For the season <%= season %> the <%= name %> saw the following teams compete:</p>
+          <%} 
+          if((typeof rankings !== 'undefined') && rankings.length > 0){%>
+                <div>
+                  <span>Rank</span>
+                  <span>Team</span>
+              <% if((typeof points !== 'undefined') && points.length > 0){%> <span>Points</span> <%}   
+              teams.forEach((team,index)=>{%>
+                <div>
+                    <span><%= rankings[index] %></span>
+                    <a href="/team/<%= teamUrls[index] %>"><%= team %></a>
+                  <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}
+              })%>
+                </div>
+          <%}
+          else{%>
             <div>
-              <a href="/team/<%= teamUrls[teamIndex] %>">
-                <%= team %>
-              </a>
-            </div>
-          <%})%>
-          </div> 
-        <%}   
-     }
-    else {%>
-        <div>
-            <span>No teams available at the moment.</span>
-        </div>
-    <%}%>
-    <div id="formContainer">
-      <form action="?_method=DELETE" method="POST">
-        <button type="submit">Delete Competition</button>
-      </form> 
-    </div>
-    <div>
-      <a href="/competition/<%=name%>.<%=code%>/edit">Update Competition</a>
-    </div>
+              <span>Team</span>
+            <%teams.forEach((team,teamIndex) =>{%> 
+              <div>
+                <a href="/team/<%= teamUrls[teamIndex] %>">
+                  <%= team %>
+                </a>
+              </div>
+            <%})%>
+            </div> 
+          <%}   
+      }
+      else {%>
+          <div>
+              <span>No teams available at the moment.</span>
+          </div>
+      <%}%>
+  </main>
+    <aside>
+      <div>
+        <a href="/competition/<%=name%>.<%=code%>/edit">Update Competition</a>
+      </div>
+      <div id="formContainer">
+        <form action="?_method=DELETE" method="POST">
+          <button type="submit">Delete Competition</button>
+        </form> 
+      </div>
+    </aside>
   </body>
 </html>

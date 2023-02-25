@@ -14,7 +14,7 @@
         <h2>Features</h2>
         <section>
           <p>Featured Competitions:</p>
-          <div>
+          <div class="freefeatured">
             <%if(featuredCompetitions && featuredCompetitions.length > 0){
                 featuredCompetitions.forEach(element => {%>
                   <a href="competition/<%= element.url %>"> <%= element.name %></a>
@@ -28,7 +28,7 @@
         </section>
         <section>
           <p>Featured Players:</p>
-          <div>
+          <div class="freefeatured">
             <%if(featuredPlayers && featuredPlayers.length > 0){
               featuredPlayers.forEach(element => {%>
                 <a href="player/<%= element.url %>"> <%= element.names[0]%> <%=element.names[1]%> </a>
@@ -42,7 +42,7 @@
         <hr>
         <section>
           <p>Featured Teams:</p>
-          <div>
+          <div  class="freefeatured">
             <%if(featuredTeams && featuredTeams.length > 0){
               featuredTeams.forEach(element => {%>
                 <a href="team/<%= element.url %>"> <%= element.name %></a>
@@ -62,7 +62,7 @@
           <%if(freeCompetitions !== 'undefined' && freeCompetitions.length > 0){%>
             <h4>Competitions:</h4>
             <h5>The following need to be assigned at least one team.</h5>
-             <div>
+             <div class="freefeatured">
               <% for(let index = 0;index <= 2; index++){
                 if(typeof freeCompetitions[index] !== 'undefined'){%>
                 <a href="competition/<%= freeCompetitions[index].url %>"><%= freeCompetitions[index].name%></a>
@@ -75,7 +75,7 @@
           <%if(freePlayers !== 'undefined' && freePlayers.length > 0){%>
             <h4>Players:</h4>
             <h5>The following need to be assigned at least one team.</h5>
-             <div>
+             <div class="freefeatured">
               <% for(let index = 0;index <= 2; index++){
                 if(typeof freePlayers[index] !== 'undefined'){%>
                 <a href="player/<%= freePlayers[index].url %>"><%= freePlayers[index].names[0]%> <%= freePlayers[index].names[1]%></a>
@@ -88,7 +88,7 @@
           <%if(freeTeams !== 'undefined' && freeTeams.length > 0){%>
             <h4>Teams:</h4>
             <h5>The following need to be assigned at least one competition.</h5>
-             <div>
+             <div class="freefeatured">
               <% for(let index = 0;index <= 2; index++){
                 if(typeof freeTeams[index] !== 'undefined'){%>
                 <a href="team/<%= freeTeams[index].url %>"><%= freeTeams[index].name%></a>
@@ -106,9 +106,7 @@
           <span>To see more it's recommended that you start</span>
           <a href="/competition/index">here</a>
         </div>
-
       </section>
-      
     </main>
   </body>
 </html>

@@ -91,9 +91,6 @@ const seeHomepageCb = async function (t) {
         };
     };
     const results = await seeHomepageQuery().catch((err) => { throw err; });
-    console.log('____________________________________________________');
-    console.log(results);
-    console.log('____________________________________________________');
     const populateSeeHomepageResults = function () {
         if (results.featuredCompetitions && results.featuredPlayers && results.featuredTeams) {
             Object.assign(seeHomepageResults, { featuredCompetitions: results.featuredCompetitions }, { featuredPlayers: results.featuredPlayers }, { featuredTeams: results.featuredTeams }, { freeCompetitions: results.freeCompetitions, freePlayers: results.freePlayers, freeTeams: results.freeTeams });

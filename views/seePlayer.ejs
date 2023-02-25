@@ -9,37 +9,52 @@
     <script src="/javascripts/default.js" defer="true" crossorigin="anonymous"></script>
   </head>
   <body>
-    <%- include('partials/header') %>
-    <h2> <%= name %></h2>
-    <div>
-        <% if(team){%>
-          <p>
-            <span>Team: </span>
-            <a href="/team/<%= teamUrl %>"><%= team %></a>
-          </p>
-        <%}else {%>
-          <p> Team: Free</p>
-        <%}%>
-        <p> Nationality: <%= nationality %></p>
-        <p> Position: <%= position %></p>
-        <p> Age: <%= age %></p>
-        <p> Goals: <%= goals ? goals : 'unknown' %></p>
-        <p> Assists: <%= assists ? assists : 'unknown' %></p>
-        <p> Speed: <%= speed ? speed : 'unknown' %></p>
-        <p> Strength: <%= strength ? strength : 'unknown' %></p>
-        <p> Attack: <%= attack ? attack : 'unknown' %></p>
-        <p> Defense: <%= defense ? defense : 'unknown' %></p>
-        <p> Goalkeeping: <%= goalkeeping ? goalkeeping : 'unknown' %></p>
-        <p> Intelligence: <%= intelligence ? intelligence : 'unknown' %></p>
-        <p> Technique: <%= technique ? technique : 'unknown' %></p>
-    </div>
-    <div id="formContainer">
-      <form action="?_method=DELETE" method="POST">
-        <button type="submit">Delete Player</button>
-      </form>
-    </div> 
-    <div>
-      <a href="/player/<%=firstName%>.<%=lastName%>.<%=code%>/edit">Update Player</a>
-    </div>   
+      <%- include('partials/header') %>
+    <main>
+      <h2> <%= name %></h2>
+      <section>
+        <h3>Personal Details:</h3>
+        <div>
+          <% if(team){%>
+            <p>
+              <span>Team: </span>
+              <a href="/team/<%= teamUrl %>"><%= team %></a>
+            </p>
+          <%}else {%>
+            <p> Team: Free</p>
+          <%}%>
+          <p> Nationality: <%= nationality %></p>
+          <p> Position: <%= position %></p>
+          <p> Age: <%= age %></p>
+        </div>
+      </section>
+      <section>
+          <h3>Available Stats:</h3>
+          <div>
+            <p>Goals: <%= goals ? goals : '-' %></p>  
+            <p> Assists: <%= assists ? assists : '-' %></p>
+          </div>
+          <div>
+            <h4>Estimated ability rated on a range between 1 and 20:</h4>
+            <p> Speed: <%= speed ? speed : '-' %></p>
+            <p> Strength: <%= strength ? strength : '-' %></p>
+            <p> Attack: <%= attack ? attack : '-' %></p>
+            <p> Defense: <%= defense ? defense : '-' %></p>
+            <p> Goalkeeping: <%= goalkeeping ? goalkeeping : '-' %></p>
+            <p> Intelligence: <%= intelligence ? intelligence : '-' %></p>
+            <p> Technique: <%= technique ? technique : '-' %></p>
+          </div>
+      </section>
+    </main>
+    <aside>
+      <div>
+        <a href="/player/<%=firstName%>.<%=lastName%>.<%=code%>/edit">Update Player</a>
+      </div>
+      <div id="formContainer">
+        <form action="?_method=DELETE" method="POST">
+          <button type="submit">Delete Player</button>
+        </form>
+      </div>
+    </aside>    
   </body>
 </html>
