@@ -6,7 +6,7 @@ const toggleGold = function(){
     else{
         path.classList.toggle('gold',false);
     }
-}
+};
 
 const toggleRotate = function(){
     const path = document.querySelector('.add');
@@ -19,10 +19,9 @@ const toggleRotate = function(){
         svg.classList.toggle('bckwdrotate',false)
         svg.classList.toggle('fwdrotate',true)
 
-    }
-    
+    }  
 
-}
+};
 
 const addLinks = document.querySelector('.addLinks');
 addLinks.addEventListener('click', function(){
@@ -38,4 +37,54 @@ addLinks.addEventListener('click', function(){
     }
     toggleGold()
     toggleRotate()
-})
+});
+
+const attachModalListeners = function(){
+    const hidden = document.querySelector('.hidden');
+    const choose = document.querySelector('.choose');
+    if(!hidden || !choose){
+        return
+    }
+    choose.addEventListener('click', () => effectModal(hidden))
+    const exit = document.querySelector('.closeChoose');
+    exit.addEventListener('click', restoreModal)
+
+};
+
+
+const effectModal = function(hidden){
+    const toggleReveal = function(){
+        hidden.classList.toggle('hidden',false);
+        hidden.classList.toggle('choices',true);
+    }
+    const implementOverlay = function(){
+        const overlay = document.createElement('div');
+        overlay.classList.add('overlay');
+        document.body.appendChild(overlay);
+    }
+
+    toggleReveal();
+    implementOverlay();
+   
+    
+};
+
+const restoreModal = function(){
+    const modal = document.querySelector('.choices');
+    const overlay = document.querySelector('.overlay');
+    
+    const toggleHide = function(){
+        modal.classList.toggle('hidden',true);
+        modal.classList.toggle('choices',false);
+    };
+
+    const removeOverlay = function(){
+        overlay.remove();
+    };
+
+    toggleHide();
+    removeOverlay();
+
+};
+
+attachModalListeners();
