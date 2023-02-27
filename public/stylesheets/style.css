@@ -106,6 +106,10 @@ input:focus{
   
 }
 
+input[type='radio'], input[type='checkbox']{
+  cursor: pointer;
+}
+
 main {
   padding: 1rem;
 }
@@ -118,11 +122,13 @@ nav {
 
 select {
   background-color: inherit;
-  border: none;
+  border: 1px solid;
+  border-radius: 4px;
+  box-shadow: 1px 1px black;
   color: black;
   cursor: pointer;
   font-weight: bold;
-  padding: 0.5rem 1rem;
+  padding: 0.25rem 1rem;
   outline: none;
 
 }
@@ -142,6 +148,60 @@ select:disabled{
 .bckwdrotate {
   animation: brotate 0.5s linear normal both}
 
+.choices {
+  align-items: flex-start;
+  background-color: #DBE8D8;;
+  border: 3px solid #59981A;;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  font-weight: bolder;
+  justify-content: flex-start;
+  left: 0;
+  max-height: 90vh;
+  opacity: 1;
+  overflow: scroll;
+  padding: 2rem;
+  padding-bottom: 0.25rem;
+  position: fixed;
+  top: 0;
+  width: min(100vw,700px);
+  z-index: 3;
+}
+
+.choices div {
+  border-radius: 5px;
+  margin: 0.25rem;
+  min-width: 0;
+  padding: 0.25rem;
+}
+
+
+.choices .closeChoose {
+  background-color: inherit;
+  align-items: flex-start;
+  align-self: flex-end;
+  display:flex;
+  justify-content: flex-end;
+  min-width: 90%;
+  
+}
+
+
+.choiceTitle {
+  background-color:#59981A;
+  font-size: large;
+  left: 0;
+  min-width: 100%;
+  padding-left: 0.25rem;
+  padding-bottom: 0.5rem;
+  position: absolute;
+  top: 0;
+}
+
+.closeChoose button {
+  font-size: large;
+}
 
 .fwdrotate {
   animation: frotate 0.5s linear normal both;
@@ -155,6 +215,19 @@ select:disabled{
 
 .hidden, .hideAddLinks {
   display: none;
+}
+
+.overlay {
+  background-color: black;
+  cursor: pointer;
+  height: 100%;
+  margin: 0;
+  opacity: 0.2;
+  overflow-y: hidden;
+  position: fixed;
+  width: 100%;
+  z-index: 2;
+
 }
 
 .revealAddLinks {
@@ -198,3 +271,4 @@ select:disabled{
   }
 
 }
+

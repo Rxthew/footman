@@ -47,10 +47,9 @@ const attachModalListeners = function(){
     }
     choose.addEventListener('click', () => effectModal(hidden))
     const exit = document.querySelector('.closeChoose');
-    exit.addEventListener('click', restoreModal)
+    exit.addEventListener('click', minimiseModal);
 
 };
-
 
 const effectModal = function(hidden){
     const toggleReveal = function(){
@@ -60,16 +59,17 @@ const effectModal = function(hidden){
     const implementOverlay = function(){
         const overlay = document.createElement('div');
         overlay.classList.add('overlay');
+        overlay.addEventListener('click', minimiseModal);
         document.body.appendChild(overlay);
     }
 
     toggleReveal();
     implementOverlay();
-   
     
 };
 
-const restoreModal = function(){
+const minimiseModal = function(){
+    const choose = document.querySelector('.choose');
     const modal = document.querySelector('.choices');
     const overlay = document.querySelector('.overlay');
     
@@ -82,9 +82,11 @@ const restoreModal = function(){
         overlay.remove();
     };
 
-    toggleHide();
-    removeOverlay();
+    if(modal && overlay){
+        toggleHide();
+        removeOverlay();
 
+    }
 };
 
 attachModalListeners();
