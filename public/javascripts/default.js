@@ -90,3 +90,12 @@ const minimiseModal = function(){
 };
 
 attachModalListeners();
+
+const highlightHomepageMarker = function(){
+    if(window.location.pathname === '/'){
+        const path = document.querySelector('.home');
+        path.classList.add('gold')
+    }
+};
+
+highlightHomepageMarker();
