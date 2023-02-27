@@ -78,8 +78,11 @@
         <div>
              <label for="teams">Teams:</label>
              <% if ((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){ %> <span><%= errors.team.msg %></span>
-             <%} if(teams.length > 0){%>    
-             <div>
+             <%} if(teams.length > 0){
+                 teams.sort(); %> 
+            <button type="button" class="choose">Open Team Selection</button>     
+             <div class="hidden">
+                <span class="choiceTitle">Teams</span>
                 <div>
                     <label for="team">None</label>
                     <input name="team" type="radio" value="None" <% if((typeof team !== 'undefined') && team === 'None'){%> checked=true <%}%>>
@@ -90,6 +93,9 @@
                         <input id="<%= single_team %>" name="team" type="radio" value="<%= single_team %>" <% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
                     </div>
                 <%}%>
+                <div class="closeChoose">
+                    <button type="button">Ready</button>
+                </div>
              </div><%}
               else{%>
                    <span>No teams available</span>
