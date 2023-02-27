@@ -19,7 +19,8 @@
         </div>
         <div>
              <label for="teams">Teams:</label>
-             <% if(teams.length > 0){%>
+             <% if(teams.length > 0){
+                teams.sort();%>
              <div>
                 <label>Apply rankings?</label>
                 <input id="apply_ranking" type="checkbox"  <% if((typeof rankings !== 'undefined')){%> checked=true <%}%>>
@@ -27,24 +28,35 @@
             <div>
                 <label>Apply points?</label>
                 <input id="apply_points" type="checkbox"  <% if((typeof points !== 'undefined')){%> checked=true <%}%>>
-             </div>    
-             <div>
+             </div>
+             <button type="button" class="choose">Open Team Selection</button>     
+             <div class="hidden">
+                <span class="choiceTitle">Teams</span>
                 <% if ((typeof errors !== 'undefined') && ( typeof errors.rankings !== 'undefined')){  %> <span><%= errors.rankings.msg %></span><% } %>
                 <% if ((typeof errors !== 'undefined') && ( typeof errors.points !== 'undefined')){  %> <span><%= errors.points.msg %></span><% }
                 for(let team of teams){ %>
                     <div>
-                        <label for="chosenTeams"><%= team %></label>
-                        <input id="<%= team %>" name="chosenTeams" type="checkbox" value="<%= team %>"<% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
-                        <label for="rankings">Ranking:</label>
-                        <select data-team="<%= team %>" name="rankings" <% if(typeof rankings === 'undefined'  || !chosenTeams || !chosenTeams.includes(team) ){%> disabled="true" <%}%>>
-                            <% teams.forEach((teamName,index)=>{%>
-                                <option value="<%= index + 1 %>"  <% if( (typeof rankings !== 'undefined') && chosenTeams.includes(team) && (rankings[chosenTeams.indexOf(team)] === index + 1)){%> selected='true' <%}%>><%= index + 1 %></option>
-                            <%})%>
-                        </select>
-                        <label for="points">Points:</label>
-                        <input data-team="<%= team %>" type="number" name="points"  <% if((typeof points !== 'undefined') && chosenTeams && chosenTeams.includes(team)){%> value='<%= points[chosenTeams.indexOf(team)] %>'<%}else{%> disabled="true"<%}%>>
+                        <div>
+                            <label for="chosenTeams"><%= team %></label>
+                            <input id="<%= team %>" name="chosenTeams" type="checkbox" value="<%= team %>"<% if((typeof chosenTeams !== 'undefined') && chosenTeams.includes(team)){%> checked=true <%}%>>
+                        </div>
+                        <div>
+                            <label for="rankings">Ranking:</label>
+                            <select data-team="<%= team %>" name="rankings" <% if(typeof rankings === 'undefined'  || !chosenTeams || !chosenTeams.includes(team) ){%> disabled="true" <%}%>>
+                                <% teams.forEach((teamName,index)=>{%>
+                                    <option value="<%= index + 1 %>"  <% if( (typeof rankings !== 'undefined') && chosenTeams.includes(team) && (rankings[chosenTeams.indexOf(team)] === index + 1)){%> selected='true' <%}%>><%= index + 1 %></option>
+                                <%})%>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="points">Points:</label>
+                            <input data-team="<%= team %>" type="number" name="points"  <% if((typeof points !== 'undefined') && chosenTeams && chosenTeams.includes(team)){%> value='<%= points[chosenTeams.indexOf(team)] %>'<%}else{%> disabled="true"<%}%>>
+                        </div>    
                     </div>
                 <%}%>
+                <div class="closeChoose">
+                    <button type="button">Ready</button>
+                </div>
              </div><%}
               else{%>
                    <span>No teams available</span>
