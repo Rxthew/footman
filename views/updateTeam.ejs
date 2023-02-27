@@ -18,14 +18,20 @@
         </div>
         <div>
              <label for="competitions">Competitions:</label>
-             <% if(competitions.length > 0){%>    
-             <div>
+             <% if(competitions.length > 0){
+                competitions.sort();%> 
+                <button type="button" class="choose">Open Competition Selection</button>      
+             <div class="hidden">
+                <span class="choiceTitle">Competitions</span>
                 <% for(let competition of competitions){ %>
                     <div>
                         <label for="chosenCompetitions"><%= competition %></label>
                         <input id="<%= competition %>" name="chosenCompetitions" type="checkbox" value="<%= competition %>" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
                     </div>
                 <%}%>
+                <div class="closeChoose">
+                    <button type="button">Ready</button>
+                </div>
              </div><%}
               else{%>
                    <span>No competitions available</span>
