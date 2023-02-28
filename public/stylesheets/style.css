@@ -213,6 +213,10 @@ select:disabled{
 
 }
 
+.goldBorder {
+  border-bottom: 3px solid #fede00; 
+}
+
 .hidden, .hideAddLinks {
   display: none;
 }

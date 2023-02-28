@@ -93,8 +93,10 @@ attachModalListeners();
 
 const highlightHomepageMarker = function(){
     if(window.location.pathname === '/'){
+        const anchor = document.querySelector('a[href="/"]');
         const path = document.querySelector('.home');
-        path.classList.add('gold')
+        path.classList.add('gold');
+        anchor.classList.add('goldBorder');
     }
 };
 
