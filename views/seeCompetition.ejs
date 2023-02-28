@@ -17,17 +17,21 @@
               <p>For the season <%= season %> the <%= name %> saw the following teams compete:</p>
           <%} 
           if((typeof rankings !== 'undefined') && rankings.length > 0){%>
-                <div>
+                <div class="competitionTable">
+                  <div>
                   <span>Rank</span>
                   <span>Team</span>
-              <% if((typeof points !== 'undefined') && points.length > 0){%> <span>Points</span> <%}   
-              teams.forEach((team,index)=>{%>
+              <% if((typeof points !== 'undefined') && points.length > 0){%> <span>Points</span>
+                <%}%>
+              </div>   
+              <%teams.forEach((team,index)=>{%>
                 <div>
                     <span><%= rankings[index] %></span>
                     <a href="/team/<%= teamUrls[index] %>"><%= team %></a>
-                  <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}
-              })%>
+                  <% if((typeof points !== 'undefined') && points.length > 0){%> <span><%=points[index]%></span> <%}%>
                 </div>
+              <%})%>
+                
           <%}
           else{%>
             <div>
