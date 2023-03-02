@@ -157,7 +157,7 @@ const _sanitiseString = function(stringsArray: string[], person:boolean=false){
         body(val, `${val} must not be empty.`)
         .trim()
         .isAlpha(undefined, {ignore: ' -'})
-        .withMessage(`Characters in the ${val} field must be a word with letters from the alphabet (or it can include a hyphen).`)
+        .withMessage(`Characters in the this field must be a word with letters from the alphabet (or it can include a hyphen).`)
         .isLength({min: 2})
         .withMessage(`${val} must be at least two characters long`)
         .escape()
