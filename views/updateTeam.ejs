@@ -12,16 +12,19 @@
     <h2>Update Team</h2>
     <form action="?_method=PUT" method="POST">
         <div>
-            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>
             <input id="name" name="name" type="text" value="<%= name %>">
+            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.name.msg %></span>
+                </div> <%}%> 
         </div>
         <div>
              <label for="competitions">Competitions:</label>
              <% if(competitions.length > 0){
                 competitions.sort();%> 
                 <button type="button" class="choose">Open Competition Selection</button>      
-             <div class="hidden">
+             <div class="hidden">>
                 <span class="choiceTitle">Competitions</span>
                 <% for(let competition of competitions){ %>
                     <div>

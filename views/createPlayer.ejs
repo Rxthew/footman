@@ -11,23 +11,32 @@
     <%- include('partials/header') %>
     <h2>Create Player</h2>
     <form action="" method="POST">
-        <div>
-            <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> <span><%= errors.firstName.msg %></span> <%}%> 
+        <div> 
             <label for="firstName">First Name:</label>
             <input id="firstName" name="firstName" type="text" <% if(typeof firstName !== 'undefined'){%> value="<%= firstName %>" <%}%>>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.firstName.msg %></span>
+                </div> <%}%>
         </div>
         <div>
-            <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> <span><%= errors.lastName.msg %></span> <%}%> 
             <label for="lastName">Last Name:</label>
             <input id="lastName" name="lastName" type="text" <% if(typeof lastName !== 'undefined'){%> value="<%= lastName %>" <%}%>>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.lastName.msg %></span>
+                </div> <%}%> 
         </div>
         <div>
             <%- include('partials/nationalities', {nationality: nationality})%> 
         </div>
         <div>
-            <% if((typeof errors !== 'undefined') && ( typeof errors.age !== 'undefined')){%> <span><%= errors.age.msg %></span> <%}%> 
             <label for="age">Age:</label>
             <input id="age" name="age" type="number" min="15" max="45" <% if(typeof age !== 'undefined'){%> value="<%= age %>" <%}%>>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.age !== 'undefined')){%> 
+            <div class="error">
+                <span><%= errors.age.msg %></span>
+            </div> <%}%> 
         </div>
         <div>
             <label for="position">Position:</label>
@@ -77,10 +86,13 @@
         <% if (seasons && seasons.length > 0){%>
         <div>
              <label for="teams">Teams:</label>
-             <% if((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){%> <span><%= errors.team.msg %></span> <%}%> 
              <% if(teams.length > 0){ 
                 teams.sort();%> 
-             <button type="button" class="choose">Open Team Selection</button>   
+             <button type="button" class="choose">Open Team Selection</button> 
+             <% if((typeof errors !== 'undefined') && ( typeof errors.team !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.team.msg %></span>
+                </div> <%}%>   
              <div class="hidden">
                 <span class="choiceTitle">Teams</span>
                 <div>

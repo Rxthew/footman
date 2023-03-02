@@ -13,9 +13,12 @@
     <h2>Update Competition</h2>
     <form action="?_method=PUT" method="POST">
         <div>
-            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>
             <input id="name" name="name" type="text" value="<%= name %>">
+            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.name.msg %></span>
+                </div> <%}%> 
         </div>
         <div>
              <label for="teams">Teams:</label>
@@ -28,12 +31,18 @@
                 <label>Apply rankings?</label>
                 <input id="apply_ranking" type="checkbox"  <% if((typeof rankings !== 'undefined')){%> checked=true <%}%>>
             </div>
-             <button type="button" class="choose">Open Team Selection</button>     
+             <button type="button" class="choose">Open Team Selection</button> 
+             <% if ((typeof errors !== 'undefined') && ( typeof errors.rankings !== 'undefined')){  %> 
+                <div class="error">
+                    <span><%= errors.rankings.msg %></span>
+                </div><% } %>
+             <% if ((typeof errors !== 'undefined') && ( typeof errors.points !== 'undefined')){  %> 
+                <div class="error">
+                    <span><%= errors.points.msg %></span>
+                </div><% } %>    
              <div class="hidden">
                 <span class="choiceTitle">Teams</span>
-                <% if ((typeof errors !== 'undefined') && ( typeof errors.rankings !== 'undefined')){  %> <span><%= errors.rankings.msg %></span><% } %>
-                <% if ((typeof errors !== 'undefined') && ( typeof errors.points !== 'undefined')){  %> <span><%= errors.points.msg %></span><% }
-                for(let team of teams){ %>
+                <% for(let team of teams){ %>
                     <div>
                         <div>
                             <label for="chosenTeams"><%= team %></label>

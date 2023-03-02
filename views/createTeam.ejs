@@ -12,9 +12,12 @@
     <h2>Create Team</h2>
     <form action="" method="POST"> 
         <div>
-        <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> <span><%= errors.name.msg %></span> <%}%> 
             <label for="name">Name:</label>
             <input id="name" name="name" type="text" <% if(typeof name !== 'undefined'){%> value="<%= name %>" <%}%>>
+            <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> 
+                <div class="error">
+                    <span><%= errors.name.msg %></span>
+                </div> <%}%> 
         </div>
         <div>
              <label for="competitions">Competitions:</label>
