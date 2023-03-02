@@ -214,6 +214,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
             }
             else{
                   teams.sort();
+                  teamUrls.sort();
             }
 
       }

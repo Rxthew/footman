@@ -170,6 +170,12 @@ const seeCompetitionCb = async function (t) {
         }
         else {
             teams.sort();
+            teamUrls.sort();
+            console.log('______________________________________________________');
+            console.log(teams);
+            console.log('______________________________________________________');
+            console.log(teamUrls);
+            console.log('______________________________________________________');
         }
     };
     const seeCompetitionQuery = async function () {
