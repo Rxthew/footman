@@ -212,6 +212,11 @@ select:disabled{
     padding: 0.5rem;
 }
 
+.error{
+ color: red;
+ max-width: min(300px,80vw);
+}
+
 .fwdrotate {
   animation: frotate 0.5s linear normal both;
 
