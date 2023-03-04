@@ -17,12 +17,17 @@ const attachUndoHandlers = function(undoContainer, intervalId, timeoutId){
 
 const clearDeleteEffects = function(undoContainer,intervalId, timeoutId,){
     if(undoContainer.undo){
+        const formContainer = document.querySelector('#formContainer');
         const loadingIndicator = document.querySelector('#loading');
         const undoButton = document.querySelector('#undo');
+        const overlay = document.querySelector('.overlay');
+        overlay.remove();
         clearInterval(intervalId);
         clearTimeout(timeoutId);
+        formContainer.classList.toggle('temporaryModal',false);
         loadingIndicator.remove();
         undoButton.remove();
+
     }
     return
 };
@@ -33,8 +38,9 @@ const deleteProcess = function(event){
     const checkDelete = confirm('Are you sure you want to delete this item?')
     if(checkDelete){
         let undoObject = {undo: false};
-        setUpUndoInterface();
+        implementOverlay();
         setUpLoadingInterface();
+        setUpUndoInterface();
         const interval = loadingInterval();
         const timeout = deleteTimeout(undoObject);
         attachUndoHandlers(undoObject,interval,timeout);
@@ -84,21 +90,30 @@ const setUpUndoInterface = function(){
     const formContainer = document.querySelector('#formContainer');
     const undoButton = document.createElement('button');
     undoButton.id = 'undo';
-    undoButton.textContent = 'UNDO DELETE';
+    undoButton.textContent = 'Undo Delete';
     formContainer.appendChild(undoButton);
+    formContainer.classList.toggle('temporaryModal',true);
+
 };
 
 const setUpLoadingInterface = function(){
     const formContainer = document.querySelector('#formContainer');
+    const form = document.querySelector('form');
     const loading = document.createElement('div');
-    const deleting = document.createElement('span');
+    const deleting = document.createElement('h3');
     loading.id = 'loading';
     deleting.id = 'deleting';
     deleting.textContent = 'Delete in progress';
-    formContainer.appendChild(loading);
-    loading.appendChild(deleting);     
+    formContainer.insertBefore(loading,form);
+    formContainer.classList.toggle('temporaryModal',true);    
+    loading.appendChild(deleting); 
 };
 
+const implementOverlay = function(){
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+    document.body.appendChild(overlay);
+}
 
 const undoDelete = function(undoContainer){
     if(undoContainer.undo){

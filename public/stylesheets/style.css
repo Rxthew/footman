@@ -42,6 +42,7 @@ a, button {
   letter-spacing: inherit;
   outline: none;
   text-decoration: underline;
+  white-space: pre;
   
 }
 
@@ -148,7 +149,7 @@ select:disabled{
 .bckwdrotate {
   animation: brotate 0.5s linear normal both}
 
-.choices {
+.choices, .temporaryModal {
   align-items: flex-start;
   background-color: #DBE8D8;;
   border: 3px solid #59981A;;
@@ -168,6 +169,7 @@ select:disabled{
   width: min(100vw,700px);
   z-index: 3;
 }
+
 
 .choices div {
   border-radius: 5px;
@@ -217,6 +219,13 @@ select:disabled{
  max-width: min(300px,80vw);
 }
 
+.freefeatured {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  align-items: flex-start;
+}
+
 .fwdrotate {
   animation: frotate 0.5s linear normal both;
 
@@ -234,6 +243,7 @@ select:disabled{
 .hidden, .hideAddLinks {
   display: none;
 }
+
 
 .overlay {
   background-color: black;
@@ -262,6 +272,35 @@ select:disabled{
     top: 100%
     
 }
+
+.temporaryModal form button {
+  background: inherit;
+  border: none;
+  bottom: 0; 
+  color:#0A7029;
+  cursor: pointer;
+  font-size: small;
+  letter-spacing: normal;
+  position: absolute;
+  right: 0;
+  text-decoration: underline;
+  
+}
+
+
+#deleting {
+  left: 0;
+  position: absolute;
+  top: 0;
+  
+}
+
+#undo {
+  align-self: center;
+  margin-bottom: 4rem;
+  
+}
+
 
 
 @keyframes brotate {
