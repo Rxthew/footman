@@ -54,7 +54,7 @@ const attachModalListeners = function(){
 const effectModal = function(hidden){
     const toggleReveal = function(){
         hidden.classList.toggle('hidden',false);
-        hidden.classList.toggle('choices',true);
+        hidden.setAttribute('aria-model','true');
     }
     const implementOverlay = function(){
         const overlay = document.createElement('div');
@@ -70,12 +70,12 @@ const effectModal = function(hidden){
 
 const minimiseModal = function(){
     const choose = document.querySelector('.choose');
-    const modal = document.querySelector('.choices');
+    const modal = document.querySelector('dialog');
     const overlay = document.querySelector('.overlay');
     
     const toggleHide = function(){
         modal.classList.toggle('hidden',true);
-        modal.classList.toggle('choices',false);
+        modal.setAttribute('aria-model','false');
     };
 
     const removeOverlay = function(){

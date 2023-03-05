@@ -24,7 +24,7 @@
              <% if(competitions.length > 0){
                 competitions.sort();%> 
                 <button type="button" class="choose">Open Competition Selection</button>      
-             <div class="hidden">
+             <dialog class="hidden">
                 <span class="choiceTitle">Competitions</span>
                 <% for(let competition of competitions){ %>
                     <div>
@@ -35,7 +35,7 @@
                 <div class="closeChoose">
                     <button type="button">Ready</button>
                 </div>
-             </div><%}
+             </dialog><%}
               else{%>
                    <span>No competitions available</span>
              <%}%>   

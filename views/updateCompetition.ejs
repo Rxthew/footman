@@ -40,7 +40,7 @@
                 <div class="error">
                     <span><%= errors.points.msg %></span>
                 </div><% } %>    
-             <div class="hidden">
+             <dialog class="hidden">
                 <span class="choiceTitle">Teams</span>
                 <% for(let team of teams){ %>
                     <div>
@@ -65,7 +65,7 @@
                 <div class="closeChoose">
                     <button type="button">Ready</button>
                 </div>
-             </div><%}
+             </dialog><%}
               else{%>
                    <span>No teams available</span>
              <%}%>   
