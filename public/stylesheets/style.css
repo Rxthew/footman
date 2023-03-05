@@ -46,6 +46,11 @@ a, button {
   
 }
 
+a:focus, button:focus, input:focus, .addLinks:focus{
+  outline: 2px solid #0A7029;
+  
+}
+
 aside a, aside button, form button, .freefeatured a, .recommended a, .revealAddLinks a { 
   background: #59981A;
   border-radius: 10px;
@@ -123,10 +128,6 @@ input {
   color: #0A7029;
 }
 
-input:focus{
-  outline: 2px solid #0A7029;
-  
-}
 
 input[type='radio'], input[type='checkbox']{
   cursor: pointer;
