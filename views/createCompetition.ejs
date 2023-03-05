@@ -11,10 +11,10 @@
   <body>
     <%- include('partials/header') %>
     <h2>Create Competition</h2>
-    <form action="" method="POST">
+    <form action="" method="POST" >
         <div>
             <label for="name">Name:</label>
-            <input id="name" name="name" type="text" <% if(typeof name !== 'undefined'){%> value="<%= name %>" <%}%>>
+            <input id="name" name="name" type="text" required="true" <% if(typeof name !== 'undefined'){%> value="<%= name %>" <%}%>>
             <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> 
                 <div class="error">
                     <span><%= errors.name.msg %></span>

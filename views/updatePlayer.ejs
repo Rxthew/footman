@@ -13,7 +13,7 @@
     <form action="?_method=PUT" method="POST">
         <div>
             <label for="firstName">First Name:</label>
-            <input id="firstName" name="firstName" type="text" value="<%=firstName%>">
+            <input id="firstName" name="firstName" type="text" value="<%=firstName%>" required="true">
             <% if((typeof errors !== 'undefined') && ( typeof errors.firstName !== 'undefined')){%> 
                 <div class="error">
                     <span><%= errors.firstName.msg %></span>
@@ -21,7 +21,7 @@
         </div>
         <div>
             <label for="lastName">Last Name:</label>
-            <input id="lastName" name="lastName" type="text" value="<%=lastName%>">
+            <input id="lastName" name="lastName" type="text" value="<%=lastName%>" required="true">
             <% if((typeof errors !== 'undefined') && ( typeof errors.lastName !== 'undefined')){%> 
                 <div class="error">
                     <span><%= errors.lastName.msg %></span>
@@ -32,7 +32,7 @@
         </div>
         <div>
             <label for="age">Age:</label>
-            <input id="age" name="age" type="number" min="15" max="45" value="<%=age%>">
+            <input id="age" name="age" type="number" min="15" max="45" value="<%=age%>" required="true">
             <% if((typeof errors !== 'undefined') && ( typeof errors.age !== 'undefined')){%> 
             <div class="error">
                 <span><%= errors.age.msg %></span>
@@ -40,7 +40,7 @@
         </div>
         <div>
             <label for="position">Position:</label>
-            <select id="position" name="position">
+            <select id="position" name="position" required="true">
                  <option value="Goalkeeper" <% if( position === 'Goalkeeper'){%>selected='true'<%}%>>Goalkeeper</option> 
                  <option value="Defender" <% if( position === 'Defender'){%>selected='true'<%}%>>Defender</option>
                  <option value="Midfielder" <% if( position === 'Midfielder'){%>selected='true'<%}%>>Midfielder</option>

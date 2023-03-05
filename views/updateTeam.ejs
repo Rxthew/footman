@@ -13,7 +13,7 @@
     <form action="?_method=PUT" method="POST">
         <div>
             <label for="name">Name:</label>
-            <input id="name" name="name" type="text" value="<%= name %>">
+            <input id="name" name="name" type="text" value="<%= name %>" required="true">
             <% if((typeof errors !== 'undefined') && ( typeof errors.name !== 'undefined')){%> 
                 <div class="error">
                     <span><%= errors.name.msg %></span>
