@@ -25,6 +25,8 @@ const clearDeleteEffects = function(undoContainer,intervalId, timeoutId,){
         clearInterval(intervalId);
         clearTimeout(timeoutId);
         formContainer.classList.toggle('temporaryModal',false);
+        formContainer.removeAttribute('role');
+        formContainer.removeAttribute('aria-modal');
         loadingIndicator.remove();
         undoButton.remove();
 
@@ -105,7 +107,9 @@ const setUpLoadingInterface = function(){
     deleting.id = 'deleting';
     deleting.textContent = 'Delete in progress';
     formContainer.insertBefore(loading,form);
-    formContainer.classList.toggle('temporaryModal',true);    
+    formContainer.classList.toggle('temporaryModal',true);
+    formContainer.setAttribute('role','alertdialog');
+    formContainer.setAttribute('aria-modal',true);    
     loading.appendChild(deleting); 
 };
 
