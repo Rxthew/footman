@@ -96,13 +96,15 @@
              <dialog aria-labelledby="choiceTitle" class="hidden">
                 <span id="choiceTitle">Teams</span>
                 <div>
-                    <label for="team">None</label>
-                    <input name="team" type="radio" value="None" <% if((typeof team !== 'undefined') && team === 'None'){%> checked=true <%}%>>
+                    <label for="none">None</label>
+                    <input id="none" name="team" type="radio" value="None" <% if((typeof team !== 'undefined') && team === 'None'){%> checked=true <%}%>>
                 </div>
-                <% for(let single_team of teams){ %>
+                <% for(let single_team of teams){ 
+                    const rawName = single_team.split(' ');
+                    const teamId = rawName.join('');%>
                     <div>
-                        <label for="team"><%= single_team %></label>
-                        <input id="<%= single_team %>" name="team" type="radio" value="<%= single_team %>"<% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
+                        <label for="<%= teamId %>"><%= single_team %></label>
+                        <input id="<%= teamId %>" name="team" type="radio" value="<%= single_team %>"<% if((typeof team !== 'undefined') && team === single_team){%> checked=true <%}%>>
                     </div>
                 <%}%>
                 <div class="closeChoose">

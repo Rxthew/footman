@@ -26,10 +26,12 @@
                 <button type="button" class="choose">Open Competition Selection</button>      
              <dialog aria-labelledby="choiceTitle" class="hidden">
                 <span id="choiceTitle">Competitions</span>
-                <% for(let competition of competitions){  %>
+                <% for(let competition of competitions){
+                    const rawName = competition.split(' ');
+                    const compId = rawName.join('');%>
                     <div>
-                        <label for="chosenCompetitions"><%= competition %></label>
-                        <input id="<%= competition %>" name="chosenCompetitions" type="checkbox" value="<%= competition %>" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
+                        <label for="<%=compId %>"><%= competition %></label>
+                        <input id="<%=compId %>" name="chosenCompetitions" type="checkbox" value="<%= competition %>" <% if((typeof chosenCompetitions !== 'undefined') && chosenCompetitions.includes(competition)){%> checked=true <%}%>>
                     </div>
                 <%}%>
                 <div class="closeChoose">
