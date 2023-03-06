@@ -190,18 +190,6 @@ select:disabled{
   
 }
 
-
-.choiceTitle {
-  background-color:#59981A;
-  font-size: large;
-  left: 0;
-  min-width: 100%;
-  padding-left: 0.25rem;
-  padding-bottom: 0.5rem;
-  position: absolute;
-  top: 0;
-}
-
 .closeChoose button {
   font-size: large;
 }
@@ -288,6 +276,16 @@ select:disabled{
   
 }
 
+#choiceTitle {
+  background-color:#59981A;
+  font-size: large;
+  left: 0;
+  min-width: 100%;
+  padding-left: 0.25rem;
+  padding-bottom: 0.5rem;
+  position: absolute;
+  top: 0;
+}
 
 #deleting {
   left: 0;

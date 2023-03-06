@@ -93,8 +93,8 @@
                 <div>
                     <span><%= errors.team.msg %></span>
                 </div> <%}%>     
-             <dialog class="hidden">
-                <span class="choiceTitle">Teams</span>
+             <dialog aria-labelledby="choiceTitle" class="hidden">
+                <span id="choiceTitle">Teams</span>
                 <div>
                     <label for="team">None</label>
                     <input name="team" type="radio" value="None" <% if((typeof team !== 'undefined') && team === 'None'){%> checked=true <%}%>>

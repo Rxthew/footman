@@ -24,8 +24,8 @@
              <% if(competitions.length > 0){
                 competitions.sort();%> 
                 <button type="button" class="choose">Open Competition Selection</button>      
-             <dialog class="hidden">>
-                <span class="choiceTitle">Competitions</span>
+             <dialog aria-labelledby="choiceTitle" class="hidden">>
+                <span id="choiceTitle">Competitions</span>
                 <% for(let competition of competitions){ %>
                     <div>
                         <label for="chosenCompetitions"><%= competition %></label>
