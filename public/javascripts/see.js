@@ -71,6 +71,7 @@ const implementOverlay = function(){
     overlay.classList.add('overlay');
     overlay.setAttribute('aria-label','overlay');
     overlay.setAttribute('role','button');
+    overlay.setAttribute('tabindex','0');
     document.body.appendChild(overlay);
 };
 

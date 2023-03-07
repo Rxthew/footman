@@ -65,6 +65,7 @@ const effectModal = function(hidden){
         overlay.classList.add('overlay');
         overlay.setAttribute('aria-label','overlay');
         overlay.setAttribute('role','button');
+        overlay.setAttribute('tabindex','0');
         overlay.addEventListener('click', minimiseModal);
         document.body.appendChild(overlay);
     }
