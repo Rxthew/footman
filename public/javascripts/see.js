@@ -66,6 +66,14 @@ const deleteTimeout = function(undoContainer){
     return timeout
 };
 
+const implementOverlay = function(){
+    const overlay = document.createElement('div');
+    overlay.classList.add('overlay');
+    overlay.setAttribute('aria-label','overlay');
+    overlay.setAttribute('role','button');
+    document.body.appendChild(overlay);
+};
+
 const loadingInterval = function(){
     const deleting = document.querySelector('#deleting');
     const deletingText = deleting.textContent;
@@ -113,11 +121,6 @@ const setUpLoadingInterface = function(){
     loading.appendChild(deleting); 
 };
 
-const implementOverlay = function(){
-    const overlay = document.createElement('div');
-    overlay.classList.add('overlay');
-    document.body.appendChild(overlay);
-}
 
 const undoDelete = function(undoContainer){
     if(undoContainer.undo){
