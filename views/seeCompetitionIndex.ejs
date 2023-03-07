@@ -14,8 +14,8 @@
     <% if((typeof seasons !== 'undefined') && seasons.length > 0){%>
         <main>
             <section>
-                <label>Season:</label>
-                <select>
+                <label for="seasons">Season:</label>
+                <select id="seasons">
                     <% for(let season of seasons){%>
                         <option value="<%= season %>" <% if(season === seasons[seasons.length - 1]){%> selected='true' <%} 
                             if(typeof hashes !== 'undefined'){%> data-hash="<%= hashes[season] %>"  <%}%> ><%= season %></option>

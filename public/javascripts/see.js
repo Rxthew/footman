@@ -118,7 +118,8 @@ const setUpLoadingInterface = function(){
     formContainer.insertBefore(loading,form);
     formContainer.classList.toggle('temporaryModal',true);
     formContainer.setAttribute('role','alertdialog');
-    formContainer.setAttribute('aria-modal',true);    
+    formContainer.setAttribute('aria-modal',true); 
+    formContainer.setAttribute('aria-label','Deleting Dialog')   
     loading.appendChild(deleting); 
 };
 
