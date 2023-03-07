@@ -25,10 +25,10 @@
              <% if(teams.length > 0){
                 teams.sort();%>
              <div>
-                <label>Apply points and rankings?</label>
+                <label for="apply_points">Apply points and rankings?</label>
                 <input id="apply_points" type="checkbox"  <% if((typeof points !== 'undefined')){%> checked=true <%}%>>
                 
-                <label>Apply rankings?</label>
+                <label for="apply_ranking">Apply rankings?</label>
                 <input id="apply_ranking" type="checkbox"  <% if((typeof rankings !== 'undefined')){%> checked=true <%}%>>
             </div>
              <button type="button" class="choose">Open Team Selection</button> 
