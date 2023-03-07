@@ -50,7 +50,7 @@ const attachModalListeners = function(){
         return
     }
     choose.addEventListener('click', () => effectModal(hidden))
-    const exit = document.querySelector('.closeChoose');
+    const exit = document.querySelector('.closeChoose').firstElementChild;
     exit.addEventListener('click', minimiseModal);
 
 };
@@ -63,6 +63,8 @@ const effectModal = function(hidden){
     const implementOverlay = function(){
         const overlay = document.createElement('div');
         overlay.classList.add('overlay');
+        overlay.setAttribute('aria-label','overlay');
+        overlay.setAttribute('role','button');
         overlay.addEventListener('click', minimiseModal);
         document.body.appendChild(overlay);
     }
@@ -73,7 +75,6 @@ const effectModal = function(hidden){
 };
 
 const minimiseModal = function(){
-    const choose = document.querySelector('.choose');
     const modal = document.querySelector('dialog');
     const overlay = document.querySelector('.overlay');
     
