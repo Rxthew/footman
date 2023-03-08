@@ -27,6 +27,8 @@ const clearDeleteEffects = function(undoContainer,intervalId, timeoutId,){
         formContainer.classList.toggle('temporaryModal',false);
         formContainer.removeAttribute('role');
         formContainer.removeAttribute('aria-modal');
+        formContainer.removeAttribute('tabindex');
+        formContainer.removeEventListener('focusout',modalTabTrap);
         loadingIndicator.remove();
         undoButton.remove();
 
@@ -91,6 +93,17 @@ const loadingInterval = function(){
    return interval
 };
 
+const modalTabTrap = function(event){
+    const parent = event.currentTarget
+    const focusableChildren = parent.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')
+    const children = Array.from(focusableChildren)
+    if(children.includes(event.relatedTarget)){
+        return
+    }
+    setTimeout(() => parent.focus(),0)
+
+};
+
 const removeSubmitHandler = function(){
     const form = document.querySelector('form');
     form.removeEventListener('submit',deleteProcess);
@@ -119,7 +132,9 @@ const setUpLoadingInterface = function(){
     formContainer.classList.toggle('temporaryModal',true);
     formContainer.setAttribute('role','alertdialog');
     formContainer.setAttribute('aria-modal',true); 
-    formContainer.setAttribute('aria-label','Deleting Dialog')   
+    formContainer.setAttribute('aria-label','Deleting Dialog')
+    formContainer.setAttribute('tabindex','0');
+    formContainer.addEventListener('focusout',modalTabTrap)   
     loading.appendChild(deleting); 
 };
 

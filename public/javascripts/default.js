@@ -24,6 +24,7 @@ const toggleGold = function(){
     }
 };
 
+
 const toggleRotate = function(){
     const path = document.querySelector('.add');
     const svg = path.parentElement;
@@ -56,10 +57,7 @@ const attachModalListeners = function(){
 };
 
 const effectModal = function(hidden){
-    const toggleReveal = function(){
-        hidden.classList.toggle('hidden',false);
-        hidden.setAttribute('aria-model','true');
-    }
+   
     const implementOverlay = function(){
         const overlay = document.createElement('div');
         overlay.classList.add('overlay');
@@ -68,6 +66,13 @@ const effectModal = function(hidden){
         overlay.setAttribute('tabindex','0');
         overlay.addEventListener('click', minimiseModal);
         document.body.appendChild(overlay);
+    }
+
+    const toggleReveal = function(){
+        hidden.classList.toggle('hidden',false);
+        hidden.setAttribute('aria-model','true');
+        hidden.setAttribute('tabindex',0)
+        hidden.addEventListener('focusout',modalTabTrap);
     }
 
     toggleReveal();
@@ -82,6 +87,7 @@ const minimiseModal = function(){
     const toggleHide = function(){
         modal.classList.toggle('hidden',true);
         modal.setAttribute('aria-model','false');
+        modal.removeEventListener('focusout',modalTabTrap)
     };
 
     const removeOverlay = function(){
@@ -94,6 +100,17 @@ const minimiseModal = function(){
 
     }
 };
+
+const modalTabTrap = function(event){
+    const parent = event.currentTarget
+    const focusableChildren = parent.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])')
+    const children = Array.from(focusableChildren)
+    if(children.includes(event.relatedTarget)){
+        return
+    }
+    setTimeout(() => parent.focus(),0)
+
+}; 
 
 attachModalListeners();
 
