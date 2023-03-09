@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction } from 'express';
 import { Transaction } from 'sequelize'
 import Competition, { CompetitionModel } from '../../models/competition';
@@ -12,7 +13,7 @@ export const applyPoints = async function(latestCompetition: CompetitionModel, r
           
           const generateTeamsPoints = function(){
                 if(results.points){
-                    let teamsPoints: {[index:string]:number} = {};
+                    const teamsPoints: {[index:string]:number} = {};
                     const chosenTeams = results.chosenTeams;
                     const chosenPoints = results.points;
                     if(chosenTeams){
@@ -31,7 +32,7 @@ export const applyPoints = async function(latestCompetition: CompetitionModel, r
           const harmoniseRanking = function(){
                 if(results.chosenTeams && teamsPoints && results.rankings && results.points){
                      
-                      let rankedTeams = [...results.chosenTeams];
+                      const rankedTeams = [...results.chosenTeams];
 
                         rankedTeams?.sort(function(x,y){
                             if(teamsPoints){
@@ -40,13 +41,13 @@ export const applyPoints = async function(latestCompetition: CompetitionModel, r
                             return -1            
                       })
 
-                      let newRankings = [...results.rankings];
+                      const newRankings = [...results.rankings];
                       newRankings.sort(function(x,y){
                         return x > y ? 1 : -1
                   });
                       
 
-                      let newPoints = [...results.points];
+                      const newPoints = [...results.points];
     
                       newPoints?.sort(function(x,y){
                             return x > y ? -1 : 1
@@ -115,7 +116,7 @@ export const applyRanking = async function(latestCompetition: CompetitionModel, 
         let chosenTeams = results.chosenTeams
         if(results.rankings && chosenTeams){
             const rankings = results.rankings;
-            let rankedTeams:string[] = [...chosenTeams];
+            const rankedTeams:string[] = [...chosenTeams];
             rankedTeams.sort(function(x,y){
                     return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1
             });
@@ -607,7 +608,7 @@ export const  nextTeamTemplate = async function(t: Transaction,givenName: string
 
  export const transactionWrapper = async function(callback: (t:Transaction) => Promise<void>, next:NextFunction){
     try {
-        const result = await sequelize.transaction(callback).catch(function(error:Error){
+         await sequelize.transaction(callback).catch(function(error:Error){
             throw error
         })
         

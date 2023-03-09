@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
 import axios from 'axios';
@@ -43,7 +44,7 @@ let seeCompetitionIndexResults: resultsGenerator.seeCompetitionIndexResults | nu
 
 const transactionWrapper = queryHelpers.transactionWrapper; 
 
-const competitionIndexSignal = async function(req:Request, res:Response, next: NextFunction){
+const competitionIndexSignal = async function(_req:Request, _res:Response, next: NextFunction){
       
       const newIndexData = async function(){
 
@@ -76,7 +77,7 @@ const competitionIndexDataCb = async function(t:Transaction){
           const allCompetitions = await getAllCompetitions(t).catch((err:Error)=>{throw err});
           const associatedCompetitionsPromises = allCompetitions && allCompetitions.length > 0 ? allCompetitions.map(competition => async () =>  await (competition as any).countTeams({transaction: t})) : [];
           const teamsCount = associatedCompetitionsPromises.length > 0 ? await Promise.all(associatedCompetitionsPromises.map(promise => promise())).catch((err:Error) => {throw err}) : associatedCompetitionsPromises;
-          const associatedCompetitions =  allCompetitions.filter((c,index) => teamsCount[index] > 0 );
+          const associatedCompetitions =  allCompetitions.filter((_c,index) => teamsCount[index] > 0 );
 
           const teamsPromises = associatedCompetitions.map(competition => async () =>  await (competition as any).getTeams({transaction: t}));
           const teamsSets = teamsPromises.length > 0 ? await Promise.all(teamsPromises.map(promise => promise())).catch((err:Error) => {throw err}) : teamsPromises;
@@ -86,7 +87,7 @@ const competitionIndexDataCb = async function(t:Transaction){
           const urls = getAllCompetitionUrlParams(associatedCompetitions,['name','code']);
 
 
-          let competitionData: {[index:string]: {name: string, url: string}[]} = {};
+          const competitionData: {[index:string]: {name: string, url: string}[]} = {};
 
           if(names.every(name => !!name) && urls.every(url => !!url) && seasons.every(season => !!season)){
 
@@ -130,7 +131,7 @@ const competitionIndexDataCb = async function(t:Transaction){
 };
 
 
-export const competitionIndexData = async function(req:Request, res:Response, next:NextFunction){
+export const competitionIndexData = async function(_req:Request, res:Response, next:NextFunction){
       
       await transactionWrapper(competitionIndexDataCb,next).catch(function(err:Error){throw err});
 
@@ -165,7 +166,7 @@ const deleteCompetitionCb = async function(t:Transaction):Promise<void>{
 
 export const deleteCompetition = [  
 
-      async function(req:Request,res:Response,next:NextFunction):Promise<void>{
+      async function(req:Request,_res:Response,next:NextFunction):Promise<void>{
 
       getCompetitionParameters(req,next);
 
@@ -179,7 +180,8 @@ export const deleteCompetition = [
 
       competitionIndexSignal,
 
-      async (req:Request,res:Response, next:NextFunction) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      async (_req:Request,res:Response, _next:NextFunction) => {
 
             const goToHomePage = function(){
                   res.redirect('/');
@@ -250,10 +252,10 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
       const {getPoints, getRankings, getAllTeamUrlParams} = queryHelpers;
 
-      let chosenTeams = getChosenTeams(competitionTeams);
-      let teamRankings = getRankings(competitionTeams);
-      let teamPoints = getPoints(competitionTeams);
-      let urls = getAllTeamUrlParams(competitionTeams, ['name','code']);
+      const chosenTeams = getChosenTeams(competitionTeams);
+      const teamRankings = getRankings(competitionTeams);
+      const teamPoints = getPoints(competitionTeams);
+      const urls = getAllTeamUrlParams(competitionTeams, ['name','code']);
       sortCompetitionData(chosenTeams,urls,teamRankings, teamPoints);
 
       const populateSeeCompetitionResults = function(){
@@ -285,7 +287,7 @@ const seeCompetitionCb = async function (t:Transaction): Promise<void>{
 
 export const seeCompetition = [ 
       
-      async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+      async function(req: Request, _res: Response, next: NextFunction):Promise<void>{
 
             getCompetitionParameters(req,next);
             
@@ -297,7 +299,7 @@ export const seeCompetition = [
 
       },
 
-      async function(req: Request, res: Response, next: NextFunction): Promise<void>{
+      async function(_req: Request, _res: Response, next: NextFunction): Promise<void>{
             const { applyRanking } = queryHelpers;
             const { sequentialRankings } = misc
 
@@ -361,7 +363,8 @@ export const seeCompetition = [
             next()
       },
 
-      function(req: Request, res: Response, next: NextFunction): void{
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      function(_req: Request, res: Response, _next: NextFunction): void{
 
             if(seeCompetitionResults){
                   seeCompetitionRenderer(res,seeCompetitionResults);
@@ -421,20 +424,17 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
       };
 
       const getCachedData = async function(latestHash:string){
-            try{
-                  const controller = new AbortController();
-                  const api = axios.create({
-                        baseURL: 'http://127.0.0.1:3000',
-                        signal: controller.signal
-                  });
-                  const cachedData = await api.get(`/competition/data/${latestHash}`);
-                  const data = cachedData.data;
-                  abortFetch(controller);
-                  return data
-            }
-            catch(err){
-                  throw err
-            };
+            const controller = new AbortController();
+            const api = axios.create({
+                  baseURL: 'http://127.0.0.1:3000',
+                  signal: controller.signal
+            });
+            const cachedData = await api.get(`/competition/data/${latestHash}`);
+            const data = cachedData.data;
+            abortFetch(controller);
+            return data
+      
+            
 
       };
 
@@ -514,7 +514,7 @@ const seeCompetitionIndexCb =  async function(t:Transaction){
 
 };
 
-export const seeCompetitionIndex = async function(req:Request, res:Response, next: NextFunction):Promise<void>{
+export const seeCompetitionIndex = async function(_req:Request, res:Response, next: NextFunction):Promise<void>{
 
       await transactionWrapper(seeCompetitionIndexCb, next).catch(function(error:Error){
             next(error)
@@ -564,7 +564,7 @@ const preFormCreateCompetitionCb = async function(t:Transaction):Promise<void>{
        return 
 };
 
-export const preFormCreateCompetition = async function(req: Request, res: Response, next: NextFunction):Promise<void>{
+export const preFormCreateCompetition = async function(_req: Request, res: Response, next: NextFunction):Promise<void>{
       
       preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
       await transactionWrapper(preFormCreateCompetitionCb,next).catch(function(error:Error){
@@ -586,7 +586,7 @@ const postFormCreateCompetitionCb = async function(t:Transaction){
             const teamNames = (postFormCreateCompetitionResults as resultsGenerator.postFormCreateCompetitionResults).chosenTeams;
             const chosenSeason = (postFormCreateCompetitionResults as resultsGenerator.postFormCreateCompetitionResults).season;
             if(teamNames && teamNames.length > 0 && chosenSeason){
-                  for(let teamName of teamNames){
+                  for(const teamName of teamNames){
                         const nextPromise = async function(){
                               return await nextTeamTemplate(t,teamName,chosenSeason).catch(function(err:Error){
                                     throw err;
@@ -685,7 +685,7 @@ export const postFormCreateCompetition = [...createCompetitionValidator(),
 
       competitionIndexSignal,
 
-      async (req:Request,res:Response, next:NextFunction) => {
+      async (_req:Request,res:Response, next:NextFunction) => {
 
             const goToCompetitionPage = async function(){
                   try {
@@ -727,7 +727,7 @@ const preFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
                   throw error
               });
 
-            let teamNames =  getAllTeamNames(teams);
+            const teamNames =  getAllTeamNames(teams);
 
             const competition = await Competition.findOne({
                   where: {
@@ -797,7 +797,7 @@ export const preFormUpdateCompetition = async function(req:Request, res:Response
       await transactionWrapper(preFormUpdateCompetitionCb,next).catch(function(error:Error){next(error)});
       if(preFormUpdateCompetitionResults){
             preFormUpdateCompetitionRenderer(res,preFormUpdateCompetitionResults);
-      };
+      }
       
       competitionParameterPlaceholder().reset();
       preFormUpdateCompetitionResults = null;
@@ -816,7 +816,7 @@ const postFormUpdateCompetitionCb = async function(t:Transaction):Promise<void>{
             const teamNames = (postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults).chosenTeams;
             const chosenSeason = (postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults).season;
             if(teamNames && teamNames.length > 0 && chosenSeason){
-                  for(let teamName of teamNames){
+                  for(const teamName of teamNames){
                         const nextPromise = async function(){
                               return await nextTeamTemplate(t,teamName,chosenSeason).catch(function(err:Error){
                                     throw err;
@@ -931,7 +931,8 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(),
 
       competitionIndexSignal,
 
-      async (req:Request,res:Response, next:NextFunction) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      async (req:Request,res:Response, _next:NextFunction) => {
 
             const goToCompetitionPage = function(){
                   const [name,code] = [(postFormUpdateCompetitionResults as resultsGenerator.postFormUpdateCompetitionResults).name, req.params.code];
@@ -949,7 +950,7 @@ export const postFormUpdateCompetition = [...updateCompetitionValidator(),
 
 
 
-export const setIndexDataCache = function(req:Request,res:Response,next:NextFunction){
+export const setIndexDataCache = function(_req:Request,res:Response,next:NextFunction){
       res.set('Cache-Control', 'public, max-age=31536000, immutable');
       next();
 

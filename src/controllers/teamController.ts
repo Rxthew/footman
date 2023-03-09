@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
@@ -74,7 +75,7 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
       const seeTeamQuery = async function(){ 
 
             const sortTeamData = function(arrayData: any[] | undefined){
-                  arrayData = arrayData && arrayData.length > 0 ? arrayData.sort() : arrayData
+                  arrayData && arrayData.length > 0 ? arrayData.sort() : arrayData
             };
 
             const parameters = teamParameterPlaceholder().parameters;
@@ -93,12 +94,12 @@ const seeTeamCb = async function (t:Transaction): Promise<void>{
             const competitionsResults = await (team as any)?.getCompetitions({joinTableAttributes: ['season','points','ranking']}, {transaction: t}).catch(function(error:Error){
                   throw error
               })
-            let competitions = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionNames(competitionsResults) : competitionsResults;
-            let players = playersResults && playersResults.length > 0 ? (playersResults as any[]).map(player  => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
-            let competitionUrls = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionUrlParams(competitionsResults,['name','code']) : competitionsResults;
-            let playerUrls = playersResults && playersResults.length > 0 ? getAllPlayerUrlParams(playersResults,['firstName','lastName','code']) : competitionsResults;
+            const competitions = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionNames(competitionsResults) : competitionsResults;
+            const players = playersResults && playersResults.length > 0 ? (playersResults as any[]).map(player  => `${player.getDataValue('firstName')} ${player.getDataValue('lastName')}`) : playersResults;
+            const competitionUrls = competitionsResults && competitionsResults.length > 0 ? getAllCompetitionUrlParams(competitionsResults,['name','code']) : competitionsResults;
+            const playerUrls = playersResults && playersResults.length > 0 ? getAllPlayerUrlParams(playersResults,['firstName','lastName','code']) : competitionsResults;
 
-            let sortedData = [competitions,players,competitionUrls,playerUrls]
+            const sortedData = [competitions,players,competitionUrls,playerUrls]
             sortedData.map(data => sortTeamData(data))            
             
             return {
@@ -151,7 +152,7 @@ export const seeTeam = async function(req: Request, res: Response, next: NextFun
         });
       if(seeTeamResults){
             seeTeamRenderer(res,seeTeamResults);
-      };
+      }
       
       teamParameterPlaceholder().reset();
       seeTeamResults = null;
@@ -201,7 +202,7 @@ export const preFormCreateTeam = async function(req: Request, res: Response, nex
         });
       if(preFormCreateTeamResults){
             preFormCreateTeamRenderer(res, preFormCreateTeamResults);
-      };
+      }
       preFormCreateTeamResults = null
 
 }
@@ -216,7 +217,7 @@ const postFormCreateTeamCb = async function(t:Transaction){
             const competitionNames = (postFormCreateTeamResults as resultsGenerator.postFormCreateTeamResults).chosenCompetitions;
             const chosenSeason = (postFormCreateTeamResults as resultsGenerator.postFormCreateTeamResults).season;
             if(competitionNames && competitionNames.length > 0 && chosenSeason){
-                  for(let compName of competitionNames){
+                  for(const compName of competitionNames){
                         const nextPromise = async function(){
                               return await nextCompetitionTemplate(t,compName,chosenSeason).catch(function(err:Error){
                                     throw err;
@@ -323,7 +324,7 @@ const preFormUpdateTeamCb = async function(t: Transaction){
                   throw error
               });
 
-            let competitionNames =  getAllCompetitionNames(competitions);
+            const competitionNames =  getAllCompetitionNames(competitions);
             
             const team = await Team.findOne({
                   where: {
@@ -408,7 +409,7 @@ const postFormUpdateTeamCb = async function(t:Transaction){
             const competitionNames = (postFormUpdateTeamResults as resultsGenerator.postFormUpdateTeamResults).chosenCompetitions;
             const chosenSeason = (postFormUpdateTeamResults as resultsGenerator.postFormUpdateTeamResults).season;
             if(competitionNames && competitionNames.length > 0 && chosenSeason){
-                  for(let compName of competitionNames){
+                  for(const compName of competitionNames){
                         const nextPromise = async function(){
                               return await nextCompetitionTemplate(t, compName,chosenSeason).catch(function(err:Error){
                                     throw err;

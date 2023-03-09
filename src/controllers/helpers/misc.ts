@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { competitionDataResults } from './results';
 import { createHash } from 'crypto';
 
@@ -5,17 +6,17 @@ import { createHash } from 'crypto';
 interface eventObjectType {
     [index:string] : ((...args:any[]) => any) | ((...args:any[]) =>any)[] 
 
-};
+}
 
 interface dataIndexObj {
     hashes: string | null,
     data: string | null
-};
+}
 
 interface dataIndexHandler {
     get(obj:dataIndexObj, prop:keyof dataIndexObj): string | null,
     set(obj:dataIndexObj, prop:keyof dataIndexObj, value: string | null): boolean
-};
+}
 
 
 let dataIndexContainer: dataIndexObj = {
@@ -53,7 +54,7 @@ export const hashIndexData = function(parsedIndexData: competitionDataResults){
 
     const seasons = Object.keys(parsedIndexData);
     const hashes = {};
-    for (let season of seasons){
+    for (const season of seasons){
           const hash = createHash('sha256');
           hash.update(JSON.stringify(parsedIndexData[season]));
           const hashedValue = hash.digest('base64');

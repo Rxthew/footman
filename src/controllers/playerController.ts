@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { Request, Response, NextFunction } from 'express';
 import { validationResult } from 'express-validator';
@@ -104,7 +105,7 @@ const seePlayerCb = async function (t:Transaction): Promise<void>{
                         const url = queryHelpers.getAllTeamUrlParams([results.team],['name','code'])[0]
                         Object.assign(seePlayerResults, {team: results.team.getDataValue('name')}, {teamUrl: url})
       
-                  };                  
+                  }                  
             }
             
             else{
@@ -136,7 +137,7 @@ export const seePlayer = async function(req: Request, res: Response, next: NextF
         });
       if(seePlayerResults){
             seePlayerRenderer(res,seePlayerResults);
-      };
+      }
 
       playerParameterPlaceholder().reset()
       seePlayerResults = null;
@@ -188,7 +189,7 @@ export const preFormCreatePlayer = async function(req: Request, res: Response, n
         });
       if(preFormCreatePlayerResults){
             preFormCreatePlayerRenderer(res, preFormCreatePlayerResults);
-      };
+      }
       preFormCreatePlayerResults = null;
 
       return
@@ -449,7 +450,7 @@ const postFormUpdatePlayerCb = async function(t: Transaction): Promise<void>{
             postFormUpdatePlayerResults = postFormUpdatePlayerResults as resultsGenerator.postFormUpdatePlayerResults
             const playerParameters = {...postFormUpdatePlayerResults};
             Object.assign(playerParameters, {team: undefined}, {season: undefined});
-            const update = await Player.update({
+            await Player.update({
                   ...playerParameters
                    },{where: {code: postFormUpdatePlayerResults.code}, transaction: t}).catch(function(error:Error){
                         throw error

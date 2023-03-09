@@ -9,7 +9,7 @@ export interface seeHomepageResults{
     freeCompetitions: {[index:string]: {name: string, url: string}}[],
     freePlayers: {[index:string]: {name: string, url: string}}[],
     freeTeams: {[index:string]: {name: string, url: string}}[]
-};
+}
 
 
 export interface seePlayerResults {
@@ -32,7 +32,7 @@ export interface seePlayerResults {
     teamUrl?: string
     
 
-};
+}
 
 export interface seeTeamResults {
     name: string,
@@ -41,7 +41,7 @@ export interface seeTeamResults {
     code?: number,
     competitionUrls?: string[],
     playerUrls?: string[],
-};
+}
 
 export interface seeCompetitionResults {
     name: string,
@@ -51,13 +51,13 @@ export interface seeCompetitionResults {
     points?: number[],
     code?: number,
     teamUrls?: string[]
-};
+}
 
 export interface seeCompetitionIndexResults {
     competitionDetails: {[index: string] :{ name: string, url: string}[]},
     hashes: {[index:string]: string},
     seasons: string[]
-};
+}
 
 export interface preFormCreatePlayerResults {
     teams: string[],
@@ -80,7 +80,7 @@ export interface preFormCreatePlayerResults {
     team?: string,
     season?: string
     
-};
+}
 
 export interface preFormCreateCompetitionResults {
     teams: string[],
@@ -91,7 +91,7 @@ export interface preFormCreateCompetitionResults {
     rankings?: number[],
     points?: number[],
     season?: string
-};
+}
 
 export interface preFormCreateTeamResults {
     competitions: string[],
@@ -101,7 +101,7 @@ export interface preFormCreateTeamResults {
     chosenCompetitions?: string[],
     season?: string
     
-};
+}
 
 export interface postFormCreatePlayerResults {
     firstName: string,
@@ -122,7 +122,7 @@ export interface postFormCreatePlayerResults {
     season?: string,
     code?: number
     
-};
+}
 
 export interface postFormCreateCompetitionResults {
     name: string,
@@ -131,13 +131,13 @@ export interface postFormCreateCompetitionResults {
     points?: number[],
     season?: string,
     
-};
+}
 
 export interface postFormCreateTeamResults {
     name: string,
     chosenCompetitions?: string[],
     season?: string
-};
+}
 
 export interface preFormUpdatePlayerResults extends preFormCreatePlayerResults {
     firstName: string,
@@ -146,23 +146,23 @@ export interface preFormUpdatePlayerResults extends preFormCreatePlayerResults {
     age: number,
     position: string,
     code?: number
-};
+}
 
-export interface postFormUpdatePlayerResults extends postFormCreatePlayerResults {};
+export type postFormUpdatePlayerResults = postFormCreatePlayerResults
 export interface preFormUpdateTeamResults extends preFormCreateTeamResults {
     name: string,
     code?: number
-};
+}
 export interface postFormUpdateTeamResults extends postFormCreateTeamResults {
     code?: number
-};
+}
 export interface preFormUpdateCompetitionResults extends preFormCreateCompetitionResults {
     name: string,
     code?: number
-};
+}
 export interface postFormUpdateCompetitionResults extends postFormCreateCompetitionResults {
     code?: number
-};
+}
 
 export const competitionData = function():competitionDataResults{
     return {}

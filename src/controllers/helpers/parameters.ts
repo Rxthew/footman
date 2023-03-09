@@ -5,44 +5,44 @@ interface competitionParametersType {
     code?: number,
     [index: string] : string | number | undefined 
 
-};
+}
 
  interface playerParametersType {
         firstName: string,
         lastName: string,
         code?: number,
         [index: string] : string | number | undefined 
-};
+}
 
  interface teamParametersType{
     name: string,
     code?: number,
     [index: string] : string | number | undefined 
 
-};
+}
 
 
-let competitionParameters: competitionParametersType = {
+const competitionParameters: competitionParametersType = {
     name: '',
     code: undefined
 
 };
 
-let playerParameters: playerParametersType = {
+const playerParameters: playerParametersType = {
     firstName: '',
     lastName: '',
     code: undefined
 
 };
 
-let teamParameters: teamParametersType = {
+const teamParameters: teamParametersType = {
     name: '',
     code: undefined
 
 };
 
 
-const _resetPlaceholderParameters = function<T extends {}>(obj:T){
+const _resetPlaceholderParameters = function<T extends object>(obj:T){
     const placeholders = Object.assign({},obj);
     const resetAttributes = function(){
         Object.assign(obj, placeholders)
@@ -61,8 +61,8 @@ const _syncParameters = function(placeholderObject:competitionParametersType | p
 
     const _assessRequestParameters = function(req: Request, next: NextFunction,): void{
         try {      
-            let attributes = Object.assign({},placeholderObject)                     
-            for(let name of Object.keys(attributes)){
+            const attributes = Object.assign({},placeholderObject)                     
+            for(const name of Object.keys(attributes)){
                 attributes[name] = req.params[name] ? req.params[name] : attributes[name]
                 _emptyResultHandler(typeof attributes[name] === undefined ? attributes[name] : attributes[name]?.toString())                       
             }

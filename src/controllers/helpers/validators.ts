@@ -152,8 +152,8 @@ const _finderFunctions = {
     }
 };
 
-const _sanitiseString = function(stringsArray: string[], person:boolean=false){
-    let sanitisers = stringsArray.map(val => person ? 
+const _sanitiseString = function(stringsArray: string[], person=false){
+    const sanitisers = stringsArray.map(val => person ? 
         body(val, `${val} must not be empty.`)
         .trim()
         .isAlpha(undefined, {ignore: ' -'})
