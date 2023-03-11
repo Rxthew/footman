@@ -1,19 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getTeamParameters = exports.getPlayerParameters = exports.getCompetitionParameters = exports.teamParameterPlaceholder = exports.playerParameterPlaceholder = exports.competitionParameterPlaceholder = void 0;
-;
-;
-;
-let competitionParameters = {
+const competitionParameters = {
     name: '',
     code: undefined
 };
-let playerParameters = {
+const playerParameters = {
     firstName: '',
     lastName: '',
     code: undefined
 };
-let teamParameters = {
+const teamParameters = {
     name: '',
     code: undefined
 };
@@ -32,8 +29,8 @@ const _syncParameters = function (placeholderObject) {
     };
     const _assessRequestParameters = function (req, next) {
         try {
-            let attributes = Object.assign({}, placeholderObject);
-            for (let name of Object.keys(attributes)) {
+            const attributes = Object.assign({}, placeholderObject);
+            for (const name of Object.keys(attributes)) {
                 attributes[name] = req.params[name] ? req.params[name] : attributes[name];
                 _emptyResultHandler(typeof attributes[name] === undefined ? attributes[name] : attributes[name]?.toString());
             }

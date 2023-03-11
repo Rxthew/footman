@@ -7,7 +7,7 @@ const sequelize_1 = require("sequelize");
 const initdb_1 = require("./concerns/initdb");
 const competition_1 = __importDefault(require("./competition"));
 const team_1 = __importDefault(require("./team"));
-const TeamsCompetitions = initdb_1.sequelize.define('TeamsCompetitions', {
+const TeamsCompetitions = initdb_1.sequelize.define("TeamsCompetitions", {
     id: {
         type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
@@ -17,27 +17,27 @@ const TeamsCompetitions = initdb_1.sequelize.define('TeamsCompetitions', {
         type: sequelize_1.DataTypes.UUID,
         references: {
             model: team_1.default,
-            key: 'id'
+            key: "id",
         },
     },
     competitionId: {
         type: sequelize_1.DataTypes.UUID,
         references: {
             model: competition_1.default,
-            key: 'id'
+            key: "id",
         },
     },
     points: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.INTEGER,
     },
     ranking: {
-        type: sequelize_1.DataTypes.INTEGER
+        type: sequelize_1.DataTypes.INTEGER,
     },
     season: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
-    }
+        allowNull: false,
+    },
 }, {
-    tableName: 'competitions_table'
+    tableName: "competitions_table",
 });
 exports.default = TeamsCompetitions;

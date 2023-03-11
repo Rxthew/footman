@@ -134,7 +134,7 @@ const _finderFunctions = {
     }
 };
 const _sanitiseString = function (stringsArray, person = false) {
-    let sanitisers = stringsArray.map(val => person ?
+    const sanitisers = stringsArray.map(val => person ?
         (0, express_validator_1.body)(val, `${val} must not be empty.`)
             .trim()
             .isAlpha(undefined, { ignore: ' -' })

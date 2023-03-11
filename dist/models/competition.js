@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const initdb_1 = require("./concerns/initdb");
-const Competition = initdb_1.sequelize.define('competition', {
+const Competition = initdb_1.sequelize.define("competition", {
     id: {
         type: sequelize_1.DataTypes.UUID,
         defaultValue: sequelize_1.DataTypes.UUIDV4,
@@ -10,14 +10,14 @@ const Competition = initdb_1.sequelize.define('competition', {
     },
     name: {
         type: sequelize_1.DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
     },
     code: {
         type: sequelize_1.DataTypes.INTEGER,
         autoIncrement: true,
-        allowNull: false
+        allowNull: false,
     },
 }, {
-    tableName: 'competitions'
+    tableName: "competitions",
 });
 exports.default = Competition;

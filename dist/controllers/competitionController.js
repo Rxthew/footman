@@ -38,7 +38,7 @@ const validators = __importStar(require("./helpers/validators"));
 const competition_1 = __importDefault(require("../models/competition"));
 const team_1 = __importDefault(require("../models/team"));
 require("../models/concerns/_runModels");
-const { hashIndexData, readHashedIndexData, readIndexData, sendCompetitionSignals, writeHashedIndexData, writeIndexData } = misc;
+const { hashIndexData, readHashedIndexData, readIndexData, sendCompetitionSignals, writeHashedIndexData, writeIndexData, } = misc;
 const { preFormCreateCompetitionRenderer, preFormUpdateCompetitionRenderer, seeCompetitionRenderer, seeCompetitionIndexRenderer, } = renderers;
 const { createCompetitionValidator, updateCompetitionValidator } = validators;
 let competitionDataResults = null;
@@ -49,10 +49,12 @@ let postFormUpdateCompetitionResults = null;
 let seeCompetitionResults = null;
 let seeCompetitionIndexResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
-const competitionIndexSignal = async function (req, res, next) {
+const competitionIndexSignal = async function (_req, _res, next) {
     const newIndexData = async function () {
         const generateData = async function () {
-            await transactionWrapper(competitionIndexDataCb, next).catch((err) => { throw err; });
+            await transactionWrapper(competitionIndexDataCb, next).catch((err) => {
+                throw err;
+            });
             writeIndexData(competitionDataResults);
         };
         const nullifyData = function () {
@@ -61,29 +63,51 @@ const competitionIndexSignal = async function (req, res, next) {
         await generateData();
         nullifyData();
     };
-    const eventObject = { 'competitionIndex': newIndexData };
-    await sendCompetitionSignals(eventObject, 'competitionIndex', undefined);
+    const eventObject = { competitionIndex: newIndexData };
+    await sendCompetitionSignals(eventObject, "competitionIndex", undefined);
     next();
 };
 const competitionIndexDataCb = async function (t) {
     const competitionIndexDataQuery = async function () {
-        const { getAllCompetitions, getAllCompetitionUrlParams, getCompetitionSeason } = queryHelpers;
-        const allCompetitions = await getAllCompetitions(t).catch((err) => { throw err; });
-        const associatedCompetitionsPromises = allCompetitions && allCompetitions.length > 0 ? allCompetitions.map(competition => async () => await competition.countTeams({ transaction: t })) : [];
-        const teamsCount = associatedCompetitionsPromises.length > 0 ? await Promise.all(associatedCompetitionsPromises.map(promise => promise())).catch((err) => { throw err; }) : associatedCompetitionsPromises;
-        const associatedCompetitions = allCompetitions.filter((c, index) => teamsCount[index] > 0);
-        const teamsPromises = associatedCompetitions.map(competition => async () => await competition.getTeams({ transaction: t }));
-        const teamsSets = teamsPromises.length > 0 ? await Promise.all(teamsPromises.map(promise => promise())).catch((err) => { throw err; }) : teamsPromises;
-        const seasons = teamsSets.map(set => getCompetitionSeason(set));
-        const names = associatedCompetitions && associatedCompetitions.length > 0 ? associatedCompetitions.map(competition => competition.getDataValue('name')) : [];
-        const urls = getAllCompetitionUrlParams(associatedCompetitions, ['name', 'code']);
-        let competitionData = {};
-        if (names.every(name => !!name) && urls.every(url => !!url) && seasons.every(season => !!season)) {
+        const { getAllCompetitions, getAllCompetitionUrlParams, getCompetitionSeason, } = queryHelpers;
+        const allCompetitions = await getAllCompetitions(t).catch((err) => {
+            throw err;
+        });
+        const associatedCompetitionsPromises = allCompetitions && allCompetitions.length > 0
+            ? allCompetitions.map((competition) => async () => await competition.countTeams({ transaction: t }))
+            : [];
+        const teamsCount = associatedCompetitionsPromises.length > 0
+            ? await Promise.all(associatedCompetitionsPromises.map((promise) => promise())).catch((err) => {
+                throw err;
+            })
+            : associatedCompetitionsPromises;
+        const associatedCompetitions = allCompetitions.filter((_c, index) => teamsCount[index] > 0);
+        const teamsPromises = associatedCompetitions.map((competition) => async () => await competition.getTeams({ transaction: t }));
+        const teamsSets = teamsPromises.length > 0
+            ? await Promise.all(teamsPromises.map((promise) => promise())).catch((err) => {
+                throw err;
+            })
+            : teamsPromises;
+        const seasons = teamsSets.map((set) => getCompetitionSeason(set));
+        const names = associatedCompetitions && associatedCompetitions.length > 0
+            ? associatedCompetitions.map((competition) => competition.getDataValue("name"))
+            : [];
+        const urls = getAllCompetitionUrlParams(associatedCompetitions, [
+            "name",
+            "code",
+        ]);
+        const competitionData = {};
+        if (names.every((name) => !!name) &&
+            urls.every((url) => !!url) &&
+            seasons.every((season) => !!season)) {
             const sortDetails = function (seasonName) {
                 let namesCopy = [...names];
                 namesCopy.sort();
                 competitionData[seasonName].sort(function (x, y) {
-                    return namesCopy.indexOf(x['name']) < namesCopy.indexOf(y['name']) ? -1 : 1;
+                    return namesCopy.indexOf(x["name"]) <
+                        namesCopy.indexOf(y["name"])
+                        ? -1
+                        : 1;
                 });
                 namesCopy = null;
             };
@@ -93,10 +117,13 @@ const competitionIndexDataCb = async function (t) {
                         if (!Object.prototype.hasOwnProperty.call(competitionData, seasonName)) {
                             competitionData[seasonName] = [];
                         }
-                        competitionData[seasonName] = [...competitionData[seasonName], {
+                        competitionData[seasonName] = [
+                            ...competitionData[seasonName],
+                            {
                                 name: names[index],
-                                url: urls[index]
-                            }];
+                                url: urls[index],
+                            },
+                        ];
                         sortDetails(seasonName);
                     });
                 }
@@ -105,14 +132,18 @@ const competitionIndexDataCb = async function (t) {
         }
         return competitionData;
     };
-    const results = await competitionIndexDataQuery().catch((err) => { throw err; });
+    const results = await competitionIndexDataQuery().catch((err) => {
+        throw err;
+    });
     if (results) {
         competitionDataResults = resultsGenerator.competitionData();
         Object.assign(competitionDataResults, results);
     }
 };
-const competitionIndexData = async function (req, res, next) {
-    await transactionWrapper(competitionIndexDataCb, next).catch(function (err) { throw err; });
+const competitionIndexData = async function (_req, res, next) {
+    await transactionWrapper(competitionIndexDataCb, next).catch(function (err) {
+        throw err;
+    });
     res.json(competitionDataResults);
     competitionDataResults = null;
     return;
@@ -123,9 +154,9 @@ const deleteCompetitionCb = async function (t) {
     const competition = await competition_1.default.findOne({
         where: {
             name: parameters.name,
-            code: parameters.code
+            code: parameters.code,
         },
-        transaction: t
+        transaction: t,
     }).catch(function (error) {
         throw error;
     });
@@ -134,7 +165,7 @@ const deleteCompetitionCb = async function (t) {
     });
 };
 exports.deleteCompetition = [
-    async function (req, res, next) {
+    async function (req, _res, next) {
         (0, parameters_1.getCompetitionParameters)(req, next);
         await transactionWrapper(deleteCompetitionCb, next).catch(function (error) {
             next(error);
@@ -142,13 +173,14 @@ exports.deleteCompetition = [
         next();
     },
     competitionIndexSignal,
-    async (req, res, next) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async (_req, res, _next) => {
         const goToHomePage = function () {
-            res.redirect('/');
+            res.redirect("/");
         };
         goToHomePage();
         (0, parameters_1.competitionParameterPlaceholder)().reset();
-    }
+    },
 ];
 const seeCompetitionCb = async function (t) {
     const sortCompetitionData = function (teams, teamUrls, rankings, points) {
@@ -157,7 +189,9 @@ const seeCompetitionCb = async function (t) {
                 return rankings[teams.indexOf(x)] > rankings[teams.indexOf(y)] ? 1 : -1;
             });
             teamUrls.sort(function (x, y) {
-                return rankings[teamUrls.indexOf(x)] > rankings[teamUrls.indexOf(y)] ? 1 : -1;
+                return rankings[teamUrls.indexOf(x)] > rankings[teamUrls.indexOf(y)]
+                    ? 1
+                    : -1;
             });
             rankings.sort(function (x, y) {
                 return x > y ? 1 : -1;
@@ -171,11 +205,6 @@ const seeCompetitionCb = async function (t) {
         else {
             teams.sort();
             teamUrls.sort();
-            console.log('______________________________________________________');
-            console.log(teams);
-            console.log('______________________________________________________');
-            console.log(teamUrls);
-            console.log('______________________________________________________');
         }
     };
     const seeCompetitionQuery = async function () {
@@ -183,13 +212,18 @@ const seeCompetitionCb = async function (t) {
         const competition = await competition_1.default.findOne({
             where: {
                 name: parameters.name,
-                code: parameters.code
+                code: parameters.code,
             },
-            transaction: t
+            transaction: t,
         }).catch(function (error) {
             throw error;
         });
-        const teams = await competition?.getTeams({ joinTableAttributes: ['season', 'points', 'ranking'], transaction: t }).catch(function (error) {
+        const teams = await competition
+            ?.getTeams({
+            joinTableAttributes: ["season", "points", "ranking"],
+            transaction: t,
+        })
+            .catch(function (error) {
             throw error;
         });
         return {
@@ -204,10 +238,10 @@ const seeCompetitionCb = async function (t) {
     const getChosenTeams = queryHelpers.getAllTeamNames;
     const getSeason = queryHelpers.getCompetitionSeason;
     const { getPoints, getRankings, getAllTeamUrlParams } = queryHelpers;
-    let chosenTeams = getChosenTeams(competitionTeams);
-    let teamRankings = getRankings(competitionTeams);
-    let teamPoints = getPoints(competitionTeams);
-    let urls = getAllTeamUrlParams(competitionTeams, ['name', 'code']);
+    const chosenTeams = getChosenTeams(competitionTeams);
+    const teamRankings = getRankings(competitionTeams);
+    const teamPoints = getPoints(competitionTeams);
+    const urls = getAllTeamUrlParams(competitionTeams, ["name", "code"]);
     sortCompetitionData(chosenTeams, urls, teamRankings, teamPoints);
     const populateSeeCompetitionResults = function () {
         if (results.competition && results.teams) {
@@ -215,7 +249,7 @@ const seeCompetitionCb = async function (t) {
             Object.assign(seeCompetitionResults, results.competition.get(), { teams: chosenTeams }, { season: getSeason(competitionTeams) }, { rankings: teamRankings }, { points: teamPoints }, { teamUrls: urls });
         }
         else {
-            const err = new Error('Query regarding competition viewing returned invalid data.');
+            const err = new Error("Query regarding competition viewing returned invalid data.");
             throw err;
         }
     };
@@ -224,32 +258,32 @@ const seeCompetitionCb = async function (t) {
     }
     catch (err) {
         console.log(err);
-        const newErr = new Error('Query regarding competition viewing returned invalid data.');
+        const newErr = new Error("Query regarding competition viewing returned invalid data.");
         throw newErr;
     }
     return;
 };
 exports.seeCompetition = [
-    async function (req, res, next) {
+    async function (req, _res, next) {
         (0, parameters_1.getCompetitionParameters)(req, next);
         await transactionWrapper(seeCompetitionCb, next).catch(function (error) {
             next(error);
         });
         next();
     },
-    async function (req, res, next) {
+    async function (_req, _res, next) {
         const { applyRanking } = queryHelpers;
         const { sequentialRankings } = misc;
         const checkRankings = function (rankings) {
             if (rankings && rankings.length > 0) {
-                return rankings.some(ranking => ranking > rankings.length);
+                return rankings.some((ranking) => ranking > rankings.length);
             }
         };
         const updateSeeCompetitionResults = function () {
             if (seeCompetitionResults) {
                 const rankings = seeCompetitionResults.rankings;
                 if (checkRankings(rankings)) {
-                    const stringifiedRankings = rankings?.map(ranking => ranking.toString());
+                    const stringifiedRankings = rankings?.map((ranking) => ranking.toString());
                     const newRankings = sequentialRankings(stringifiedRankings);
                     Object.assign(seeCompetitionResults, { rankings: newRankings });
                 }
@@ -261,9 +295,9 @@ exports.seeCompetition = [
             const competition = await competition_1.default.findOne({
                 where: {
                     name: parameters.name,
-                    code: parameters.code
+                    code: parameters.code,
                 },
-                transaction: t
+                transaction: t,
             }).catch(function (error) {
                 throw error;
             });
@@ -273,24 +307,35 @@ exports.seeCompetition = [
         };
         const updateDatabaseWithNewRankings = async function () {
             if (seeCompetitionResults) {
-                await transactionWrapper(getCompetitionQuery, next).catch((err) => { throw err; });
+                await transactionWrapper(getCompetitionQuery, next).catch((err) => {
+                    throw err;
+                });
                 if (competitionResult) {
-                    postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
-                    Object.assign(postFormUpdateCompetitionResults, { chosenTeams: seeCompetitionResults.teams, rankings: seeCompetitionResults.rankings });
+                    postFormUpdateCompetitionResults =
+                        resultsGenerator.postFormUpdateCompetition();
+                    Object.assign(postFormUpdateCompetitionResults, {
+                        chosenTeams: seeCompetitionResults.teams,
+                        rankings: seeCompetitionResults.rankings,
+                    });
                     const applyLatestRankings = async function (t) {
                         if (postFormUpdateCompetitionResults) {
                             await applyRanking(competitionResult, postFormUpdateCompetitionResults, t);
                         }
                     };
-                    await transactionWrapper(applyLatestRankings, next).catch((err) => { throw err; });
+                    await transactionWrapper(applyLatestRankings, next).catch((err) => {
+                        throw err;
+                    });
                 }
             }
         };
         updateSeeCompetitionResults();
-        await updateDatabaseWithNewRankings().catch((err) => { throw err; });
+        await updateDatabaseWithNewRankings().catch((err) => {
+            throw err;
+        });
         next();
     },
-    function (req, res, next) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    function (_req, res, _next) {
         if (seeCompetitionResults) {
             seeCompetitionRenderer(res, seeCompetitionResults);
         }
@@ -298,7 +343,7 @@ exports.seeCompetition = [
         postFormUpdateCompetitionResults = null;
         seeCompetitionResults = null;
         return;
-    }
+    },
 ];
 const seeCompetitionIndexCb = async function (t) {
     const competitionIndexDataProcessor = function (currentData) {
@@ -323,36 +368,34 @@ const seeCompetitionIndexCb = async function (t) {
         const data = {
             seasons: generateSeasons(),
             competitionDetails: generateCompetitionDetails(),
-            hashes: readHashedIndexData()
+            hashes: readHashedIndexData(),
         };
         nullifyIndexData();
         return data;
     };
     const abortFetch = function (controller) {
-        const controllerAbort = function () { controller.abort(); };
+        const controllerAbort = function () {
+            controller.abort();
+        };
         setTimeout(controllerAbort, 10000);
         return;
     };
     const getCachedData = async function (latestHash) {
-        try {
-            const controller = new AbortController();
-            const api = axios_1.default.create({
-                baseURL: 'http://127.0.0.1:3000',
-                signal: controller.signal
-            });
-            const cachedData = await api.get(`/competition/data/${latestHash}`);
-            const data = cachedData.data;
-            abortFetch(controller);
-            return data;
-        }
-        catch (err) {
-            throw err;
-        }
-        ;
+        const controller = new AbortController();
+        const api = axios_1.default.create({
+            baseURL: process.env.BASEURL || "http://127.0.0.1:3000",
+            signal: controller.signal,
+        });
+        const cachedData = await api.get(`/competition/data/${latestHash}`);
+        const data = cachedData.data;
+        abortFetch(controller);
+        return data;
     };
     const newCompetitionIndexData = async function () {
         const generateData = async function () {
-            await competitionIndexDataCb(t).catch((err) => { throw err; });
+            await competitionIndexDataCb(t).catch((err) => {
+                throw err;
+            });
             writeIndexData(competitionDataResults);
         };
         const nullifyData = function () {
@@ -379,9 +422,12 @@ const seeCompetitionIndexCb = async function (t) {
         const currentData = readIndexData();
         const currentHashes = readHashedIndexData();
         switch (true) {
-            case !!(currentData): return competitionIndexDataProcessor(currentData);
-            case !!(currentHashes): return await passCurrentData(currentHashes);
-            default: return await newCompetitionIndexData();
+            case !!currentData:
+                return competitionIndexDataProcessor(currentData);
+            case !!currentHashes:
+                return await passCurrentData(currentHashes);
+            default:
+                return await newCompetitionIndexData();
         }
     };
     const results = await seeCompetitionIndexQuery();
@@ -391,7 +437,7 @@ const seeCompetitionIndexCb = async function (t) {
             Object.assign(seeCompetitionIndexResults, { competitionDetails: results.competitionDetails }, { seasons: results.seasons }, { hashes: results.hashes });
         }
         else {
-            const err = new Error('Query regarding competition index viewing returned invalid data.');
+            const err = new Error("Query regarding competition index viewing returned invalid data.");
             throw err;
         }
     };
@@ -400,11 +446,11 @@ const seeCompetitionIndexCb = async function (t) {
     }
     catch (err) {
         console.log(err);
-        const newErr = new Error('Query regarding competition index viewing returned invalid data.');
+        const newErr = new Error("Query regarding competition index viewing returned invalid data.");
         throw newErr;
     }
 };
-const seeCompetitionIndex = async function (req, res, next) {
+const seeCompetitionIndex = async function (_req, res, next) {
     await transactionWrapper(seeCompetitionIndexCb, next).catch(function (error) {
         next(error);
     });
@@ -426,7 +472,7 @@ const preFormCreateCompetitionCb = async function (t) {
             Object.assign(preFormCreateCompetitionResults, { teams: teamNames }, { seasons: getSeasons() });
         }
         else {
-            const err = new Error('Query regarding competition creation returned invalid data.');
+            const err = new Error("Query regarding competition creation returned invalid data.");
             throw err;
         }
     };
@@ -435,12 +481,12 @@ const preFormCreateCompetitionCb = async function (t) {
     }
     catch (err) {
         console.log(err);
-        const newErr = new Error('Query regarding competition creation returned invalid data.');
+        const newErr = new Error("Query regarding competition creation returned invalid data.");
         throw newErr;
     }
     return;
 };
-const preFormCreateCompetition = async function (req, res, next) {
+const preFormCreateCompetition = async function (_req, res, next) {
     preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
     await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
         next(error);
@@ -458,7 +504,7 @@ const postFormCreateCompetitionCb = async function (t) {
         const teamNames = postFormCreateCompetitionResults.chosenTeams;
         const chosenSeason = postFormCreateCompetitionResults.season;
         if (teamNames && teamNames.length > 0 && chosenSeason) {
-            for (let teamName of teamNames) {
+            for (const teamName of teamNames) {
                 const nextPromise = async function () {
                     return await nextTeamTemplate(t, teamName, chosenSeason).catch(function (err) {
                         throw err;
@@ -470,11 +516,17 @@ const postFormCreateCompetitionCb = async function (t) {
         return teamPromises;
     };
     const createDissociatedCompetition = async function () {
-        const newCompetition = await competition_1.default.create({ ...postFormCreateCompetitionResults }, { transaction: t }).catch(function (err) { throw err; });
+        const newCompetition = await competition_1.default.create({
+            ...postFormCreateCompetitionResults,
+        }, { transaction: t }).catch(function (err) {
+            throw err;
+        });
         return newCompetition;
     };
     const createCompetition = async function () {
-        const competitionParameters = { ...postFormCreateCompetitionResults };
+        const competitionParameters = {
+            ...postFormCreateCompetitionResults,
+        };
         Object.assign(competitionParameters, { chosenCompetitions: undefined });
         const chosenSeason = postFormCreateCompetitionResults.season;
         const teamPromises = await getRelevantTeams().catch(function (err) {
@@ -483,11 +535,18 @@ const postFormCreateCompetitionCb = async function (t) {
         if (teamPromises.length === 0) {
             return await createDissociatedCompetition();
         }
-        const relevantTeams = await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function (err) { throw err; });
+        const relevantTeams = await Promise.all(teamPromises.map((teamPromise) => teamPromise())).catch(function (err) {
+            throw err;
+        });
         const newCompetition = await competition_1.default.create({ ...competitionParameters }, { transaction: t }).catch(function (err) {
             throw err;
         });
-        await newCompetition.setTeams(relevantTeams, { transaction: t, through: { season: chosenSeason } }).catch(function (err) {
+        await newCompetition
+            .setTeams(relevantTeams, {
+            transaction: t,
+            through: { season: chosenSeason },
+        })
+            .catch(function (err) {
             throw err;
         });
         return newCompetition;
@@ -502,10 +561,13 @@ const postFormCreateCompetitionCb = async function (t) {
         throw err;
     });
 };
-exports.postFormCreateCompetition = [...createCompetitionValidator(),
+exports.postFormCreateCompetition = [
+    ...createCompetitionValidator(),
     async function (req, res, next) {
-        postFormCreateCompetitionResults = resultsGenerator.postFormCreateCompetition();
-        preFormCreateCompetitionResults = resultsGenerator.preFormCreateCompetition();
+        postFormCreateCompetitionResults =
+            resultsGenerator.postFormCreateCompetition();
+        preFormCreateCompetitionResults =
+            resultsGenerator.preFormCreateCompetition();
         const errors = (0, express_validator_1.validationResult)(req);
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormCreateCompetitionCb, next).catch(function (error) {
@@ -526,10 +588,10 @@ exports.postFormCreateCompetition = [...createCompetitionValidator(),
         postFormCreateCompetitionResults = null;
     },
     competitionIndexSignal,
-    async (req, res, next) => {
+    async (_req, res, next) => {
         const goToCompetitionPage = async function () {
             try {
-                const latestCode = await competition_1.default.max('code').catch(function (error) {
+                const latestCode = await competition_1.default.max("code").catch(function (error) {
                     throw error;
                 });
                 const competitionName = postFormCreateCompetitionResults.name;
@@ -547,7 +609,7 @@ exports.postFormCreateCompetition = [...createCompetitionValidator(),
         });
         preFormCreateCompetitionResults = null;
         postFormCreateCompetitionResults = null;
-    }
+    },
 ];
 const preFormUpdateCompetitionCb = async function (t) {
     const { getAllTeams, getAllTeamNames, getSeasons } = queryHelpers;
@@ -558,20 +620,26 @@ const preFormUpdateCompetitionCb = async function (t) {
         const teams = await getAllTeams(t).catch(function (error) {
             throw error;
         });
-        let teamNames = getAllTeamNames(teams);
+        const teamNames = getAllTeamNames(teams);
         const competition = await competition_1.default.findOne({
             where: {
                 name: parameters.name,
-                code: parameters.code
+                code: parameters.code,
             },
-            transaction: t
+            transaction: t,
         }).catch(function (error) {
             throw error;
         });
-        const competitionTeams = competition ? await competition.getTeams({ joinTableAttributes: ['season', 'ranking', 'points'], transaction: t })
-            .catch(function (error) {
-            throw error;
-        }) : [];
+        const competitionTeams = competition
+            ? await competition
+                .getTeams({
+                joinTableAttributes: ["season", "ranking", "points"],
+                transaction: t,
+            })
+                .catch(function (error) {
+                throw error;
+            })
+            : [];
         const chosenTeams = getAllTeamNames(competitionTeams);
         const givenSeason = competitionTeams.length > 0 ? getSeason(competitionTeams) : undefined;
         const givenRankings = competitionTeams.length > 0 ? getRankings(competitionTeams) : undefined;
@@ -593,7 +661,7 @@ const preFormUpdateCompetitionCb = async function (t) {
             Object.assign(preFormUpdateCompetitionResults, results.competition.get(), { teams: results.teamNames }, { season: results.givenSeason }, { chosenTeams: results.chosenTeams }, { seasons: getSeasons() }, { rankings: results.givenRankings }, { points: results.givenPoints });
         }
         else {
-            const err = new Error('Query regarding competition update returned invalid data.');
+            const err = new Error("Query regarding competition update returned invalid data.");
             throw err;
         }
     };
@@ -602,7 +670,7 @@ const preFormUpdateCompetitionCb = async function (t) {
     }
     catch (err) {
         console.log(err);
-        const newErr = new Error('Query regarding competition update returned invalid data.');
+        const newErr = new Error("Query regarding competition update returned invalid data.");
         throw newErr;
     }
     return;
@@ -610,24 +678,26 @@ const preFormUpdateCompetitionCb = async function (t) {
 const preFormUpdateCompetition = async function (req, res, next) {
     (0, parameters_1.getCompetitionParameters)(req, next);
     preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
-    await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) { next(error); });
+    await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (error) {
+        next(error);
+    });
     if (preFormUpdateCompetitionResults) {
         preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
     }
-    ;
     (0, parameters_1.competitionParameterPlaceholder)().reset();
     preFormUpdateCompetitionResults = null;
 };
 exports.preFormUpdateCompetition = preFormUpdateCompetition;
 const postFormUpdateCompetitionCb = async function (t) {
     const { applyPoints, applyRanking, nextTeamTemplate } = queryHelpers;
-    postFormUpdateCompetitionResults = postFormUpdateCompetitionResults;
+    postFormUpdateCompetitionResults =
+        postFormUpdateCompetitionResults;
     const getRelevantTeams = async function () {
         let teamPromises = [];
         const teamNames = postFormUpdateCompetitionResults.chosenTeams;
         const chosenSeason = postFormUpdateCompetitionResults.season;
         if (teamNames && teamNames.length > 0 && chosenSeason) {
-            for (let teamName of teamNames) {
+            for (const teamName of teamNames) {
                 const nextPromise = async function () {
                     return await nextTeamTemplate(t, teamName, chosenSeason).catch(function (err) {
                         throw err;
@@ -646,31 +716,47 @@ const postFormUpdateCompetitionCb = async function (t) {
         const teamPromises = await getRelevantTeams().catch(function (err) {
             throw err;
         });
-        const relevantTeams = teamPromises.length > 0 ? await Promise.all(teamPromises.map(teamPromise => teamPromise())).catch(function (err) { throw err; }) : teamPromises;
+        const relevantTeams = teamPromises.length > 0
+            ? await Promise.all(teamPromises.map((teamPromise) => teamPromise())).catch(function (err) {
+                throw err;
+            })
+            : teamPromises;
         const updatedCompetition = await competition_1.default.findOne({
             where: {
                 name: previousParameters.name,
-                code: previousParameters.code
+                code: previousParameters.code,
             },
-            include: [{
-                    model: team_1.default
-                }],
-            transaction: t
+            include: [
+                {
+                    model: team_1.default,
+                },
+            ],
+            transaction: t,
         }).catch(function (err) {
             throw err;
         });
         updatedCompetition?.set({ ...competitionParameters });
-        if (postFormUpdateCompetitionResults.chosenTeams && postFormUpdateCompetitionResults.season) {
-            await updatedCompetition.setTeams(relevantTeams, { transaction: t, through: { season: chosenSeason } }).catch(function (err) {
+        if (postFormUpdateCompetitionResults.chosenTeams &&
+            postFormUpdateCompetitionResults.season) {
+            await updatedCompetition
+                .setTeams(relevantTeams, {
+                transaction: t,
+                through: { season: chosenSeason },
+            })
+                .catch(function (err) {
                 throw err;
             });
         }
         else {
-            await updatedCompetition.setTeams(null, { transaction: t }).catch(function (error) {
+            await updatedCompetition
+                .setTeams(null, { transaction: t })
+                .catch(function (error) {
                 throw error;
             });
         }
-        await updatedCompetition?.save({ transaction: t }).catch(function (err) {
+        await updatedCompetition
+            ?.save({ transaction: t })
+            .catch(function (err) {
             throw err;
         });
         return updatedCompetition;
@@ -678,24 +764,33 @@ const postFormUpdateCompetitionCb = async function (t) {
     const latestCompetition = await updateCompetition().catch(function (err) {
         throw err;
     });
-    latestCompetition ? await applyPoints(latestCompetition, postFormUpdateCompetitionResults, t).catch(function (err) {
-        throw err;
-    }) : false;
-    latestCompetition ? await applyRanking(latestCompetition, postFormUpdateCompetitionResults, t).catch(function (err) {
-        throw err;
-    }) : false;
+    latestCompetition
+        ? await applyPoints(latestCompetition, postFormUpdateCompetitionResults, t).catch(function (err) {
+            throw err;
+        })
+        : false;
+    latestCompetition
+        ? await applyRanking(latestCompetition, postFormUpdateCompetitionResults, t).catch(function (err) {
+            throw err;
+        })
+        : false;
 };
-exports.postFormUpdateCompetition = [...updateCompetitionValidator(),
+exports.postFormUpdateCompetition = [
+    ...updateCompetitionValidator(),
     async function (req, res, next) {
         (0, parameters_1.getCompetitionParameters)(req, next);
         const errors = (0, express_validator_1.validationResult)(req);
-        preFormUpdateCompetitionResults = resultsGenerator.preFormUpdateCompetition();
-        postFormUpdateCompetitionResults = resultsGenerator.postFormUpdateCompetition();
+        preFormUpdateCompetitionResults =
+            resultsGenerator.preFormUpdateCompetition();
+        postFormUpdateCompetitionResults =
+            resultsGenerator.postFormUpdateCompetition();
         if (!errors.isEmpty()) {
             await transactionWrapper(preFormUpdateCompetitionCb, next).catch(function (err) {
                 next(err);
             });
-            Object.assign(preFormUpdateCompetitionResults, req.body, { errors: errors.mapped() });
+            Object.assign(preFormUpdateCompetitionResults, req.body, {
+                errors: errors.mapped(),
+            });
             preFormUpdateCompetitionRenderer(res, preFormUpdateCompetitionResults);
         }
         else {
@@ -711,19 +806,23 @@ exports.postFormUpdateCompetition = [...updateCompetitionValidator(),
         postFormUpdateCompetitionResults = null;
     },
     competitionIndexSignal,
-    async (req, res, next) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    async (req, res, _next) => {
         const goToCompetitionPage = function () {
-            const [name, code] = [postFormUpdateCompetitionResults.name, req.params.code];
+            const [name, code] = [
+                postFormUpdateCompetitionResults.name,
+                req.params.code,
+            ];
             res.redirect(`/competition/${name}.${code}`);
         };
         goToCompetitionPage();
         (0, parameters_1.competitionParameterPlaceholder)().reset();
         preFormCreateCompetitionResults = null;
         postFormCreateCompetitionResults = null;
-    }
+    },
 ];
-const setIndexDataCache = function (req, res, next) {
-    res.set('Cache-Control', 'public, max-age=31536000, immutable');
+const setIndexDataCache = function (_req, res, next) {
+    res.set("Cache-Control", "public, max-age=31536000, immutable");
     next();
 };
 exports.setIndexDataCache = setIndexDataCache;

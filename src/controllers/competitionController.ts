@@ -525,7 +525,7 @@ const seeCompetitionIndexCb = async function (t: Transaction) {
   const getCachedData = async function (latestHash: string) {
     const controller = new AbortController();
     const api = axios.create({
-      baseURL: "http://127.0.0.1:3000",
+      baseURL: process.env.BASEURL || "http://127.0.0.1:3000",
       signal: controller.signal,
     });
     const cachedData = await api.get(`/competition/data/${latestHash}`);

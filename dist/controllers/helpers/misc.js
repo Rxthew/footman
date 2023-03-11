@@ -2,9 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.writeHashedIndexData = exports.writeIndexData = exports.sendCompetitionSignals = exports.sequentialRankings = exports.readHashedIndexData = exports.readIndexData = exports.hashIndexData = void 0;
 const crypto_1 = require("crypto");
-;
-;
-;
 let dataIndexContainer = {
     hashes: null,
     data: null
@@ -32,7 +29,7 @@ const hashIndexData = function (parsedIndexData) {
     };
     const seasons = Object.keys(parsedIndexData);
     const hashes = {};
-    for (let season of seasons) {
+    for (const season of seasons) {
         const hash = (0, crypto_1.createHash)('sha256');
         hash.update(JSON.stringify(parsedIndexData[season]));
         const hashedValue = hash.digest('base64');

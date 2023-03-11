@@ -12,7 +12,7 @@ const applyPoints = async function (latestCompetition, results, t) {
     if (results.chosenTeams && Array.isArray(results.chosenTeams) && results.chosenTeams.length > 0) {
         const generateTeamsPoints = function () {
             if (results.points) {
-                let teamsPoints = {};
+                const teamsPoints = {};
                 const chosenTeams = results.chosenTeams;
                 const chosenPoints = results.points;
                 if (chosenTeams) {
@@ -27,18 +27,18 @@ const applyPoints = async function (latestCompetition, results, t) {
         let teamsPoints = generateTeamsPoints();
         const harmoniseRanking = function () {
             if (results.chosenTeams && teamsPoints && results.rankings && results.points) {
-                let rankedTeams = [...results.chosenTeams];
+                const rankedTeams = [...results.chosenTeams];
                 rankedTeams?.sort(function (x, y) {
                     if (teamsPoints) {
                         return teamsPoints[x] > teamsPoints[y] ? -1 : 1;
                     }
                     return -1;
                 });
-                let newRankings = [...results.rankings];
+                const newRankings = [...results.rankings];
                 newRankings.sort(function (x, y) {
                     return x > y ? 1 : -1;
                 });
-                let newPoints = [...results.points];
+                const newPoints = [...results.points];
                 newPoints?.sort(function (x, y) {
                     return x > y ? -1 : 1;
                 });
@@ -88,7 +88,7 @@ const applyRanking = async function (latestCompetition, results, t) {
         let chosenTeams = results.chosenTeams;
         if (results.rankings && chosenTeams) {
             const rankings = results.rankings;
-            let rankedTeams = [...chosenTeams];
+            const rankedTeams = [...chosenTeams];
             rankedTeams.sort(function (x, y) {
                 return rankings[rankedTeams.indexOf(x)] < rankings[rankedTeams.indexOf(y)] ? -1 : 1;
             });
@@ -499,7 +499,7 @@ const nextTeamTemplate = async function (t, givenName, season) {
 exports.nextTeamTemplate = nextTeamTemplate;
 const transactionWrapper = async function (callback, next) {
     try {
-        const result = await initdb_1.sequelize.transaction(callback).catch(function (error) {
+        await initdb_1.sequelize.transaction(callback).catch(function (error) {
             throw error;
         });
     }

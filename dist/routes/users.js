@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const router = express_1.default.Router();
 /* GET users listing. */
-router.get('/', function (req, res, next) {
-    res.send('respond with a resource');
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+router.get("/", function (_req, res, _next) {
+    res.send("respond with a resource");
 });
 exports.default = router;
