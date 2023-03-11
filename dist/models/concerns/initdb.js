@@ -27,12 +27,13 @@ exports.checkAuthentication = exports.sequelize = void 0;
 const dotenv = __importStar(require("dotenv"));
 const sequelize_1 = require("sequelize");
 dotenv.config();
-const username = process.env.USERNAME;
-const password = process.env.PWORD;
-const host = process.env.HOST;
-const port = process.env.DBPORT;
-const name = process.env.DBNAME;
-exports.sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@${host}:${port}/${name}`, {
+const username = process.env.PGUSER;
+const password = process.env.PGPASSWORD;
+const host = process.env.PGHOST;
+const port = process.env.PGPORT;
+const name = process.env.PGDATABASE;
+const url = process.env.DATABASE_URL || `postgres://${username}:${password}@${host}:${port}/${name}`;
+exports.sequelize = new sequelize_1.Sequelize(url, {
     hooks: {
         beforeDisconnect: (connection) => {
             console.log(connection);

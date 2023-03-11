@@ -7,10 +7,11 @@ const password = process.env.PGPASSWORD;
 const host = process.env.PGHOST;
 const port = process.env.PGPORT;
 const name = process.env.PGDATABASE
+const url = process.env.DATABASE_URL || `postgres://${username}:${password}@${host}:${port}/${name}`
 
 
 
-export const sequelize = new Sequelize(`postgres://${username}:${password}@${host}:${port}/${name}`,{
+export const sequelize = new Sequelize(url,{
   hooks: {
     beforeDisconnect: (connection)=>{
       console.log(connection)
