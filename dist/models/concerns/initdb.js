@@ -29,7 +29,10 @@ const sequelize_1 = require("sequelize");
 dotenv.config();
 const username = process.env.USERNAME;
 const password = process.env.PWORD;
-exports.sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@0.0.0.0:3000/footman`, {
+const host = process.env.HOST;
+const port = process.env.DBPORT;
+const name = process.env.DBNAME;
+exports.sequelize = new sequelize_1.Sequelize(`postgres://${username}:${password}@${host}:${port}/${name}`, {
     hooks: {
         beforeDisconnect: (connection) => {
             console.log(connection);

@@ -2,12 +2,15 @@ import * as dotenv from 'dotenv';
 import { Sequelize } from 'sequelize'
 
 dotenv.config()
-const username = process.env.USERNAME;
-const password = process.env.PWORD;
+const username = process.env.PGUSER;
+const password = process.env.PGPASSWORD;
+const host = process.env.PGHOST;
+const port = process.env.PGPORT;
+const name = process.env.PGDATABASE
 
 
 
-export const sequelize = new Sequelize(`postgres://${username}:${password}@0.0.0.0:3000/footman`,{
+export const sequelize = new Sequelize(`postgres://${username}:${password}@${host}:${port}/${name}`,{
   hooks: {
     beforeDisconnect: (connection)=>{
       console.log(connection)
