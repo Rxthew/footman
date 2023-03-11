@@ -7,7 +7,7 @@ const password = process.env.PWORD;
 
 
 
-export const sequelize = new Sequelize(`postgres://${username}:${password}@127.0.0.1:5432/footman`,{
+export const sequelize = new Sequelize(`postgres://${username}:${password}@0.0.0.0:3000/footman`,{
   hooks: {
     beforeDisconnect: (connection)=>{
       console.log(connection)
