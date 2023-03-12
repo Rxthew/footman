@@ -20,10 +20,17 @@ const checkCorrespondingPermission = function (element) {
 };
 
 const checkCorrespondingChosenTeam = function (element, disableStatus) {
+
+  const parseReference = function(ref){
+    const rawName = ref.split(' ');
+    const teamId = rawName.join('');
+    return teamId
+  }
+
   const reference = element.dataset.team;
   const chosenTeams = document.querySelectorAll("input[name=chosenTeams]");
   const referencedInput = Array.from(chosenTeams).filter(
-    (team) => team.id === reference
+    (team) => team.id === parseReference(reference)
   )[0];
   if (referencedInput.checked) {
     element.disabled = disableStatus;
