@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as queryHelpers from "./helpers/queries";
 import * as resultsGenerator from "./helpers/results";
 import { Request, Response, NextFunction } from "express";
 import { Transaction } from "sequelize";
+import Competition, { CompetitionModel } from "../models/competition";
+import Player from "../models/player";
+import Team, { TeamModel } from "../models/team";
 import { seeHomepageRenderer } from "./helpers/renderers";
 
 let seeHomepageResults = resultsGenerator.seeHomepage();
@@ -202,6 +206,253 @@ const seeHomepageCb = async function (t: Transaction) {
   }
 
   return;
+};
+
+export const populateDatabaseWithDummyData = async function (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const hardCodedData = function () {
+    const teamsComp = {
+      "English Premier League": [
+        {
+          name: "Manchester City",
+          through: {
+            points: 93,
+            ranking: 1,
+            season: "2021/22",
+          },
+        },
+
+        {
+          name: "Liverpool",
+          through: {
+            points: 92,
+            ranking: 2,
+            season: "2021/22",
+          },
+        },
+      ],
+    };
+
+    const players = [
+      {
+        "Manchester City": [
+          {
+            firstName: "Kevin",
+            lastName: "De Bruyne",
+            age: 30,
+            nationality: "Belgium",
+            position: "Midfielder",
+          },
+
+          {
+            firstName: "John",
+            lastName: "Stones",
+            age: 27,
+            nationality: "England",
+            position: "Defender",
+          },
+
+          {
+            firstName: "Riyad",
+            lastName: "Mahrez",
+            age: 30,
+            nationality: "Algeria",
+            position: "Midfielder",
+          },
+        ],
+      },
+
+      {
+        Liverpool: [
+          {
+            firstName: "Mohamed",
+            lastName: "Salah",
+            age: 29,
+            nationality: "Egypt",
+            position: "Forward",
+          },
+
+          {
+            firstName: "Trent",
+            lastName: "Alexander-Arnold",
+            age: 23,
+            nationality: "England",
+            position: "Defender",
+          },
+
+          {
+            firstName: "Virgil",
+            lastName: "Van Dijk",
+            age: 30,
+            nationality: "Netherlands",
+            position: "Defender",
+          },
+        ],
+      },
+    ];
+    return {
+      players,
+      teamsComp,
+    };
+  };
+
+  const checkForPremierLeague = async function () {
+    const premierLeague = await Competition.findOne({
+      where: {
+        name: "English Premier League",
+      },
+    });
+    return premierLeague ? true : false;
+  };
+
+  const populateDatabaseCb = async function (t: Transaction) {
+    if (!(await checkForPremierLeague())) {
+      const teamsComp = hardCodedData().teamsComp;
+
+      const createCompetition = async function (compName: string) {
+        const newCompetition: CompetitionModel = await Competition.create(
+          {
+            name: compName,
+          },
+          {
+            include: [
+              {
+                model: Team,
+              },
+            ],
+            transaction: t,
+          }
+        ).catch(function (err: Error) {
+          throw err;
+        });
+        return newCompetition;
+      };
+
+      const implementCompetitionTeams = async function (
+        competition: CompetitionModel,
+        key: keyof typeof teamsComp
+      ) {
+        let competitionTeams: TeamModel[] = [];
+        for (const team of teamsComp[key]) {
+          const newTeam = await Team.create(
+            { name: team.name },
+            {
+              include: [
+                {
+                  model: Competition,
+                },
+              ],
+              transaction: t,
+            }
+          ).catch((err: Error) => {
+            throw err;
+          });
+          await (newTeam as any).setCompetitions([competition], {
+            transaction: t,
+            through: {
+              points: team.through.points,
+              ranking: team.through.ranking,
+              season: team.through.season,
+            },
+          });
+          await newTeam.save({ transaction: t });
+          competitionTeams = [...competitionTeams, newTeam];
+        }
+        return competitionTeams;
+      };
+
+      const createCompetitions = async function () {
+        const competitions = Object.keys(teamsComp);
+        for (const competition of competitions) {
+          const newCompetition = await createCompetition(competition).catch(
+            (err: Error) => {
+              throw err;
+            }
+          );
+          const competitionTeams = await implementCompetitionTeams(
+            newCompetition,
+            competition as keyof typeof teamsComp
+          ).catch((err: Error) => {
+            throw err;
+          });
+          await (newCompetition as any)
+            .setTeams(competitionTeams, { transaction: t })
+            .catch((err: Error) => {
+              throw err;
+            });
+          await newCompetition.save({ transaction: t }).catch((err: Error) => {
+            throw err;
+          });
+        }
+      };
+
+      const implementTeamPlayers = async function () {
+        const teams = hardCodedData().players;
+        for (const team of teams) {
+          const teamKey = Object.keys(team)[0] as keyof typeof team;
+          const playersTeam = await Team.findOne({
+            where: {
+              name: teamKey,
+            },
+            transaction: t,
+          }).catch((err: Error) => {
+            throw err;
+          });
+          const playersPromises = (team[teamKey] as any[]).map(
+            (elem) => async () => {
+              return await Player.create(
+                { ...elem },
+                { include: [{ model: Team }], transaction: t }
+              ).catch((err: Error) => {
+                throw err;
+              });
+            }
+          );
+          const players = await Promise.all(
+            playersPromises.map((player) => player())
+          ).catch((err: Error) => {
+            throw err;
+          });
+          await (playersTeam as any)
+            .setPlayers(players, { transaction: t })
+            .catch((err: Error) => {
+              throw err;
+            });
+          await playersTeam?.save({ transaction: t }).catch((err: Error) => {
+            throw err;
+          });
+        }
+      };
+
+      await createCompetitions();
+      await implementTeamPlayers();
+    }
+  };
+
+  transactionWrapper(populateDatabaseCb, next);
+  next();
+
+  //checkForPremierLeague, if true return if false continue below      **yo this is without the transaction bit, so I need to factor that in later.
+  // function bit like: for let object.keys hardcodeddata.teamscomp.
+  //               const comp = competition.create({name: [key]})
+  //               const compteams = []
+  //               for let team of hardcodeddata.teamscomp[key]
+  //                then -> const newTeam = Team.create({name: team.name})
+  //                const teamsCompetitions = newTeam.getDataValue('TeamsCompetitions');
+  //                teamsCompetitions.set('points',team.through.points);
+  //                teamsCompetitions.set('ranking',team.through.ranking);
+  //                teamsCompetitions.set('season',team.through.season);
+  //                teamsCompetition.save()
+  //                compTeams = [..compTeams, newTeam]
+  //                end (Nested) for loop
+  //                comp.setTeams(compteams)
+  //                comp.save()
+  //
+
+  //next()
 };
 
 export const seeHomepage = async function (

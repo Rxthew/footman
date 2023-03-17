@@ -1,5 +1,8 @@
 import express from "express";
-import { seeHomepage } from "../controllers/indexController";
+import {
+  populateDatabaseWithDummyData,
+  seeHomepage,
+} from "../controllers/indexController";
 import {
   competitionIndexData,
   deleteCompetition,
@@ -30,6 +33,7 @@ import {
 
 const router = express.Router();
 
+router.use("/", populateDatabaseWithDummyData);
 router.get("/", seeHomepage);
 router.use("/competition/data", setIndexDataCache);
 
