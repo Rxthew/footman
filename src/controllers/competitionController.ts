@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
-import axios from "axios";
 import {
   getCompetitionParameters,
   competitionParameterPlaceholder,
@@ -51,7 +50,7 @@ let seeCompetitionIndexResults: resultsGenerator.seeCompetitionIndexResults | nu
 
 const transactionWrapper = queryHelpers.transactionWrapper;
 
-const competitionIndexSignal = async function (
+export const competitionIndexSignal = async function (
   _req: Request,
   _res: Response,
   next: NextFunction
@@ -204,6 +203,7 @@ export const competitionIndexData = async function (
     throw err;
   });
 
+  setIndexDataCache(res);
   res.json(competitionDataResults);
 
   competitionDataResults = null;
@@ -493,16 +493,14 @@ const seeCompetitionIndexCb = async function (t: Transaction) {
       return { [latestSeason]: latestCompetitions };
     };
 
-    const nullifyIndexData = function () {
-      writeIndexData(null);
-    };
-
     const generateHashes = function () {
       const hashed = hashIndexData(currentData);
       writeHashedIndexData(hashed);
     };
 
-    generateHashes();
+    if (!readHashedIndexData()) {
+      generateHashes();
+    }
 
     const data = {
       seasons: generateSeasons(),
@@ -510,27 +508,6 @@ const seeCompetitionIndexCb = async function (t: Transaction) {
       hashes: readHashedIndexData(),
     };
 
-    nullifyIndexData();
-    return data;
-  };
-
-  const abortFetch = function (controller: AbortController) {
-    const controllerAbort = function () {
-      controller.abort();
-    };
-    setTimeout(controllerAbort, 10000);
-    return;
-  };
-
-  const getCachedData = async function (latestHash: string) {
-    const controller = new AbortController();
-    const api = axios.create({
-      baseURL: process.env.BASEURL || "http://127.0.0.1:3000",
-      signal: controller.signal,
-    });
-    const cachedData = await api.get(`/competition/data/${latestHash}`);
-    const data = cachedData.data;
-    abortFetch(controller);
     return data;
   };
 
@@ -555,30 +532,11 @@ const seeCompetitionIndexCb = async function (t: Transaction) {
     return data;
   };
 
-  const passCurrentData = async function (currentHashes: {
-    [index: string]: string;
-  }) {
-    const seasons = Object.keys(currentHashes).sort();
-    const latestSeason = seasons[seasons.length - 1];
-    const latestHash = currentHashes[latestSeason];
-    const cachedData = await getCachedData(latestHash);
-    const currentData = { [latestSeason]: cachedData[latestSeason] };
-    return {
-      seasons: seasons,
-      competitionDetails: currentData,
-      hashes: currentHashes,
-    };
-  };
-
   const seeCompetitionIndexQuery = async function () {
     const currentData = readIndexData();
-    const currentHashes = readHashedIndexData();
-
     switch (true) {
       case !!currentData:
         return competitionIndexDataProcessor(currentData);
-      case !!currentHashes:
-        return await passCurrentData(currentHashes);
       default:
         return await newCompetitionIndexData();
     }
@@ -1171,11 +1129,6 @@ export const postFormUpdateCompetition = [
   },
 ];
 
-export const setIndexDataCache = function (
-  _req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  res.set("Cache-Control", "public, max-age=31536000, immutable");
-  next();
+const setIndexDataCache = function (res: Response) {
+  res.set("cache-control", "public, max-age=31536000, immutable");
 };

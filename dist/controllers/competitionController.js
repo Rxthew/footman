@@ -49,8 +49,7 @@ var __importDefault =
     return mod && mod.__esModule ? mod : { default: mod };
   };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.setIndexDataCache =
-  exports.postFormUpdateCompetition =
+exports.postFormUpdateCompetition =
   exports.preFormUpdateCompetition =
   exports.postFormCreateCompetition =
   exports.preFormCreateCompetition =
@@ -58,9 +57,9 @@ exports.setIndexDataCache =
   exports.seeCompetition =
   exports.deleteCompetition =
   exports.competitionIndexData =
+  exports.competitionIndexSignal =
     void 0;
 const express_validator_1 = require("express-validator");
-const axios_1 = __importDefault(require("axios"));
 const parameters_1 = require("./helpers/parameters");
 const misc = __importStar(require("./helpers/misc"));
 const queryHelpers = __importStar(require("./helpers/queries"));
@@ -111,6 +110,7 @@ const competitionIndexSignal = async function (_req, _res, next) {
   await sendCompetitionSignals(eventObject, "competitionIndex", undefined);
   next();
 };
+exports.competitionIndexSignal = competitionIndexSignal;
 const competitionIndexDataCb = async function (t) {
   const competitionIndexDataQuery = async function () {
     const {
@@ -213,6 +213,7 @@ const competitionIndexData = async function (_req, res, next) {
   await transactionWrapper(competitionIndexDataCb, next).catch(function (err) {
     throw err;
   });
+  setIndexDataCache(res);
   res.json(competitionDataResults);
   competitionDataResults = null;
   return;
@@ -244,7 +245,7 @@ exports.deleteCompetition = [
     });
     next();
   },
-  competitionIndexSignal,
+  exports.competitionIndexSignal,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (_req, res, _next) => {
     const goToHomePage = function () {
@@ -450,38 +451,18 @@ const seeCompetitionIndexCb = async function (t) {
       const latestCompetitions = currentData[latestSeason];
       return { [latestSeason]: latestCompetitions };
     };
-    const nullifyIndexData = function () {
-      writeIndexData(null);
-    };
     const generateHashes = function () {
       const hashed = hashIndexData(currentData);
       writeHashedIndexData(hashed);
     };
-    generateHashes();
+    if (!readHashedIndexData()) {
+      generateHashes();
+    }
     const data = {
       seasons: generateSeasons(),
       competitionDetails: generateCompetitionDetails(),
       hashes: readHashedIndexData(),
     };
-    nullifyIndexData();
-    return data;
-  };
-  const abortFetch = function (controller) {
-    const controllerAbort = function () {
-      controller.abort();
-    };
-    setTimeout(controllerAbort, 10000);
-    return;
-  };
-  const getCachedData = async function (latestHash) {
-    const controller = new AbortController();
-    const api = axios_1.default.create({
-      baseURL: process.env.BASEURL || "http://127.0.0.1:3000",
-      signal: controller.signal,
-    });
-    const cachedData = await api.get(`/competition/data/${latestHash}`);
-    const data = cachedData.data;
-    abortFetch(controller);
     return data;
   };
   const newCompetitionIndexData = async function () {
@@ -499,26 +480,11 @@ const seeCompetitionIndexCb = async function (t) {
     nullifyData();
     return data;
   };
-  const passCurrentData = async function (currentHashes) {
-    const seasons = Object.keys(currentHashes).sort();
-    const latestSeason = seasons[seasons.length - 1];
-    const latestHash = currentHashes[latestSeason];
-    const cachedData = await getCachedData(latestHash);
-    const currentData = { [latestSeason]: cachedData[latestSeason] };
-    return {
-      seasons: seasons,
-      competitionDetails: currentData,
-      hashes: currentHashes,
-    };
-  };
   const seeCompetitionIndexQuery = async function () {
     const currentData = readIndexData();
-    const currentHashes = readHashedIndexData();
     switch (true) {
       case !!currentData:
         return competitionIndexDataProcessor(currentData);
-      case !!currentHashes:
-        return await passCurrentData(currentHashes);
       default:
         return await newCompetitionIndexData();
     }
@@ -721,7 +687,7 @@ exports.postFormCreateCompetition = [
     preFormCreateCompetitionResults = null;
     postFormCreateCompetitionResults = null;
   },
-  competitionIndexSignal,
+  exports.competitionIndexSignal,
   async (_req, res, next) => {
     const goToCompetitionPage = async function () {
       try {
@@ -976,7 +942,7 @@ exports.postFormUpdateCompetition = [
     preFormUpdateCompetitionResults = null;
     postFormUpdateCompetitionResults = null;
   },
-  competitionIndexSignal,
+  exports.competitionIndexSignal,
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (req, res, _next) => {
     const goToCompetitionPage = function () {
@@ -992,8 +958,6 @@ exports.postFormUpdateCompetition = [
     postFormCreateCompetitionResults = null;
   },
 ];
-const setIndexDataCache = function (_req, res, next) {
-  res.set("Cache-Control", "public, max-age=31536000, immutable");
-  next();
+const setIndexDataCache = function (res) {
+  res.set("cache-control", "public, max-age=31536000, immutable");
 };
-exports.setIndexDataCache = setIndexDataCache;

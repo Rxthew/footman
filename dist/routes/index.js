@@ -13,7 +13,6 @@ const teamController_1 = require("../controllers/teamController");
 const router = express_1.default.Router();
 router.use("/", indexController_1.populateDatabaseWithDummyData);
 router.get("/", indexController_1.seeHomepage);
-router.use("/competition/data", competitionController_1.setIndexDataCache);
 router.delete(
   "/competition/:name.:code",
   competitionController_1.deleteCompetition

@@ -12,7 +12,6 @@ import {
   preFormUpdateCompetition,
   seeCompetition,
   seeCompetitionIndex,
-  setIndexDataCache,
 } from "../controllers/competitionController";
 import {
   deletePlayer,
@@ -35,7 +34,6 @@ const router = express.Router();
 
 router.use("/", populateDatabaseWithDummyData);
 router.get("/", seeHomepage);
-router.use("/competition/data", setIndexDataCache);
 
 router.delete("/competition/:name.:code", deleteCompetition);
 router.get("/competition/new", preFormCreateCompetition);
