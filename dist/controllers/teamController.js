@@ -66,6 +66,7 @@ const validators = __importStar(require("./helpers/validators"));
 const team_1 = __importDefault(require("../models/team"));
 require("../models/concerns/_runModels");
 const competition_1 = __importDefault(require("../models/competition"));
+const competitionController_1 = require("./competitionController");
 const {
   preFormCreateTeamRenderer,
   preFormUpdateTeamRenderer,
@@ -78,6 +79,110 @@ let preFormUpdateTeamResults = null;
 let postFormUpdateTeamResults = null;
 let seeTeamResults = null;
 const transactionWrapper = queryHelpers.transactionWrapper;
+const storeTeamCompetitions = async function (req, _res, next) {
+  (0, parameters_1.getTeamParameters)(req, next);
+  const storeTeamCompetitionsCb = async function (t) {
+    const parameters = (0, parameters_1.teamParameterPlaceholder)().parameters;
+    const team = await team_1.default
+      .findOne({
+        where: {
+          name: parameters.name,
+          code: parameters.code,
+        },
+        include: [
+          {
+            model: competition_1.default,
+          },
+        ],
+        transaction: t,
+      })
+      .catch(function (error) {
+        throw error;
+      });
+    const competitions = await team
+      .getCompetitions({ transaction: t })
+      .catch(function (error) {
+        throw error;
+      });
+    Object.assign(req.body, { currentCompetitions: competitions });
+  };
+  await transactionWrapper(storeTeamCompetitionsCb, next).catch(function (
+    error
+  ) {
+    next(error);
+  });
+  (0, parameters_1.teamParameterPlaceholder)().reset();
+  next();
+};
+const teamCompetitionIndexSignal = async function (req, res, next) {
+  const checkTeamCompetitionsCounts = async function (comps) {
+    let counts = [];
+    const checkTeamCompetitionsCountsCb = async function (t) {
+      const teamPromises = comps.map((comp) => {
+        return async () => await comp.countTeams({ transaction: t });
+      });
+      const teamCounts = await Promise.all(
+        teamPromises.map((promise) => promise())
+      ).catch((err) => {
+        throw err;
+      });
+      counts = [...teamCounts];
+    };
+    await transactionWrapper(checkTeamCompetitionsCountsCb, next).catch(
+      function (error) {
+        next(error);
+      }
+    );
+    if (req.body.currentCompetitions) {
+      return counts.some((count) => count === 0);
+    } else {
+      return counts.some((count) => count === 1);
+    }
+  };
+  const compileChosenCompetitions = async function () {
+    const chosenCompetitions = [];
+    const compileChosenCompetitionsCb = async function (t) {
+      const newestTeam = await team_1.default
+        .findOne({
+          order: [["code", "DESC"]],
+          include: [
+            {
+              model: competition_1.default,
+            },
+          ],
+          transaction: t,
+        })
+        .catch(function (error) {
+          throw error;
+        });
+      const competitions = await newestTeam
+        .getCompetitions({ transaction: t })
+        .catch(function (error) {
+          throw error;
+        });
+      Object.assign(chosenCompetitions, competitions);
+    };
+    await transactionWrapper(compileChosenCompetitionsCb, next).catch(function (
+      error
+    ) {
+      next(error);
+    });
+    return chosenCompetitions;
+  };
+  const competitionsReference = req.body.currentCompetitions
+    ? req.body.currentCompetitions
+    : await compileChosenCompetitions();
+  if (
+    competitionsReference.length === 0 ||
+    !(await checkTeamCompetitionsCounts(competitionsReference))
+  ) {
+    delete req.body.currentCompetitions;
+    next();
+  } else {
+    delete req.body.currentCompetitions;
+    (0, competitionController_1.competitionIndexSignal)(req, res, next);
+  }
+};
 const deleteTeamCb = async function (t) {
   const parameters = (0, parameters_1.teamParameterPlaceholder)().parameters;
   const team = await team_1.default
@@ -95,18 +200,24 @@ const deleteTeamCb = async function (t) {
     throw error;
   });
 };
-const deleteTeam = async function (req, res, next) {
-  (0, parameters_1.getTeamParameters)(req, next);
-  await transactionWrapper(deleteTeamCb, next).catch(function (error) {
-    next(error);
-  });
-  const goToHomePage = function () {
-    res.redirect("/");
-  };
-  goToHomePage();
-  (0, parameters_1.teamParameterPlaceholder)().reset();
-};
-exports.deleteTeam = deleteTeam;
+exports.deleteTeam = [
+  storeTeamCompetitions,
+  async function (req, res, next) {
+    (0, parameters_1.getTeamParameters)(req, next);
+    await transactionWrapper(deleteTeamCb, next).catch(function (error) {
+      next(error);
+    });
+    next();
+  },
+  teamCompetitionIndexSignal,
+  (req, res) => {
+    const goToHomePage = function () {
+      res.redirect("/");
+    };
+    goToHomePage();
+    (0, parameters_1.teamParameterPlaceholder)().reset();
+  },
+];
 const seeTeamCb = async function (t) {
   const {
     getAllCompetitionNames,
@@ -340,6 +451,33 @@ exports.postFormCreateTeam = [
   async function (req, res, next) {
     postFormCreateTeamResults = resultsGenerator.postFormCreateTeam();
     preFormCreateTeamResults = resultsGenerator.preFormCreateTeam();
+    const errors = (0, express_validator_1.validationResult)(req);
+    if (!errors.isEmpty()) {
+      await transactionWrapper(preFormCreateTeamCb, next).catch(function (
+        error
+      ) {
+        next(error);
+      });
+      Object.assign(
+        preFormCreateTeamResults,
+        { errors: errors.mapped() },
+        req.body
+      );
+      preFormCreateTeamRenderer(res, preFormCreateTeamResults);
+      preFormCreateTeamResults = null;
+      postFormCreateTeamResults = null;
+    } else {
+      Object.assign(postFormCreateTeamResults, req.body);
+      await transactionWrapper(postFormCreateTeamCb, next).catch(function (
+        error
+      ) {
+        next(error);
+      });
+      next();
+    }
+  },
+  teamCompetitionIndexSignal,
+  async (_req, res, next) => {
     const goToTeamPage = async function () {
       try {
         const latestCode = await team_1.default
@@ -356,30 +494,9 @@ exports.postFormCreateTeam = [
         }
       }
     };
-    const errors = (0, express_validator_1.validationResult)(req);
-    if (!errors.isEmpty()) {
-      await transactionWrapper(preFormCreateTeamCb, next).catch(function (
-        error
-      ) {
-        next(error);
-      });
-      Object.assign(
-        preFormCreateTeamResults,
-        { errors: errors.mapped() },
-        req.body
-      );
-      preFormCreateTeamRenderer(res, preFormCreateTeamResults);
-    } else {
-      Object.assign(postFormCreateTeamResults, req.body);
-      await transactionWrapper(postFormCreateTeamCb, next).catch(function (
-        error
-      ) {
-        next(error);
-      });
-      await goToTeamPage().catch(function (error) {
-        next(error);
-      });
-    }
+    await goToTeamPage().catch(function (error) {
+      next(error);
+    });
     preFormCreateTeamResults = null;
     postFormCreateTeamResults = null;
   },
@@ -552,31 +669,41 @@ const postFormUpdateTeamCb = async function (t) {
 };
 exports.postFormUpdateTeam = [
   ...updateTeamValidator(),
+  storeTeamCompetitions,
   async function (req, res, next) {
     postFormUpdateTeamResults = resultsGenerator.postFormUpdateTeam();
     preFormUpdateTeamResults = resultsGenerator.preFormUpdateTeam();
     (0, parameters_1.getTeamParameters)(req, next);
     const errors = (0, express_validator_1.validationResult)(req);
+    const requestBody = Object.assign({}, req.body);
+    delete requestBody.currentCompetitions;
     if (!errors.isEmpty()) {
       await transactionWrapper(preFormUpdateTeamCb, next).catch(function (err) {
         next(err);
       });
-      Object.assign(preFormUpdateTeamResults, req.body, {
+      Object.assign(preFormUpdateTeamResults, requestBody, {
         errors: errors.mapped(),
       });
       preFormUpdateTeamRenderer(res, preFormUpdateTeamResults);
+      (0, parameters_1.teamParameterPlaceholder)().reset();
+      preFormUpdateTeamResults = null;
+      postFormUpdateTeamResults = null;
     } else {
-      Object.assign(postFormUpdateTeamResults, req.body);
+      Object.assign(postFormUpdateTeamResults, requestBody);
       await transactionWrapper(postFormUpdateTeamCb, next).catch(function (
         error
       ) {
         next(error);
       });
-      const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
-      res.redirect(`/team/${name}.${code}`);
+      next();
     }
+  },
+  teamCompetitionIndexSignal,
+  async function (req, res) {
+    const [name, code] = [postFormUpdateTeamResults.name, req.params.code];
     (0, parameters_1.teamParameterPlaceholder)().reset();
     preFormUpdateTeamResults = null;
     postFormUpdateTeamResults = null;
+    res.redirect(`/team/${name}.${code}`);
   },
 ];
