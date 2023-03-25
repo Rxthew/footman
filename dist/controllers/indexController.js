@@ -53,6 +53,7 @@ exports.seeHomepage = exports.populateDatabaseWithDummyData = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const queryHelpers = __importStar(require("./helpers/queries"));
 const resultsGenerator = __importStar(require("./helpers/results"));
+const competitionController_1 = require("./competitionController");
 const competition_1 = __importDefault(require("../models/competition"));
 const player_1 = __importDefault(require("../models/player"));
 const team_1 = __importDefault(require("../models/team"));
@@ -233,6 +234,9 @@ const seeHomepageCb = async function (t) {
   }
   return;
 };
+const checkPopulated = {
+  populated: false,
+};
 const populateDatabaseWithDummyData = async function (req, res, next) {
   const hardCodedData = function () {
     const teamsComp = {
@@ -312,154 +316,143 @@ const populateDatabaseWithDummyData = async function (req, res, next) {
       teamsComp,
     };
   };
-  const checkForPremierLeague = async function () {
-    const premierLeague = await competition_1.default.findOne({
-      where: {
-        name: "English Premier League",
-      },
-    });
-    return premierLeague ? true : false;
-  };
   const populateDatabaseCb = async function (t) {
-    if (!(await checkForPremierLeague())) {
-      const teamsComp = hardCodedData().teamsComp;
-      const createCompetition = async function (compName) {
-        const newCompetition = await competition_1.default
+    const teamsComp = hardCodedData().teamsComp;
+    const createCompetition = async function (compName) {
+      const newCompetition = await competition_1.default
+        .create(
+          {
+            name: compName,
+          },
+          {
+            include: [
+              {
+                model: team_1.default,
+              },
+            ],
+            transaction: t,
+          }
+        )
+        .catch(function (err) {
+          throw err;
+        });
+      return newCompetition;
+    };
+    const implementCompetitionTeams = async function (competition, key) {
+      let competitionTeams = [];
+      for (const team of teamsComp[key]) {
+        const newTeam = await team_1.default
           .create(
-            {
-              name: compName,
-            },
+            { name: team.name },
             {
               include: [
                 {
-                  model: team_1.default,
+                  model: competition_1.default,
                 },
               ],
               transaction: t,
             }
           )
-          .catch(function (err) {
+          .catch((err) => {
             throw err;
           });
-        return newCompetition;
-      };
-      const implementCompetitionTeams = async function (competition, key) {
-        let competitionTeams = [];
-        for (const team of teamsComp[key]) {
-          const newTeam = await team_1.default
+        await newTeam.setCompetitions([competition], {
+          transaction: t,
+          through: {
+            points: team.through.points,
+            ranking: team.through.ranking,
+            season: team.through.season,
+          },
+        });
+        await newTeam.save({ transaction: t });
+        competitionTeams = [...competitionTeams, newTeam];
+      }
+      return competitionTeams;
+    };
+    const createCompetitions = async function () {
+      const competitions = Object.keys(teamsComp);
+      for (const competition of competitions) {
+        const newCompetition = await createCompetition(competition).catch(
+          (err) => {
+            throw err;
+          }
+        );
+        const competitionTeams = await implementCompetitionTeams(
+          newCompetition,
+          competition
+        ).catch((err) => {
+          throw err;
+        });
+        await newCompetition
+          .setTeams(competitionTeams, { transaction: t })
+          .catch((err) => {
+            throw err;
+          });
+        await newCompetition.save({ transaction: t }).catch((err) => {
+          throw err;
+        });
+      }
+    };
+    const implementTeamPlayers = async function () {
+      const teams = hardCodedData().players;
+      for (const team of teams) {
+        const teamKey = Object.keys(team)[0];
+        const playersTeam = await team_1.default
+          .findOne({
+            where: {
+              name: teamKey,
+            },
+            transaction: t,
+          })
+          .catch((err) => {
+            throw err;
+          });
+        const playersPromises = team[teamKey].map((elem) => async () => {
+          return await player_1.default
             .create(
-              { name: team.name },
-              {
-                include: [
-                  {
-                    model: competition_1.default,
-                  },
-                ],
-                transaction: t,
-              }
+              { ...elem },
+              { include: [{ model: team_1.default }], transaction: t }
             )
             .catch((err) => {
               throw err;
             });
-          await newTeam.setCompetitions([competition], {
-            transaction: t,
-            through: {
-              points: team.through.points,
-              ranking: team.through.ranking,
-              season: team.through.season,
-            },
-          });
-          await newTeam.save({ transaction: t });
-          competitionTeams = [...competitionTeams, newTeam];
-        }
-        return competitionTeams;
-      };
-      const createCompetitions = async function () {
-        const competitions = Object.keys(teamsComp);
-        for (const competition of competitions) {
-          const newCompetition = await createCompetition(competition).catch(
-            (err) => {
-              throw err;
-            }
-          );
-          const competitionTeams = await implementCompetitionTeams(
-            newCompetition,
-            competition
-          ).catch((err) => {
+        });
+        const players = await Promise.all(
+          playersPromises.map((player) => player())
+        ).catch((err) => {
+          throw err;
+        });
+        await playersTeam
+          .setPlayers(players, { transaction: t })
+          .catch((err) => {
             throw err;
           });
-          await newCompetition
-            .setTeams(competitionTeams, { transaction: t })
-            .catch((err) => {
-              throw err;
-            });
-          await newCompetition.save({ transaction: t }).catch((err) => {
-            throw err;
-          });
-        }
-      };
-      const implementTeamPlayers = async function () {
-        const teams = hardCodedData().players;
-        for (const team of teams) {
-          const teamKey = Object.keys(team)[0];
-          const playersTeam = await team_1.default
-            .findOne({
-              where: {
-                name: teamKey,
-              },
-              transaction: t,
-            })
-            .catch((err) => {
-              throw err;
-            });
-          const playersPromises = team[teamKey].map((elem) => async () => {
-            return await player_1.default
-              .create(
-                { ...elem },
-                { include: [{ model: team_1.default }], transaction: t }
-              )
-              .catch((err) => {
-                throw err;
-              });
-          });
-          const players = await Promise.all(
-            playersPromises.map((player) => player())
-          ).catch((err) => {
-            throw err;
-          });
-          await playersTeam
-            .setPlayers(players, { transaction: t })
-            .catch((err) => {
-              throw err;
-            });
-          await playersTeam?.save({ transaction: t }).catch((err) => {
-            throw err;
-          });
-        }
-      };
-      await createCompetitions();
-      await implementTeamPlayers();
-    }
+        await playersTeam?.save({ transaction: t }).catch((err) => {
+          throw err;
+        });
+      }
+    };
+    await createCompetitions();
+    await implementTeamPlayers();
   };
-  transactionWrapper(populateDatabaseCb, next);
-  next();
-  //checkForPremierLeague, if true return if false continue below      **yo this is without the transaction bit, so I need to factor that in later.
-  // function bit like: for let object.keys hardcodeddata.teamscomp.
-  //               const comp = competition.create({name: [key]})
-  //               const compteams = []
-  //               for let team of hardcodeddata.teamscomp[key]
-  //                then -> const newTeam = Team.create({name: team.name})
-  //                const teamsCompetitions = newTeam.getDataValue('TeamsCompetitions');
-  //                teamsCompetitions.set('points',team.through.points);
-  //                teamsCompetitions.set('ranking',team.through.ranking);
-  //                teamsCompetitions.set('season',team.through.season);
-  //                teamsCompetition.save()
-  //                compTeams = [..compTeams, newTeam]
-  //                end (Nested) for loop
-  //                comp.setTeams(compteams)
-  //                comp.save()
-  //
-  //next()
+  if (!checkPopulated.populated) {
+    checkPopulated.populated = true;
+    const totalInstances = async () => {
+      return (
+        (await competition_1.default.count()) +
+        (await player_1.default.count()) +
+        (await team_1.default.count())
+      );
+    };
+    if ((await totalInstances()) === 0) {
+      await transactionWrapper(populateDatabaseCb, next);
+      (0, competitionController_1.competitionIndexSignal)(req, res, next);
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
 };
 exports.populateDatabaseWithDummyData = populateDatabaseWithDummyData;
 const seeHomepage = async function (req, res, next) {

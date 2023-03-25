@@ -31,7 +31,6 @@ import {
 } from "../controllers/teamController";
 
 const router = express.Router();
-
 router.use("/", populateDatabaseWithDummyData);
 router.get("/", seeHomepage);
 
