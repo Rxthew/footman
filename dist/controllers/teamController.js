@@ -133,15 +133,14 @@ const teamCompetitionIndexSignal = async function (req, res, next) {
         next(error);
       }
     );
-    if (req.body.currentCompetitions) {
-      return counts.some((count) => count === 0);
-    } else {
-      return counts.some((count) => count === 1);
-    }
+    return {
+      current: counts.some((count) => count === 0),
+      chosen: counts.some((count) => count === 1),
+    };
   };
   const compileChosenCompetitions = async function () {
     const chosenCompetitions = [];
-    const compileChosenCompetitionsCb = async function (t) {
+    const compileCreateChosenCompetitionsCb = async function (t) {
       const newestTeam = await team_1.default
         .findOne({
           order: [["code", "DESC"]],
@@ -162,25 +161,103 @@ const teamCompetitionIndexSignal = async function (req, res, next) {
         });
       Object.assign(chosenCompetitions, competitions);
     };
-    await transactionWrapper(compileChosenCompetitionsCb, next).catch(function (
-      error
-    ) {
-      next(error);
-    });
+    const compileUpdateChosenCompetitionsCb = async function (t) {
+      const parameters = (0, parameters_1.teamParameterPlaceholder)()
+        .parameters;
+      const updatedTeam = await team_1.default
+        .findOne({
+          where: {
+            name: parameters.name,
+            code: parameters.code,
+          },
+          include: [
+            {
+              model: competition_1.default,
+            },
+          ],
+          transaction: t,
+        })
+        .catch(function (error) {
+          throw error;
+        });
+      const competitions = await updatedTeam
+        .getCompetitions({ transaction: t })
+        .catch(function (error) {
+          throw error;
+        });
+      Object.assign(chosenCompetitions, competitions);
+    };
+    if (req.body.currentCompetitions) {
+      (0, parameters_1.getTeamParameters)(req, next);
+      await transactionWrapper(compileUpdateChosenCompetitionsCb, next).catch(
+        function (error) {
+          next(error);
+        }
+      );
+      (0, parameters_1.teamParameterPlaceholder)().reset();
+    } else {
+      await transactionWrapper(compileCreateChosenCompetitionsCb, next).catch(
+        function (error) {
+          next(error);
+        }
+      );
+    }
     return chosenCompetitions;
   };
-  const competitionsReference = req.body.currentCompetitions
-    ? req.body.currentCompetitions
-    : await compileChosenCompetitions();
-  if (
-    competitionsReference.length === 0 ||
-    !(await checkTeamCompetitionsCounts(competitionsReference))
-  ) {
-    delete req.body.currentCompetitions;
-    next();
-  } else {
-    delete req.body.currentCompetitions;
-    (0, competitionController_1.competitionIndexSignal)(req, res, next);
+  const current = req.body.currentCompetitions;
+  const chosen = req.body.chosenCompetitions
+    ? await compileChosenCompetitions()
+    : req.body.chosenCompetitions;
+  const createSignal = async function () {
+    if (
+      chosen.length === 0 ||
+      !(await checkTeamCompetitionsCounts(chosen)).chosen
+    ) {
+      next();
+    } else {
+      (0, competitionController_1.competitionIndexSignal)(req, res, next);
+    }
+  };
+  const deleteSignal = async function () {
+    if (
+      current.length === 0 ||
+      !(await checkTeamCompetitionsCounts(current)).current
+    ) {
+      delete req.body.currentCompetitions;
+      next();
+    } else {
+      delete req.body.currentCompetitions;
+      (0, competitionController_1.competitionIndexSignal)(req, res, next);
+    }
+  };
+  const updateSignal = async function () {
+    if (
+      (current.length === 0 && chosen.length === 0) ||
+      (!(await checkTeamCompetitionsCounts(chosen)).chosen &&
+        !(await checkTeamCompetitionsCounts(current)).current)
+    ) {
+      delete req.body.currentCompetitions;
+      next();
+    } else {
+      delete req.body.currentCompetitions;
+      (0, competitionController_1.competitionIndexSignal)(req, res, next);
+    }
+  };
+  switch (true) {
+    case !!current && !!chosen:
+      await updateSignal();
+      break;
+    case !!current:
+      await deleteSignal();
+      break;
+    case !!chosen:
+      await createSignal();
+      break;
+    default:
+      (() => {
+        delete req.body.currentCompetitions;
+        next();
+      })();
   }
 };
 const deleteTeamCb = async function (t) {
