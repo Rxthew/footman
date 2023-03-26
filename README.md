@@ -61,27 +61,27 @@ Here are three that I jotted down in chronological order:
 
 ### Bug 1: Circular dependencies in the app.
 
-    - The server was crashing every time I tried to run the app.
-    - Learned that the Common JS standard in the compiled code had issues with circular dependencies.
-    - Learned that the causal problem was the way I was defining the associations between models.
-    - Resolved the issue by defining associations between models as a separate concern.
+- The server was crashing every time I tried to run the app.
+- Learned that the Common JS standard in the compiled code had issues with circular dependencies.
+- Learned that the causal problem was the way I was defining the associations between models.
+- Resolved the issue by defining associations between models as a separate concern.
 
 ### Bug 2: `save` method in Sequelize does not save updates to associations.
 
-    - The PUT controller would update some data but not others.
-    - Learned that the updates which were not realised related to the records in the through table.
-    - Perused the Sequelize documentation and they provide that "this method is not aware of eager loaded associations".
-      (it's unfortunate that this is not documented in their guides)
-    - Resolved the issue by saving the through table separately.
+- The PUT controller would update some data but not others.
+- Learned that the updates which were not realised related to the records in the through table.
+- Perused the Sequelize documentation and they provide that "this method is not aware of eager loaded associations".
+(it's unfortunate that this is not documented in their guides)
+- Resolved the issue by saving the through table separately.
 
 
 ### Bug 3: Cache-control header does not work for server-side requests (quite obvious!).
     
-    - Observed that sometimes the route handler data would run on the 'competitions index' page when expecting a cached response.
-    - Identified that the issue was when I was pulling data by navigating to the route using Axios requests with server-side code.
-    - Made a couple of curl requests and also refreshed the page from the browser before the obvious hit me.
-    - Determined that the issue was absolutely embarrassing and proceeded to chastise myself through colourful subvocalisation.
-    - Resolved the problem by using an in-memory cache for server-side purposes.
+- Observed that sometimes the route handler data would run on the 'competitions index' page when expecting a cached response.
+- Identified that the issue was when I was pulling data by navigating to the route using Axios requests with server-side code.
+- Made a couple of curl requests and also refreshed the page from the browser before the obvious hit me.
+- Determined that the issue was absolutely embarrassing and proceeded to chastise myself through colourful subvocalisation.
+- Resolved the problem by using an in-memory cache for server-side purposes.
 
 
     
