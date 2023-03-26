@@ -442,7 +442,7 @@ exports.seeCompetition = [
 const seeCompetitionIndexCb = async function (t) {
   const competitionIndexDataProcessor = function (currentData) {
     const generateSeasons = function () {
-      const seasons = Object.keys(currentData);
+      const seasons = Object.keys(currentData).sort();
       return seasons;
     };
     const generateCompetitionDetails = function () {

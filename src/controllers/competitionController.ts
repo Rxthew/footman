@@ -482,7 +482,7 @@ const seeCompetitionIndexCb = async function (t: Transaction) {
     currentData: resultsGenerator.competitionDataResults
   ) {
     const generateSeasons = function () {
-      const seasons = Object.keys(currentData);
+      const seasons = Object.keys(currentData).sort();
       return seasons;
     };
 
