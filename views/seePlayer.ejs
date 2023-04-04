@@ -32,18 +32,18 @@
       <section>
           <h3>Available Stats:</h3>
           <div>
-            <p>Goals: <%= goals ? goals : '-' %></p>  
-            <p> Assists: <%= assists ? assists : '-' %></p>
+            <p>Goals: <%= goals ?? '-' %></p>  
+            <p> Assists: <%= assists ?? '-' %></p>
           </div>
           <div>
             <h4>Estimated ability rated on a range between 1 and 20:</h4>
-            <p> Speed: <%= speed ? speed : '-' %></p>
-            <p> Strength: <%= strength ? strength : '-' %></p>
-            <p> Attack: <%= attack ? attack : '-' %></p>
-            <p> Defense: <%= defense ? defense : '-' %></p>
-            <p> Goalkeeping: <%= goalkeeping ? goalkeeping : '-' %></p>
-            <p> Intelligence: <%= intelligence ? intelligence : '-' %></p>
-            <p> Technique: <%= technique ? technique : '-' %></p>
+            <p> Speed: <%= speed ?? '-' %></p>
+            <p> Strength: <%= strength ?? '-' %></p>
+            <p> Attack: <%= attack ?? '-' %></p>
+            <p> Defense: <%= defense ?? '-' %></p>
+            <p> Goalkeeping: <%= goalkeeping ?? '-' %></p>
+            <p> Intelligence: <%= intelligence ?? '-' %></p>
+            <p> Technique: <%= technique ?? '-' %></p>
           </div>
       </section>
     </main>
