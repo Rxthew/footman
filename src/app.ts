@@ -7,7 +7,6 @@ import methodOverride from 'method-override';
 import logger from 'morgan';
 import path from 'path';
 import indexRouter from './routes/index';
-import usersRouter from './routes/users';
 
 const app = express();
 
@@ -23,7 +22,6 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../', 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req:Request, res:Response, next:NextFunction) {
