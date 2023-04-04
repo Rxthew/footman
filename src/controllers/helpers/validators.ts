@@ -152,6 +152,13 @@ const _finderFunctions = {
     }
 };
 
+const _nullifyEmptyInputs = function(value: string | string[] ){
+    if(Array.isArray(value) && value.every(element => element === '')){
+        return null
+    }
+    return value === '' ? null : value 
+};
+
 const _sanitiseString = function(stringsArray: string[], person=false){
     const sanitisers = stringsArray.map(val => person ? 
         body(val, `${val} must not be empty.`)
@@ -214,7 +221,6 @@ const _uniqueRankings = function(valuesArray: string[] | undefined){
 };
 
 
-
 const _validateAge = function(age:string){
      return body(age,'Age must not be empty')
      .trim()
@@ -242,7 +248,8 @@ export const submitPlayerValidator = () => {
     return [
     ..._sanitiseString(requiredValues, true),
     _validateAge('age'),
-    body(['goals','assists','speed','strength','attack','defense','goalkeeping','intelligence','technique','team','season','code']).customSanitizer(_cleanEmptyInputs),
+    body(['goals','assists','speed','strength','attack','defense','goalkeeping','intelligence','technique']).customSanitizer(_nullifyEmptyInputs),
+    body(['team','season','code']).customSanitizer(_cleanEmptyInputs),
     body('team').customSanitizer(function(value, {req}){
         return (req.body.team ? _cleanNullTeamChoice(value,req as Request): false)
     }),

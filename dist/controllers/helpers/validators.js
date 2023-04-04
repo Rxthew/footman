@@ -133,6 +133,12 @@ const _finderFunctions = {
         }
     }
 };
+const _nullifyEmptyInputs = function (value) {
+    if (Array.isArray(value) && value.every(element => element === '')) {
+        return null;
+    }
+    return value === '' ? null : value;
+};
 const _sanitiseString = function (stringsArray, person = false) {
     const sanitisers = stringsArray.map(val => person ?
         (0, express_validator_1.body)(val, `${val} must not be empty.`)
@@ -206,7 +212,8 @@ const submitPlayerValidator = () => {
     return [
         ..._sanitiseString(requiredValues, true),
         _validateAge('age'),
-        (0, express_validator_1.body)(['goals', 'assists', 'speed', 'strength', 'attack', 'defense', 'goalkeeping', 'intelligence', 'technique', 'team', 'season', 'code']).customSanitizer(_cleanEmptyInputs),
+        (0, express_validator_1.body)(['goals', 'assists', 'speed', 'strength', 'attack', 'defense', 'goalkeeping', 'intelligence', 'technique']).customSanitizer(_nullifyEmptyInputs),
+        (0, express_validator_1.body)(['team', 'season', 'code']).customSanitizer(_cleanEmptyInputs),
         (0, express_validator_1.body)('team').customSanitizer(function (value, { req }) {
             return (req.body.team ? _cleanNullTeamChoice(value, req) : false);
         }),
